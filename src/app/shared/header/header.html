@@ -1,0 +1,22 @@
+<!-- header.component.html -->
+<header class="app-header">
+  <div class="hamburguer-menu">
+    <button class="menu-btn" (click)="toggleMenu()">
+      ☰
+    </button>
+    <nav [class.open]="menuOpen">
+      <ul>
+        <li><a routerLink="/transaccion">Ingresar Transacción</a></li>
+        <li><a routerLink="/transacciones">Ver Transacciones</a></li>
+        <li><a routerLink="/categorias">Categorías</a></li>
+        <li><a routerLink="/cuentas">Cuentas</a></li>
+        <li><a routerLink="/comercios">Comercios</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="logo">
+    <h1>Finanzas App</h1>
+  </div>
+
+</header>
