@@ -2,16 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CategoriaService } from '../../services/categoria.service';
-// import { CuentaService } from '../../services/cuenta';
-// import { ComercioService } from '../../services/comercio';
 import { Categoria } from '../../models/categoria.model';
 import {Cuenta} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
 import {NgClass} from '@angular/common';
 import {TransaccionService} from '../../services/transaccion.service';
 import {MessageService} from 'primeng/api';
-// import { Cuenta } from '../models/cuenta.model';
-// import { Comercio } from '../models/comercio.model';
 
 @Component({
   selector: 'app-transaccion',
@@ -51,7 +47,7 @@ export class TransaccionComponent implements OnInit {
   }
 
   ngOnInit() {
-    const userId = 2; // usar el ID real del usuario
+    const userId = 1; // usar el ID real del usuario
 
     // Cargar categorías
     this.categoriaService.obtenerCategoriasPorUsuario(userId).subscribe({
