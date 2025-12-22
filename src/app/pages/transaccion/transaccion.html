@@ -1,100 +1,111 @@
-<div class="form-container">
-  <h2>Agregar Transacción</h2>
+<div class="page-container">
+  <div class="form-container">
+    <h2>Agregar Transacción</h2>
 
-  <form [formGroup]="transaccionForm" (ngSubmit)="guardar()">
-    <!-- Tipo -->
-    <div class="form-group">
-      <label>Tipo:</label>
-      <select formControlName="tipo">
-        <option value="INGRESO">Ingreso</option>
-        <option value="EGRESO">Egreso</option>
-      </select>
-    </div>
+    <form [formGroup]="transaccionForm" (ngSubmit)="guardar()">
+      <div class="form-grid">
 
-    <!-- Fecha -->
-    <div class="form-group">
-      <label>Fecha:</label>
-      <input type="date" formControlName="fecha" />
-      @if (transaccionForm.get('fecha')?.invalid && transaccionForm.get('fecha')?.touched) {
-        <div class="error">
-          Ingresa una fecha válida.
+        <!-- Tipo -->
+        <div class="form-group">
+          <label>Tipo:</label>
+          <select formControlName="tipo">
+            <option value="INGRESO">Ingreso</option>
+            <option value="EGRESO">Egreso</option>
+          </select>
         </div>
-      }
-    </div>
 
-    <!-- Cuenta -->
-    <div class="form-group">
-      <label>Cuenta:</label>
-      <select formControlName="cuenta">
-        <option value="" disabled>Selecciona una cuenta</option>
-        @for (c of cuentas; track c.id) {
-          <option [value]="c.id">{{ c.nombre }}</option>
-        }
-      </select>
-    </div>
-
-    <!-- Monto -->
-    <div class="form-group">
-      <label>Monto:</label>
-      <input type="number" formControlName="monto" placeholder="Ej: 50000" />
-      @if (transaccionForm.get('monto')?.invalid && transaccionForm.get('monto')?.touched) {
-        <div class="error">
-          Ingresa un monto válido.
-        </div>
-      }
-    </div>
-
-    <!-- Categoría -->
-    <div class="form-group">
-      <label>Categoría:</label>
-      <select formControlName="categoria" (change)="onCategoriaChange()">
-        <option value="" disabled>Selecciona una categoría</option>
-        @for (cat of categorias; track cat.id) {
-          <option [value]="cat.id">{{ cat.nombre }}</option>
-        }
-      </select>
-    </div>
-
-    <!-- Subcategoría -->
-    @if (subcategorias.length > 0) {
-      <div class="form-group">
-        <label>Subcategoría:</label>
-        <select formControlName="subcategoria">
-          <option value="" disabled>Selecciona una subcategoría</option>
-          @for (sub of subcategorias; track sub.id) {
-            <option [value]="sub.id">{{ sub.nombre }}</option>
+        <!-- Fecha -->
+        <div class="form-group">
+          <label>Fecha:</label>
+          <input type="date" formControlName="fecha" />
+          @if (transaccionForm.get('fecha')?.invalid && transaccionForm.get('fecha')?.touched) {
+            <div class="error">Ingresa una fecha válida.</div>
           }
-        </select>
-      </div>
-    }
+        </div>
 
-    <!-- Comercio -->
-    <div class="form-group">
-      <label>Comercio:</label>
-      <select formControlName="comercio">
-        <option value="" disabled>Selecciona un comercio</option>
-        @for (com of comercios; track com.id) {
-          <option [value]="com.id">{{ com.nombre }}</option>
+        <!-- Cuenta -->
+        <div class="form-group">
+          <label>Cuenta:</label>
+          <select formControlName="cuenta" [ngClass]="{'invalid': transaccionForm.get('cuenta')?.invalid && transaccionForm.get('cuenta')?.touched}">
+            <option value="" disabled>Selecciona una cuenta</option>
+            @for (c of cuentas; track c.id) {
+              <option [value]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+          @if (transaccionForm.get('cuenta')?.invalid && transaccionForm.get('cuenta')?.touched) {
+            <div class="error">
+              Selecciona una cuenta.
+            </div>
+          }
+        </div>
+
+        <!-- Monto -->
+        <div class="form-group">
+          <label>Monto:</label>
+          <input type="number" formControlName="monto" placeholder="Ej: 50000"
+                 [ngClass]="{'invalid': transaccionForm.get('monto')?.invalid && transaccionForm.get('monto')?.touched}" />
+          @if (transaccionForm.get('monto')?.invalid && transaccionForm.get('monto')?.touched) {
+            <div class="error">
+              Ingresa un monto válido.
+            </div>
+          }
+        </div>
+
+        <!-- Categoría -->
+        <div class="form-group">
+          <label>Categoría:</label>
+          <select formControlName="categoria" (change)="onCategoriaChange()">
+            <option value="" disabled>Selecciona una categoría</option>
+            @for (cat of categorias; track cat.id) {
+              <option [value]="cat.id">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Subcategoría -->
+        @if (subcategorias.length > 0) {
+          <div class="form-group">
+            <label>Subcategoría:</label>
+            <select formControlName="subcategoria">
+              <option value="" disabled>Selecciona una subcategoría</option>
+              @for (sub of subcategorias; track sub.id) {
+                <option [value]="sub.id">{{ sub.nombre }}</option>
+              }
+            </select>
+          </div>
         }
-      </select>
-    </div>
 
-    <!-- Recurrente -->
-    <div class="form-group">
-      <label>
-        <input type="checkbox" formControlName="esRecurrente" /> Recurrente
-      </label>
-    </div>
+        <!-- Comercio -->
+        <div class="form-group">
+          <label>Comercio:</label>
+          <select formControlName="comercio">
+            <option value="" disabled>Selecciona un comercio</option>
+            @for (com of comercios; track com.id) {
+              <option [value]="com.id">{{ com.nombre }}</option>
+            }
+          </select>
+        </div>
 
-    <!-- Descripción -->
-    <div class="form-group">
-      <label>Descripción:</label>
-      <textarea formControlName="descripcion" placeholder="Opcional..."></textarea>
-    </div>
+        <!-- Recurrente -->
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" formControlName="esRecurrente" /> Recurrente
+          </label>
+        </div>
 
-    <div class="buttons">
-      <button type="submit" class="btn-guardar">Guardar</button>
-      <button type="button" class="btn-cancelar" (click)="cancelar()">Cancelar</button>
-    </div>
-  </form>
+        <!-- Descripción -->
+        <div class="form-group descripcion-full">
+          <label>Descripción:</label>
+          <textarea formControlName="descripcion" placeholder="Opcional..."></textarea>
+        </div>
+
+      </div>
+
+      <!-- Botones -->
+      <div class="buttons">
+        <button type="button" class="btn btn-cancelar" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn btn-guardar">Guardar</button>
+      </div>
+    </form>
+  </div>
 </div>

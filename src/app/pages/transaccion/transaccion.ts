@@ -7,6 +7,9 @@ import { CategoriaService } from '../../services/categoria.service';
 import { Categoria } from '../../models/categoria.model';
 import {Cuenta} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
+import {NgClass} from '@angular/common';
+import {TransaccionService} from '../../services/transaccion.service';
+import {MessageService} from 'primeng/api';
 // import { Cuenta } from '../models/cuenta.model';
 // import { Comercio } from '../models/comercio.model';
 
@@ -15,7 +18,7 @@ import {CuentaService} from '../../services/cuenta.service';
   templateUrl: './transaccion.html',
   styleUrls: ['./transaccion.css'],
   standalone: true,
-  imports: [ReactiveFormsModule]
+  imports: [ReactiveFormsModule, NgClass]
 })
 export class TransaccionComponent implements OnInit {
   transaccionForm: FormGroup;
@@ -29,11 +32,13 @@ export class TransaccionComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private categoriaService: CategoriaService,
-    private cuentaService: CuentaService
+    private cuentaService: CuentaService,
+    private transaccionService: TransaccionService,
+    private messageService: MessageService
     // private comercioService: ComercioService
   ) {
     this.transaccionForm = this.fb.group({
-      tipo: ['INGRESO', Validators.required],
+      tipo: ['EGRESO', Validators.required],
       fecha: [new Date().toISOString().split('T')[0], Validators.required],
       cuenta: ['', Validators.required],
       monto: [null, [Validators.required, Validators.min(1)]],
@@ -76,15 +81,40 @@ export class TransaccionComponent implements OnInit {
   }
 
   guardar() {
+    console.log("guardar, form: ", this.transaccionForm)
     if (this.transaccionForm.invalid) {
       this.transaccionForm.markAllAsTouched();
       return;
     }
 
-    const nuevaTransaccion = this.transaccionForm.value;
-    console.log('✅ Transacción guardada:', nuevaTransaccion);
-    alert('Transacción registrada con éxito');
-    this.router.navigate(['/inicio']);
+    const form = this.transaccionForm.value;
+
+    const request = {
+      userId: 2,
+      cuentaId: form.cuenta,
+      tipo: form.tipo,
+      fecha: form.fecha,
+      monto: form.monto,
+      categoriaId: form.categoria || null,
+      subcategoriaId: form.subcategoria || null,
+      medio: "EFECTIVO",
+      comercioId: form.comercio || null,
+      descripcion: form.descripcion || "",
+      esRecurrente: form.esRecurrente,
+      tagIds: []
+    };
+
+    this.transaccionService.agregarTransaccion(request).subscribe({
+      next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: "Transacción registrada con éxito"})
+        console.log('✅ Transacción guardada:', res);
+        this.router.navigate(['/inicio']);
+      },
+      error: (err) => {
+        // this.alertService.show("Error al guardar la transacción: " + err)
+        console.error('Error al guardar la transacción:', err);
+      }
+    });
   }
 
   cancelar() {
