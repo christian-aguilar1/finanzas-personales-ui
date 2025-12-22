@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: (window as any)['NG_APP_API_URL']
+  apiUrl: 'https://finanzas-personales-back-9f963ddc2727.herokuapp.com/api'
 };
