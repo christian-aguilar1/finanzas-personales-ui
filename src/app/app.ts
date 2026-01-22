@@ -4,6 +4,7 @@ import {Header} from './shared/header/header';
 import {Footer} from './shared/footer/footer';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
+import { inject } from '@vercel/analytics';
 
 @Component({
   selector: 'app-root',
@@ -15,4 +16,8 @@ import {MessageService} from 'primeng/api';
 })
 export class App {
   protected readonly title = signal('finanzas-personales-ui');
+
+  constructor() {
+    inject();
+  }
 }
