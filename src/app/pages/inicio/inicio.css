@@ -3,10 +3,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 84vh;
+  gap: 1.2rem;
+  min-height: 84vh;
   background: #f3f7fa;
   text-align: center;
   font-family: 'Poppins', sans-serif;
+  padding: 1.5rem 1rem 2rem;
+  box-sizing: border-box;
 }
 
 .titulo {
@@ -18,7 +21,14 @@
 .descripcion {
   font-size: 1.1rem;
   color: #4a4a4a;
-  margin-bottom: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.acciones-rapidas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
 }
 
 .btn-agregar {
@@ -35,3 +45,36 @@
 .btn-agregar:hover {
   background-color: #249d6c;
 }
+
+.btn-ver {
+  background: #ffffff;
+  color: #2d3e50;
+  border: 1px solid #2d3e50;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .inicio-container {
+    min-height: auto;
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .titulo {
+    font-size: 1.8rem;
+  }
+
+  .descripcion {
+    margin-bottom: 1rem;
+  }
+
+  .acciones-rapidas {
+    width: 100%;
+    flex-direction: column;
+  }
+}
+

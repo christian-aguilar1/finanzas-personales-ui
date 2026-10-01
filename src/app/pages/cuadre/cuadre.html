@@ -1,0 +1,228 @@
+<div class="cuadre-page">
+  <section class="cuadre-card">
+    <div class="header">
+      <div>
+        <h1>Cuadre de gastos</h1>
+        <p>
+          Transacciones reales de la cuenta en el periodo {{ obtenerEtiquetaPeriodo() }}. Usalo para
+          comparar contra tu estado de cuenta y detectar lo que falta.
+        </p>
+      </div>
+
+      <div class="selector">
+        <div class="selector-campo">
+          <label for="periodo">Periodo</label>
+          <select
+            id="periodo"
+            [(ngModel)]="periodoSeleccionado"
+            (ngModelChange)="onPeriodoChange()"
+          >
+            @for (periodo of periodosDisponibles; track periodo.valor) {
+              <option [ngValue]="periodo.valor">{{ periodo.etiqueta }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="selector-campo">
+          <label for="cuenta">Cuenta</label>
+          <select
+            id="cuenta"
+            [(ngModel)]="cuentaIdSeleccionada"
+            (ngModelChange)="onCuentaChange()"
+            [disabled]="cuentas.length === 0"
+          >
+            <option [ngValue]="null">Elegí una cuenta</option>
+            @for (cuenta of cuentas; track cuenta.id) {
+              <option [ngValue]="cuenta.id">{{ cuenta.nombre }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros-cuadre">
+      <div class="filtro-cuota-cero">
+        <input
+          type="checkbox"
+          id="incluyeCuotaCero"
+          [(ngModel)]="incluyeCuotaCero"
+          (ngModelChange)="cargar()"
+        />
+        <label for="incluyeCuotaCero">Incluir compras que aún no tienen cuota</label>
+      </div>
+
+      <div class="filtro-monto">
+        <label for="montoIngresado">Monto de tu estado de cuenta</label>
+        <input
+          type="number"
+          id="montoIngresado"
+          [(ngModel)]="montoIngresado"
+          step="1"
+          min="0"
+          placeholder="Ej: 505.000"
+          [disabled]="cuentaIdSeleccionada === null"
+        />
+        @if (hayMontoIngresado()) {
+          <button type="button" class="btn-limpiar" (click)="limpiarMontoIngresado()">
+            Limpiar
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (cargando) {
+      <div class="estado estado-carga">Cargando cuadre...</div>
+    } @else if (error) {
+      <div class="estado estado-error">{{ error }}</div>
+    } @else if (sinCuentas) {
+      <div class="estado-vacio">
+        <p class="estado-vacio-titulo">Todavía no tienes cuentas.</p>
+        <p>El cuadre se calcula sobre una cuenta. Crea la primera para empezar a comparar tu estado de cuenta.</p>
+        <a routerLink="/cuentas" class="btn-ir">Ir a Cuentas</a>
+      </div>
+    } @else if (cuentaIdSeleccionada === null) {
+      <p class="estado">Elegí una cuenta para ver sus transacciones del periodo.</p>
+    } @else if (cuadre && cuadre.transacciones.length === 0) {
+      <p class="estado">No hay transacciones para esta cuenta en este periodo.</p>
+    } @else if (cuadre) {
+      <div class="resumen-grid">
+        <article class="resumen total">
+          <span>Total del periodo</span>
+          <strong>{{ cuadre.total | number: '1.0-2' }}</strong>
+        </article>
+
+        <article class="resumen egreso">
+          <span>Transacciones</span>
+          <strong>{{ cuadre.cantidadTransacciones | number: '1.0-0' }}</strong>
+        </article>
+
+        <article class="resumen ingreso">
+          <span>Compras en cuotas</span>
+          <strong>{{ cuadre.totalComprasEnCuotas | number: '1.0-2' }}</strong>
+          <small>{{ cuadre.cantidadComprasEnCuotas }} compras</small>
+        </article>
+      </div>
+
+      @if (hayMontoIngresado()) {
+        <div
+          class="comparacion"
+          [class.comparacion-cuadra]="losMontosCuadran()"
+          [class.comparacion-difiere]="!losMontosCuadran()"
+        >
+          <div class="comparacion-celda">
+            <span>Total del periodo</span>
+            <strong>{{ obtenerTotalPeriodo() | number: '1.0-2' }}</strong>
+          </div>
+
+          <div class="comparacion-celda">
+            <span>Monto ingresado</span>
+            <strong>{{ montoIngresado | number: '1.0-2' }}</strong>
+          </div>
+
+          <div class="comparacion-celda comparacion-diferencia">
+            <span>Diferencia</span>
+            <strong>{{ obtenerDiferencia() | number: '1.0-2' }}</strong>
+          </div>
+
+          <p class="comparacion-mensaje">
+            {{ obtenerMensajeCuadre() }}
+          </p>
+        </div>
+      }
+
+      <div class="tablas-grid">
+        <section class="tabla-seccion">
+          <h2>Por categoría</h2>
+          @if (obtenerPorCategoria().length === 0) {
+            <p class="estado">Sin categorías en este periodo.</p>
+          } @else {
+            <div class="tabla-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (
+                    item of obtenerPorCategoria();
+                    track (item.id ?? 'null') + '-' + item.nombre
+                  ) {
+                    <tr>
+                      <td>{{ item.nombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ item.total | number: '1.0-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <section class="tabla-seccion">
+          <h2>Por comercio</h2>
+          @if (obtenerPorComercio().length === 0) {
+            <p class="estado">Sin comercios en este periodo.</p>
+          } @else {
+            <div class="tabla-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (
+                    item of obtenerPorComercio();
+                    track (item.id ?? 'null') + '-' + item.nombre
+                  ) {
+                    <tr>
+                      <td>{{ item.nombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ item.total | number: '1.0-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      </div>
+
+      <div class="tabla-seccion detalle-seccion">
+        <h2>Detalle de transacciones</h2>
+        <div class="tabla-wrapper">
+          <table class="tabla-detalle">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Comercio</th>
+                <th>Categoría</th>
+                <th>Cuota</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of obtenerTransacciones(); track item.id) {
+                <tr [class.cuota]="esCompraEnCuotas(item)">
+                  <td>{{ item.descripcion || 'Sin descripción' }}</td>
+                  <td>{{ obtenerComercio(item) }}</td>
+                  <td>{{ obtenerCategoria(item) }}</td>
+                  <td>{{ obtenerTextoCuotas(item) }}</td>
+                  <td>{{ item.fecha | date: 'dd/MM/yyyy' }}</td>
+                  <td class="monto">{{ item.monto | number: '1.0-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </section>
+</div>

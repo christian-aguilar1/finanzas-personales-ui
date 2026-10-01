@@ -1,16 +1,16 @@
 <!-- header.component.html -->
 <header class="app-header">
   <div class="hamburguer-menu">
-    <button class="menu-btn" (click)="toggleMenu()">
-      ☰
-    </button>
-    <nav [class.open]="menuOpen">
+    <button class="menu-btn" (click)="toggleMenu()">☰</button>
+    <nav [class.open]="menuOpen()">
       <ul>
-        <li><a routerLink="/transaccion">Ingresar Transacción</a></li>
-        <li><a routerLink="/transacciones">Ver Transacciones</a></li>
-        <li><a routerLink="/categorias">Categorías</a></li>
-        <li><a routerLink="/cuentas">Cuentas</a></li>
-        <li><a routerLink="/comercios">Comercios</a></li>
+        <li><a routerLink="/transaccion" (click)="cerrarMenu()">Ingresar Transacción</a></li>
+        <li><a routerLink="/transacciones" (click)="cerrarMenu()">Ver Transacciones</a></li>
+        <li><a routerLink="/presupuesto" (click)="cerrarMenu()">Presupuesto</a></li>
+        <li><a routerLink="/proyeccion" (click)="cerrarMenu()">Proyección</a></li>
+        <li><a routerLink="/cuadre" (click)="cerrarMenu()">Cuadre de gastos</a></li>
+        <li><a routerLink="/categorias" (click)="cerrarMenu()">Categorías</a></li>
+        <li><a routerLink="/cuentas" (click)="cerrarMenu()">Cuentas</a></li>
       </ul>
     </nav>
   </div>
@@ -19,4 +19,14 @@
     <h1>Finanzas App</h1>
   </div>
 
+  <div class="sesion">
+    @if (autenticado()) {
+      @if (email(); as correo) {
+        <span class="sesion-email">{{ correo }}</span>
+      }
+      <button type="button" class="sesion-btn" (click)="logout()">Cerrar sesión</button>
+    } @else {
+      <button type="button" class="sesion-btn" (click)="login()">Iniciar sesión</button>
+    }
+  </div>
 </header>

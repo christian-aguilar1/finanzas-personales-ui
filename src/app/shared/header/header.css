@@ -47,3 +47,32 @@ nav a {
 h1 {
   margin: 0;
 }
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sesion-email {
+  color: #cfd8dc;
+  font-size: 0.9rem;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sesion-btn {
+  background: #1abc9c;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+}
+
+.sesion-btn:hover {
+  background: #16a085;
+}

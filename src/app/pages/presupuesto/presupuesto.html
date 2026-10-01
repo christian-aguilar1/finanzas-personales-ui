@@ -1,0 +1,111 @@
+<div class="presupuesto-page">
+  <section class="presupuesto-card">
+    <div class="header">
+      <div>
+        <h1>Presupuesto del periodo</h1>
+        <p>Resumen del periodo {{ obtenerEtiquetaPeriodoActual() }}</p>
+      </div>
+
+      <div class="selector">
+        <label for="periodo">Periodo</label>
+        <select id="periodo" [(ngModel)]="periodoSeleccionado" (ngModelChange)="onPeriodoChange()">
+          @for (periodo of periodosDisponibles; track periodo.valor) {
+            <option [ngValue]="periodo.valor">{{ periodo.etiqueta }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (cargando) {
+      <div class="estado estado-carga">Cargando presupuesto...</div>
+    } @else if (error) {
+      <div class="estado estado-error">{{ error }}</div>
+    } @else {
+      <div class="resumen-grid">
+        <article class="resumen ingreso">
+          <span>Ingresos</span>
+          <strong>{{ ingresoTotal | number: '1.0-2' }}</strong>
+        </article>
+
+        <article class="resumen egreso">
+          <span>Egresos</span>
+          <strong>{{ egresoTotal | number: '1.0-2' }}</strong>
+        </article>
+
+        <article class="resumen total">
+          <span>Total final</span>
+          <strong>{{ obtenerTotalFinal() | number: '1.0-2' }}</strong>
+        </article>
+      </div>
+
+      <div class="tablas-grid">
+        <section class="tabla-seccion">
+          <h2>Ingresos por categoría</h2>
+          @if (ingresosPorCategoria.length === 0) {
+            <p class="estado">Sin ingresos en este periodo.</p>
+          } @else {
+            <div class="tabla-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of ingresosPorCategoria; track item.categoriaId + '-' + item.categoriaNombre) {
+                    <tr>
+                      <td>{{ item.categoriaNombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ item.total | number: '1.0-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <section class="tabla-seccion">
+          <h2>Egresos por categoría</h2>
+          @if (egresosPorCategoria.length === 0) {
+            <p class="estado">Sin egresos en este periodo.</p>
+          } @else {
+            <div class="tabla-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of egresosPorCategoria; track item.categoriaId + '-' + item.categoriaNombre) {
+                    <tr>
+                      <td>{{ item.categoriaNombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ item.total | number: '1.0-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      </div>
+
+      <div class="grafico-seccion">
+        <h2>Distribución de los egresos</h2>
+        @if (egresosPorCategoria.length === 0) {
+          <p class="estado">Sin egresos en este periodo.</p>
+        } @else {
+          <div class="grafico-wrapper">
+            <canvas #graficoEgresos></canvas>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

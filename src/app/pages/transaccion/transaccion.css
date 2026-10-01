@@ -82,6 +82,17 @@ textarea {
   grid-column: span 2;
 }
 
+.cuotas-error {
+  grid-column: span 2;
+}
+
+.cuotas-hint {
+  grid-column: span 2;
+  color: #5a6b7b;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
 .error {
   font-size: 0.85rem;
   color: #d32f2f;
@@ -130,6 +141,14 @@ textarea {
   .descripcion-full {
     grid-column: span 1;
   }
+
+  .cuotas-error {
+    grid-column: span 1;
+  }
+
+  .cuotas-hint {
+    grid-column: span 1;
+  }
 }
 
 input.invalid, select.invalid, textarea.invalid {
@@ -142,4 +161,29 @@ input.invalid, select.invalid, textarea.invalid {
   color: red;
   font-size: 0.85em;
   margin-top: 4px;
+}
+
+/* Bloqueo mientras no haya cuentas ni categorias */
+.aviso-inicial {
+  background: #fff8e1;
+  border: 1px solid #f5d999;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.aviso-inicial p {
+  color: #7a5c00;
+  margin: 0 0 0.6rem;
+}
+
+.btn-ir {
+  background: #2d3e50;
+  border-radius: 6px;
+  color: #fff;
+  display: inline-block;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  text-decoration: none;
 }
