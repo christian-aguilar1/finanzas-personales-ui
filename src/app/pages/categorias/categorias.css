@@ -1,0 +1,153 @@
+.crud-page {
+  min-height: 84vh;
+  background: #f3f7fa;
+  padding: 1.5rem 1rem 2rem;
+  box-sizing: border-box;
+}
+
+.crud-section {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(45, 62, 80, 0.12);
+  padding: 1.2rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #1d2b3a;
+}
+
+.section-header p {
+  margin: 0.3rem 0 1rem;
+  color: #5d6a77;
+}
+
+.crud-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.crud-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #425466;
+}
+
+.acciones-formulario {
+  display: flex;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+th,
+td {
+  padding: 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.92rem;
+}
+
+th {
+  color: #334155;
+  text-align: left;
+}
+
+.acciones-tabla {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 600;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primario {
+  background: #2cb67d;
+  color: #ffffff;
+  border-color: #2cb67d;
+}
+
+.btn-secundario {
+  background: #f8fafc;
+}
+
+.btn-peligro {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.estado {
+  text-align: center;
+  color: #64748b;
+  margin: 1rem 0;
+}
+
+.estado-error {
+  color: #b91c1c;
+}
+
+.estado-vacio {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.estado-vacio-titulo {
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+
+.estado-vacio .estado {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .crud-page {
+    min-height: auto;
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .crud-form {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-formulario {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones-tabla {
+    flex-direction: column;
+  }
+}
+

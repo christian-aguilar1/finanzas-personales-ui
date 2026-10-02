@@ -1,0 +1,165 @@
+<div class="proyeccion-page">
+  <section class="proyeccion-card">
+    <div class="header">
+      <div class="header-info">
+        <h1>Proyección</h1>
+        <p>
+          Proyección de {{ obtenerEtiquetaPeriodo() }} con recurrentes y compras en cuotas activas
+          @if (esPeriodoEnCurso()) {
+            <span>, más los movimientos que ya registraste este mes</span>
+          }
+        </p>
+      </div>
+
+      <div class="selector">
+        <div>
+          <label for="mes">Mes</label>
+          <select id="mes" [(ngModel)]="mes" (ngModelChange)="cargarProyeccion()">
+            @for (item of meses; track item.valor) {
+              <option [ngValue]="item.valor">{{ item.etiqueta }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label for="anio">Año</label>
+          <select id="anio" [(ngModel)]="anio" (ngModelChange)="cargarProyeccion()">
+            @for (item of anios; track item) {
+              <option [ngValue]="item">{{ item }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    @if (!esPeriodoDisponible()) {
+      <p class="estado">La proyección solo está disponible para el mes actual y los futuros.</p>
+    } @else if (cargando) {
+      <div class="estado estado-carga">Calculando proyección...</div>
+    } @else if (error) {
+      <div class="estado estado-error">{{ error }}</div>
+    } @else if (proyeccion) {
+      <div class="resumen-grid">
+        <article class="resumen ingreso">
+          <span>Ingresos proyectados</span>
+          <strong>{{ proyeccion.ingresoTotal | number: '1.0-2' }}</strong>
+        </article>
+
+        <article class="resumen egreso">
+          <span>Egresos proyectados</span>
+          <strong>{{ proyeccion.egresoTotal | number: '1.0-2' }}</strong>
+        </article>
+
+        <article class="resumen total">
+          <span>Total proyectado</span>
+          <strong>{{ obtenerTotal() | number: '1.0-2' }}</strong>
+        </article>
+      </div>
+
+      <div class="tablas-grid">
+        <section class="tabla-seccion">
+          <h2>Ingresos proyectados por categoría</h2>
+          @if (obtenerIngresos().length === 0) {
+            <p class="estado">Sin ingresos recurrentes proyectados.</p>
+          } @else {
+            <div class="tabla-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of obtenerIngresos(); track item.categoriaPadreId + '-' + item.categoriaNombre) {
+                    <tr>
+                      <td>{{ item.categoriaNombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ item.total | number: '1.0-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <section class="tabla-seccion">
+          <h2>Egresos proyectados por categoría</h2>
+          @if (obtenerEgresos().length === 0) {
+            <p class="estado">Sin egresos recurrentes proyectados.</p>
+          } @else {
+            <div class="tabla-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of obtenerEgresos(); track item.categoriaPadreId + '-' + item.categoriaNombre) {
+                    <tr>
+                      <td>{{ item.categoriaNombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ item.total | number: '1.0-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      </div>
+
+      <div class="tabla-seccion detalle-seccion">
+        <h2>Transacciones proyectadas</h2>
+        @if (obtenerTransacciones().length === 0) {
+          <p class="estado">Sin transacciones proyectadas para este periodo.</p>
+        } @else {
+          <div class="tabla-wrapper">
+            <table class="tabla-detalle">
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Cuenta</th>
+                  <th>Categoría</th>
+                  <th>Cuota</th>
+                  <th>Fecha</th>
+                  <th>Monto</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of obtenerTransacciones(); track $index) {
+                  <tr [class.ingreso]="item.tipo === 'INGRESO'" [class.egreso]="item.tipo === 'EGRESO'">
+                    <td>{{ item.descripcion || 'Sin descripción' }}</td>
+                    <td>{{ item.cuenta || 'Sin cuenta' }}</td>
+                    <td>{{ item.categoria }}</td>
+                    <td>{{ formatearCuota(item.cuota) }}</td>
+                    <td>{{ formatearFecha(item.fecha) }}</td>
+                    <td class="monto">
+                      {{ item.monto | number: '1.0-2' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <div class="grafico-seccion">
+        <h2>Distribución de los egresos proyectados</h2>
+        @if (obtenerEgresos().length === 0) {
+          <p class="estado">Sin egresos proyectados para este periodo.</p>
+        } @else {
+          <div class="grafico-wrapper">
+            <canvas #graficoProyeccion></canvas>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

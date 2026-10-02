@@ -4,5 +4,13 @@ export interface Categoria {
   tipo: string;
   icono?: string;
   color?: string;
-  parent_id?: number;
+  parentId?: number | null;
+}
+
+export interface CategoriaRequest {
+  nombre: string;
+  tipo: string;
+  parentId?: number | null;
+  icono?: string | null;
+  color?: string | null;
 }
