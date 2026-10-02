@@ -1,0 +1,217 @@
+<div class="transacciones-page">
+  <section class="transacciones-section">
+    <div class="section-header">
+      <h2>Ultimas transacciones del periodo</h2>
+      <p>
+        Mostrando {{ transaccionesFiltradas.length }} registros para
+        {{ obtenerTextoPeriodo(filtros.periodo) }}
+      </p>
+    </div>
+
+    @if (error) {
+      <p class="estado-error">{{ error }}</p>
+    }
+
+    <div class="buscador-container">
+      <input
+        type="text"
+        class="input-busqueda"
+        placeholder="Buscar en cualquier columna..."
+        [(ngModel)]="terminoBusqueda"
+        (ngModelChange)="aplicarBusqueda()"
+      />
+    </div>
+
+    <div class="filtros-grid">
+      <label>
+        Buscar por
+        <select [(ngModel)]="modoBusqueda" (ngModelChange)="onModoBusquedaChange()">
+          <option value="PERIODO_FACTURACION">Periodo de facturación</option>
+          <option value="FECHA_TRANSACCION">Fecha de transacción</option>
+        </select>
+      </label>
+
+      @if (mostrarFiltroMesFacturacion()) {
+        <label>
+          Mes de facturación
+          <select [(ngModel)]="filtros.mesFacturacion" (ngModelChange)="aplicarFiltros()">
+            @for (mes of mesesFacturacionDisponibles; track mes.valor) {
+              <option [ngValue]="mes.valor">{{ mes.etiqueta }}</option>
+            }
+          </select>
+        </label>
+      }
+
+      @if (modoBusqueda === 'FECHA_TRANSACCION') {
+        <label>
+          Fecha de transacción
+          <select [(ngModel)]="filtros.modoFecha" (ngModelChange)="onModoFechaChange()">
+            <option value="PREDEFINIDO">Periodo predefinido</option>
+            <option value="RANGO">Rango exacto</option>
+          </select>
+        </label>
+
+        @if (filtros.modoFecha === 'PREDEFINIDO') {
+          <label>
+            Periodo
+            <select [(ngModel)]="filtros.periodo" (ngModelChange)="aplicarFiltros()">
+              @for (periodo of periodosDisponibles; track periodo.valor) {
+                <option [ngValue]="periodo.valor">{{ periodo.etiqueta }}</option>
+              }
+            </select>
+          </label>
+        } @else {
+          <label>
+            Fecha desde
+            <input type="date" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()"/>
+          </label>
+
+          <label>
+            Fecha hasta
+            <input type="date" [(ngModel)]="filtros.fechaHasta" (ngModelChange)="aplicarFiltros()"/>
+          </label>
+        }
+      }
+
+      <label>
+        Cuenta
+        <select [(ngModel)]="filtros.cuentaId" (ngModelChange)="aplicarFiltros()">
+          <option [ngValue]="null">Todas</option>
+          @for (cuenta of cuentas; track cuenta.id) {
+            <option [ngValue]="cuenta.id">{{ cuenta.nombre }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Categoria
+        <select [(ngModel)]="filtros.categoriaId" (ngModelChange)="aplicarFiltros()">
+          <option [ngValue]="null">Todas</option>
+          @for (categoria of categorias; track categoria.id) {
+            <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </div>
+
+    @if (cargandoTransacciones || filtrando) {
+      <div class="loading-container" role="status" aria-live="polite" aria-label="Cargando transacciones">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <p class="loading-text">{{ cargandoTransacciones ? 'Cargando transacciones...' : 'Aplicando filtros...' }}</p>
+      </div>
+    } @else if (transaccionesFiltradas.length === 0) {
+      @if (sinCuentas) {
+        <div class="estado-vacio">
+          <p class="estado-vacio-titulo">Todavía no tienes cuentas.</p>
+          <p>Las transacciones se registran sobre una cuenta. Crea la primera para empezar.</p>
+          <a routerLink="/cuentas" class="btn-ir">Ir a Cuentas</a>
+        </div>
+      } @else {
+        <p class="estado">No hay transacciones para los filtros seleccionados.</p>
+      }
+    } @else {
+      <div class="tabla-wrapper">
+        <table mat-table [dataSource]="dataSource" matSort class="transacciones-table">
+          <ng-container matColumnDef="monto">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Monto</th>
+            <td mat-cell *matCellDef="let transaccion">{{ transaccion.monto | number: '1.0-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+            <td mat-cell *matCellDef="let transaccion">
+              <span [class.ingreso]="transaccion.tipo === 'INGRESO'" [class.egreso]="transaccion.tipo === 'EGRESO'">
+                {{ transaccion.tipo }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cuenta">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cuenta</th>
+            <td mat-cell *matCellDef="let transaccion">{{ obtenerNombreCuenta(transaccion) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="categoria">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Categoria</th>
+            <td mat-cell *matCellDef="let transaccion">{{ obtenerNombreCategoria(transaccion) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="periodoFacturacion">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Periodo</th>
+            <td mat-cell *matCellDef="let transaccion">{{ obtenerMesPeriodoFacturacion(transaccion) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="cuotas">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cuotas</th>
+            <td mat-cell *matCellDef="let transaccion">{{ obtenerTextoCuotas(transaccion) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+            <td mat-cell *matCellDef="let transaccion">{{ transaccion.fecha | date: 'dd/MM/yyyy' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let transaccion">
+              <div class="acciones-tabla">
+                <button mat-button color="primary" (click)="editarTransaccion(transaccion)">
+                  <mat-icon>edit</mat-icon> Editar
+                </button>
+                <button mat-button color="warn" (click)="eliminarTransaccion(transaccion)">
+                  <mat-icon>delete</mat-icon> Eliminar
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasVisibles"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasVisibles;"></tr>
+        </table>
+      </div>
+
+      <div class="paginador-container">
+        <div class="registros-por-pagina">
+          <label for="registrosPorPagina">Registros por página:</label>
+          <select id="registrosPorPagina"
+                  [(ngModel)]="registrosPorPagina"
+                  (ngModelChange)="cambiarRegistrosPorPagina()">
+            @for (opcion of opcionesRegistrosPorPagina; track opcion) {
+              <option [ngValue]="opcion">{{ opcion }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="paginador">
+          <button type="button" class="btn-pagina" [disabled]="!puedeIrAnterior()"
+                  (click)="cambiarPagina(paginaActual - 1)">
+            ← Anterior
+          </button>
+
+          <div class="paginas">
+            @for (pagina of obtenerPaginasVisibles(); track $index) {
+              @if (pagina === '...') {
+                <span class="puntos-suspensivos">...</span>
+              } @else {
+                <button type="button"
+                        class="btn-pagina"
+                        [class.pagina-activa]="pagina === paginaActual"
+                        (click)="cambiarPagina(pagina)">
+                  {{ pagina }}
+                </button>
+              }
+            }
+          </div>
+
+          <button type="button" class="btn-pagina" [disabled]="!puedeIrSiguiente()"
+                  (click)="cambiarPagina(paginaActual + 1)">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>
+

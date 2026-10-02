@@ -1,0 +1,208 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+.crud-page {
+  flex: 1;
+  background: var(--app-page-bg);
+  padding: 1.5rem 1rem 2rem;
+}
+
+.crud-section {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  background: var(--app-surface);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px var(--app-shadow-color);
+  padding: 1.2rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: var(--app-text);
+}
+
+.section-header p {
+  margin: 0.3rem 0 1rem;
+  color: var(--app-text-muted);
+}
+
+.crud-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.crud-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--app-text-2);
+}
+
+.acciones-formulario {
+  display: flex;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+th,
+td {
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--app-border);
+  font-size: 0.92rem;
+}
+
+th {
+  color: var(--app-text-2);
+  text-align: left;
+}
+
+.acciones-tabla {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  border: 1px solid var(--app-border-2);
+  border-radius: 8px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-weight: 600;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primario {
+  background: var(--app-success);
+  color: var(--app-on-primary);
+  border-color: var(--app-success);
+}
+
+.btn-secundario {
+  background: var(--app-surface-2);
+}
+
+.btn-peligro {
+  background: var(--app-danger-soft);
+  border-color: var(--app-danger-soft-2);
+  color: var(--app-danger-ink);
+}
+
+.estado {
+  text-align: center;
+  color: var(--app-text-muted);
+  margin: 1rem 0;
+}
+
+.estado-error {
+  color: var(--app-danger-ink);
+}
+
+.estado-vacio {
+  background: var(--app-surface-2);
+  border: 1px dashed var(--app-border-2);
+  border-radius: 10px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.estado-vacio-titulo {
+  color: var(--app-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+
+.estado-vacio .estado {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .crud-page {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .crud-form {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-formulario {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones-tabla {
+    flex-direction: column;
+  }
+}
+
+/* En pantallas angostas la tabla no cabe: cada fila pasa a ser una tarjeta
+   apilada. La etiqueta sale de data-label, así no hace falta scroll horizontal
+   ni quedan celdas sin encabezado. */
+@media (max-width: 640px) {
+  table {
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    display: block;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    margin-bottom: 0.6rem;
+    padding: 0.2rem 0.75rem;
+    background: var(--app-surface);
+  }
+
+  td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed var(--app-border);
+    text-align: right;
+  }
+
+  tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--app-text-2);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .acciones-tabla {
+    flex-direction: row;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
+

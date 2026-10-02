@@ -1,0 +1,24 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  /* 100dvh sigue a la barra de direcciones del navegador móvil: con 100vh el
+     alto queda desfasado al abrir/cerrar el chrome y el footer se ve cortado. */
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Sin `display: contents`, <router-outlet> es un flex item vacío que se queda
+   con todo el alto de <main> (flex: 1 0 auto) y la página enruta queda con su
+   altura natural: sobra un hueco vacío entre el contenido y el footer.
+   Sacándolo del layout, cada página es hija directa de <main> y su `:host`
+   puede estirarse con flex para llenar el alto disponible. */
+router-outlet {
+  display: contents;
+}

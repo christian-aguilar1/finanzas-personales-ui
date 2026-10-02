@@ -1,29 +1,46 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
 .inicio-container {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 84vh;
-  background: #f3f7fa;
+  gap: 1.2rem;
+  background: var(--app-page-bg);
   text-align: center;
   font-family: 'Poppins', sans-serif;
+  padding: 1.5rem 1rem 2rem;
 }
 
 .titulo {
   font-size: 2.2rem;
-  color: #2d3e50;
+  color: var(--app-text);
   margin-bottom: 0.5rem;
 }
 
 .descripcion {
   font-size: 1.1rem;
-  color: #4a4a4a;
-  margin-bottom: 2rem;
+  color: var(--app-text-2);
+  margin-bottom: 0.8rem;
+}
+
+.acciones-rapidas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
 }
 
 .btn-agregar {
-  background-color: #2cb67d;
-  color: white;
+  background-color: var(--app-success);
+  color: var(--app-on-primary);
   border: none;
   border-radius: 12px;
   padding: 12px 20px;
@@ -33,5 +50,37 @@
 }
 
 .btn-agregar:hover {
-  background-color: #249d6c;
+  background-color: var(--app-success);
 }
+
+.btn-ver {
+  background: var(--app-surface);
+  color: var(--app-text);
+  border: 1px solid var(--app-brand-navy);
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .inicio-container {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .titulo {
+    font-size: 1.8rem;
+  }
+
+  .descripcion {
+    margin-bottom: 1rem;
+  }
+
+  .acciones-rapidas {
+    width: 100%;
+    flex-direction: column;
+  }
+}
+

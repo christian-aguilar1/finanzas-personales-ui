@@ -1,49 +1,175 @@
 .app-header {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 1rem 1rem;
-  background-color: #2d3e50;
-  color: #fff;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background-color: var(--app-brand-navy);
+  color: var(--app-on-brand);
+  box-sizing: border-box;
+  /* Contexto de apilado para que el panel de navegación quede por encima del
+     contenido de la página. */
+  position: relative;
+  z-index: 40;
 }
 
 .hamburguer-menu {
   display: flex;
   flex-direction: column;
-  align-items: baseline;
+  align-items: flex-start;
+  /* Ancla del panel desplegable. */
+  position: relative;
 }
 
 .menu-btn {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  line-height: 1;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--app-on-brand);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Objetivo táctil mínimo cómodo con el dedo. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
 }
 
 nav {
   display: none;
 }
 
+/* El panel va absoluto para no empujar el contenido: el header mantiene una
+   sola línea de alto en móvil y el menú se superpone como un desplegable. */
 nav.open {
   display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 30;
+  min-width: 230px;
+  max-width: calc(100vw - 2rem);
+  padding: 0.4rem 1rem 0.8rem;
+  background: var(--app-brand-navy);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 12px 24px var(--app-shadow-strong-color);
 }
 
 nav ul {
   list-style: none;
   padding: 0;
-}
-
-nav li {
-  margin: 0.5rem 0;
+  margin: 0;
 }
 
 nav a {
-  color: #fff;
+  color: var(--app-on-brand);
   text-decoration: none;
+  display: block;
+  padding: 0.7rem 0.25rem;
+  border-bottom: 1px solid var(--app-on-brand-border);
+  white-space: nowrap;
 }
 
-h1 {
+nav li:last-child a {
+  border-bottom: none;
+}
+
+.logo {
+  min-width: 0;
+}
+
+.logo h1 {
   margin: 0;
+  font-size: 1.15rem;
+  white-space: nowrap;
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.sesion-email {
+  color: var(--app-on-brand-muted);
+  font-size: 0.85rem;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toggle de tema. Va en la barra de sesión para que quede visible sin abrir el
+   menú, tanto en escritorio como en móvil. */
+.tema-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--app-on-brand);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tema-btn:hover {
+  background: var(--app-on-brand-hover);
+}
+
+.tema-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sesion-btn {
+  background: var(--app-success);
+  border: none;
+  border-radius: 6px;
+  color: var(--app-on-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 0.9rem;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.sesion-btn:hover {
+  filter: brightness(1.1);
+}
+
+@media (max-width: 480px) {
+  /* A 360px el logo, el email y el botón no entran en una línea: el email y el
+     botón bajan a una segunda fila en vez de desbordar el header. */
+  .sesion {
+    flex-basis: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .sesion-email {
+    max-width: none;
+  }
+
+  .logo h1 {
+    font-size: 1rem;
+  }
+
+  nav a {
+    padding: 0.75rem 0.25rem;
+  }
 }

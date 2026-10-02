@@ -1,10 +1,9 @@
 .app-footer {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
-  padding: 0.5rem;
-  background-color: #2d3e50;
-  color: #fff;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
+  padding: 0.9rem 1rem;
+  background-color: var(--app-brand-navy);
+  color: var(--app-on-brand);
+  font-size: 0.85rem;
+  box-sizing: border-box;
 }

@@ -1,16 +1,23 @@
 <!-- header.component.html -->
 <header class="app-header">
-  <div class="hamburguer-menu">
-    <button class="menu-btn" (click)="toggleMenu()">
-      ☰
-    </button>
-    <nav [class.open]="menuOpen">
+  <div class="hamburguer-menu" (click)="$event.stopPropagation()">
+    <button
+      type="button"
+      class="menu-btn"
+      aria-label="Abrir menú de navegación"
+      aria-controls="nav-principal"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="toggleMenu()"
+    >☰</button>
+    <nav id="nav-principal" [class.open]="menuOpen()">
       <ul>
-        <li><a routerLink="/transaccion">Ingresar Transacción</a></li>
-        <li><a routerLink="/transacciones">Ver Transacciones</a></li>
-        <li><a routerLink="/categorias">Categorías</a></li>
-        <li><a routerLink="/cuentas">Cuentas</a></li>
-        <li><a routerLink="/comercios">Comercios</a></li>
+        <li><a routerLink="/transaccion" (click)="cerrarMenu()">Ingresar Transacción</a></li>
+        <li><a routerLink="/transacciones" (click)="cerrarMenu()">Ver Transacciones</a></li>
+        <li><a routerLink="/presupuesto" (click)="cerrarMenu()">Presupuesto</a></li>
+        <li><a routerLink="/proyeccion" (click)="cerrarMenu()">Proyección</a></li>
+        <li><a routerLink="/cuadre" (click)="cerrarMenu()">Cuadre de gastos</a></li>
+        <li><a routerLink="/categorias" (click)="cerrarMenu()">Categorías</a></li>
+        <li><a routerLink="/cuentas" (click)="cerrarMenu()">Cuentas</a></li>
       </ul>
     </nav>
   </div>
@@ -19,4 +26,34 @@
     <h1>Finanzas App</h1>
   </div>
 
+  <div class="sesion">
+    <button
+      type="button"
+      class="tema-btn"
+      [attr.aria-pressed]="tema.esOscuro()"
+      [attr.aria-label]="tema.esOscuro() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+      [title]="tema.esOscuro() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+      (click)="tema.alternar()"
+    >
+      @if (tema.esOscuro()) {
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4.2" />
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" />
+        </svg>
+      } @else {
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z" />
+        </svg>
+      }
+    </button>
+
+    @if (autenticado()) {
+      @if (email(); as correo) {
+        <span class="sesion-email" [title]="correo">{{ correo }}</span>
+      }
+      <button type="button" class="sesion-btn" (click)="logout()">Cerrar sesión</button>
+    } @else {
+      <button type="button" class="sesion-btn" (click)="login()">Iniciar sesión</button>
+    }
+  </div>
 </header>

@@ -1,0 +1,88 @@
+<div class="crud-page">
+  <section class="crud-section">
+	<div class="section-header">
+	  <h2>Categorias</h2>
+	  <p>Administra tus categorias de ingreso y egreso.</p>
+	</div>
+
+	<form class="crud-form" [formGroup]="categoriaForm" (ngSubmit)="guardarCategoria()">
+	  <label>
+		Nombre
+		<input type="text" formControlName="nombre" [class.invalid]="categoriaForm.get('nombre')?.invalid && categoriaForm.get('nombre')?.touched" />
+	  </label>
+
+	  <label>
+		Tipo
+		<select formControlName="tipo" [class.invalid]="categoriaForm.get('tipo')?.invalid && categoriaForm.get('tipo')?.touched">
+		  @for (tipo of tiposCategoria; track tipo) {
+			<option [value]="tipo">{{ tipo }}</option>
+		  }
+		</select>
+	  </label>
+
+	  <label>
+		Categoría padre
+		<select formControlName="parentId">
+		  <option [ngValue]="null">Sin categoría padre</option>
+		  @for (categoria of categoriasPadreDisponibles; track categoria.id) {
+			<option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+		  }
+		</select>
+	  </label>
+
+	  <div class="acciones-formulario">
+		<button type="submit" class="btn btn-primario" [disabled]="guardando">
+		  {{ enEdicion ? 'Guardar cambios' : 'Agregar categoria' }}
+		</button>
+		@if (enEdicion) {
+		  <button type="button" class="btn" (click)="cancelarEdicion()">Cancelar</button>
+		}
+	  </div>
+
+	  @if (error) {
+		<p class="estado estado-error">{{ error }}</p>
+	  }
+	</form>
+
+@if (cargando) {
+	  <p class="estado">Cargando categorías...</p>
+	} @else if (categorias.length === 0 && !error) {
+	  <div class="estado-vacio">
+		<p class="estado-vacio-titulo">Todavía no tienes categorías.</p>
+		<p class="estado">
+		  Crea la primera con el formulario de arriba. Sin categorías no podrás clasificar tus
+		  ingresos y egresos.
+		</p>
+	  </div>
+	} @else if (categorias.length > 0) {
+	  <div class="tabla-wrapper">
+		<table>
+		  <thead>
+			<tr>
+				<th>Nombre</th>
+				<th>Tipo</th>
+				<th>Categoría padre</th>
+				<th>Acciones</th>
+			</tr>
+		  </thead>
+<tbody>
+			@for (categoria of categorias; track categoria.id) {
+			  <tr>
+				<td data-label="Nombre">{{ categoria.nombre }}</td>
+				<td data-label="Tipo">{{ categoria.tipo }}</td>
+				<td data-label="Categoría padre">{{ padreNombre(categoria) }}</td>
+				<td data-label="Acciones">
+				  <div class="acciones-tabla">
+					<button type="button" class="btn btn-secundario" (click)="editarCategoria(categoria)">Editar</button>
+					<button type="button" class="btn btn-peligro" (click)="eliminarCategoria(categoria)">Eliminar</button>
+				  </div>
+				</td>
+			  </tr>
+			}
+		  </tbody>
+		</table>
+	  </div>
+	}
+  </section>
+</div>
+
