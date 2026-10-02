@@ -45,16 +45,16 @@
 	</form>
 
 @if (cargando) {
-      <p class="estado">Cargando categorías...</p>
-    } @else if (categorias.length === 0 && !error) {
-      <div class="estado-vacio">
-        <p class="estado-vacio-titulo">Todavía no tienes categorías.</p>
-        <p class="estado">
-          Crea la primera con el formulario de arriba. Sin categorías no podrás clasificar tus
-          ingresos y egresos.
-        </p>
-      </div>
-    } @else if (categorias.length > 0) {
+	  <p class="estado">Cargando categorías...</p>
+	} @else if (categorias.length === 0 && !error) {
+	  <div class="estado-vacio">
+		<p class="estado-vacio-titulo">Todavía no tienes categorías.</p>
+		<p class="estado">
+		  Crea la primera con el formulario de arriba. Sin categorías no podrás clasificar tus
+		  ingresos y egresos.
+		</p>
+	  </div>
+	} @else if (categorias.length > 0) {
 	  <div class="tabla-wrapper">
 		<table>
 		  <thead>
@@ -65,13 +65,13 @@
 				<th>Acciones</th>
 			</tr>
 		  </thead>
-		  <tbody>
+<tbody>
 			@for (categoria of categorias; track categoria.id) {
 			  <tr>
-				<td>{{ categoria.nombre }}</td>
-				<td>{{ categoria.tipo }}</td>
-				<td>{{ padreNombre(categoria) }}</td>
-				<td>
+				<td data-label="Nombre">{{ categoria.nombre }}</td>
+				<td data-label="Tipo">{{ categoria.tipo }}</td>
+				<td data-label="Categoría padre">{{ padreNombre(categoria) }}</td>
+				<td data-label="Acciones">
 				  <div class="acciones-tabla">
 					<button type="button" class="btn btn-secundario" (click)="editarCategoria(categoria)">Editar</button>
 					<button type="button" class="btn btn-peligro" (click)="eliminarCategoria(categoria)">Eliminar</button>

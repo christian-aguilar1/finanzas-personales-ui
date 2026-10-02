@@ -1,25 +1,33 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
 .page-container {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 40px 10px;
   font-family: 'Poppins', sans-serif;
-  background-color: #f5f7fa;
-  min-height: 85vh;
+  background-color: var(--app-surface-3);
 }
 
 .form-container {
   width: 100%;
   max-width: 700px;
-  background: #ffffff;
+  background: var(--app-surface);
   padding: 30px 25px;
   border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px var(--app-shadow-color);
 }
 
 h2 {
   text-align: center;
-  color: #2d3e50;
+  color: var(--app-text);
   margin-bottom: 25px;
   font-weight: 700;
   font-size: 1.8rem;
@@ -39,14 +47,14 @@ h2 {
 .form-group label {
   font-weight: 600;
   margin-bottom: 6px;
-  color: #3a3a3a;
+  color: var(--app-text);
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   padding: 10px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--app-border-2);
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s;
@@ -55,15 +63,15 @@ h2 {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #2cb67d;
+  border-color: var(--app-success);
   outline: none;
 }
 
 input.invalid, select.invalid {
-  border: 1px solid red;
+  border: 1px solid var(--app-danger);
 }
 .error {
-  color: red;
+  color: var(--app-danger);
   font-size: 0.85em;
   margin-top: 4px;
 }
@@ -88,14 +96,14 @@ textarea {
 
 .cuotas-hint {
   grid-column: span 2;
-  color: #5a6b7b;
+  color: var(--app-text-muted);
   font-size: 0.85rem;
   line-height: 1.4;
 }
 
 .error {
   font-size: 0.85rem;
-  color: #d32f2f;
+  color: var(--app-danger);
   margin-top: 4px;
 }
 
@@ -116,28 +124,43 @@ textarea {
 }
 
 .btn-guardar {
-  background-color: #2cb67d;
-  color: white;
+  background-color: var(--app-success);
+  color: var(--app-on-primary);
 }
 
 .btn-guardar:hover {
-  background-color: #239563;
+  background-color: var(--app-success);
 }
 
 .btn-cancelar {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--app-surface-3);
+  color: var(--app-text);
 }
 
 .btn-cancelar:hover {
-  background-color: #c8c8c8;
+  background-color: var(--app-surface-3);
 }
 
 /* Responsive */
 @media (max-width: 600px) {
+  .page-container {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .form-container {
+    padding: 1.2rem 1rem;
+    border-radius: 12px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
+
   .descripcion-full {
     grid-column: span 1;
   }
@@ -149,38 +172,54 @@ textarea {
   .cuotas-hint {
     grid-column: span 1;
   }
+
+  /* Botones a lo ancho: es lo que hace el dedo sin fallar. */
+  .buttons {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .buttons .btn {
+    width: 100%;
+  }
+
+  .aviso-inicial .btn-ir {
+    display: block;
+    text-align: center;
+    margin-right: 0;
+  }
 }
 
 input.invalid, select.invalid, textarea.invalid {
-  border: 1px solid red;
+  border: 1px solid var(--app-danger);
   outline: none;
 }
 
 /* Mensajes de error */
 .error {
-  color: red;
+  color: var(--app-danger);
   font-size: 0.85em;
   margin-top: 4px;
 }
 
 /* Bloqueo mientras no haya cuentas ni categorias */
 .aviso-inicial {
-  background: #fff8e1;
-  border: 1px solid #f5d999;
+  background: var(--app-warning-soft);
+  border: 1px solid var(--app-warning-soft-2);
   border-radius: 8px;
   margin-bottom: 1rem;
   padding: 0.9rem 1rem;
 }
 
 .aviso-inicial p {
-  color: #7a5c00;
+  color: var(--app-warning-ink);
   margin: 0 0 0.6rem;
 }
 
 .btn-ir {
-  background: #2d3e50;
+  background: var(--app-brand-navy);
   border-radius: 6px;
-  color: #fff;
+  color: var(--app-on-brand);
   display: inline-block;
   font-size: 0.9rem;
   margin-right: 0.5rem;

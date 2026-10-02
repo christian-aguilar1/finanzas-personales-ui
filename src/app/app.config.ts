@@ -44,9 +44,11 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Lara,
         options: {
-          inputBackground: '#ffffff',
-          inputTextColor: '#212121',
-          inputBorderColor: '#ced4da'
+          // PrimeNG enciende su paleta oscura con esta clase en <html>, que es
+          // la que escribe TemaService. Los overrides de input que había
+          // (fijos en claro) se quitaron: con ellos el toast y los p-input se
+          // quedaban claros dentro del tema oscuro.
+          darkModeSelector: '.app-dark'
         }
       }
     })

@@ -1,27 +1,34 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
 .crud-page {
-  min-height: 84vh;
-  background: #f3f7fa;
+  flex: 1;
+  background: var(--app-page-bg);
   padding: 1.5rem 1rem 2rem;
-  box-sizing: border-box;
 }
 
 .crud-section {
   width: min(900px, 100%);
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(45, 62, 80, 0.12);
+  box-shadow: 0 8px 30px var(--app-shadow-color);
   padding: 1.2rem;
 }
 
 .section-header h2 {
   margin: 0;
-  color: #1d2b3a;
+  color: var(--app-text);
 }
 
 .section-header p {
   margin: 0.3rem 0 1rem;
-  color: #5d6a77;
+  color: var(--app-text-muted);
 }
 
 .crud-form {
@@ -35,7 +42,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  color: #425466;
+  color: var(--app-text-2);
 }
 
 .acciones-formulario {
@@ -57,12 +64,12 @@ table {
 th,
 td {
   padding: 0.65rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--app-border);
   font-size: 0.92rem;
 }
 
 th {
-  color: #334155;
+  color: var(--app-text-2);
   text-align: left;
 }
 
@@ -72,10 +79,10 @@ th {
 }
 
 .btn {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--app-border-2);
   border-radius: 8px;
-  background: #ffffff;
-  color: #1e293b;
+  background: var(--app-surface);
+  color: var(--app-text);
   font-weight: 600;
   padding: 0.45rem 0.7rem;
   cursor: pointer;
@@ -87,41 +94,41 @@ th {
 }
 
 .btn-primario {
-  background: #2cb67d;
-  color: #ffffff;
-  border-color: #2cb67d;
+  background: var(--app-success);
+  color: var(--app-on-primary);
+  border-color: var(--app-success);
 }
 
 .btn-secundario {
-  background: #f8fafc;
+  background: var(--app-surface-2);
 }
 
 .btn-peligro {
-  background: #fee2e2;
-  border-color: #fecaca;
-  color: #b91c1c;
+  background: var(--app-danger-soft);
+  border-color: var(--app-danger-soft-2);
+  color: var(--app-danger-ink);
 }
 
 .estado {
   text-align: center;
-  color: #64748b;
+  color: var(--app-text-muted);
   margin: 1rem 0;
 }
 
 .estado-error {
-  color: #b91c1c;
+  color: var(--app-danger-ink);
 }
 
 .estado-vacio {
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
+  background: var(--app-surface-2);
+  border: 1px dashed var(--app-border-2);
   border-radius: 10px;
   padding: 1.5rem 1rem;
   text-align: center;
 }
 
 .estado-vacio-titulo {
-  color: #1e293b;
+  color: var(--app-text);
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 0.4rem;
@@ -133,7 +140,6 @@ th {
 
 @media (max-width: 768px) {
   .crud-page {
-    min-height: auto;
     padding: 1rem 0.75rem 1.5rem;
   }
 
@@ -148,6 +154,55 @@ th {
 
   .acciones-tabla {
     flex-direction: column;
+  }
+}
+
+/* En pantallas angostas la tabla no cabe: cada fila pasa a ser una tarjeta
+   apilada. La etiqueta sale de data-label, así no hace falta scroll horizontal
+   ni quedan celdas sin encabezado. */
+@media (max-width: 640px) {
+  table {
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    display: block;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    margin-bottom: 0.6rem;
+    padding: 0.2rem 0.75rem;
+    background: var(--app-surface);
+  }
+
+  td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed var(--app-border);
+    text-align: right;
+  }
+
+  tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--app-text-2);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .acciones-tabla {
+    flex-direction: row;
+    justify-content: flex-end;
+    flex-wrap: wrap;
   }
 }
 
