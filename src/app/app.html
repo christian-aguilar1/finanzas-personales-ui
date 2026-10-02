@@ -1,6 +1,16 @@
 <p-toast position="top-right"></p-toast>
 <app-header></app-header>
 
+<!-- Aviso persistente, no un toast: si la red se cae, el toast se va solo y el usuario
+     pierde la referencia de que esta viendo datos viejos. Va entre el header y <main>
+     para no competir por espacio con el menu hamburguesa, que es flex-wrap. -->
+@if (sinConexion()) {
+  <div class="sin-conexion" role="status" aria-live="polite">
+    <span class="sin-conexion-icono" aria-hidden="true">⚠</span>
+    <span>Sin conexión. Los datos pueden no estar actualizados.</span>
+  </div>
+}
+
 <main class="app-main">
   <router-outlet></router-outlet>
 </main>

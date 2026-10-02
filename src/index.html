@@ -1,15 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>FinanzasPersonalesUi</title>
+  <title>Finanzas Personales</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Favicon propio. Se eliminó el <link rel="icon" type="image/x-icon"> del
+       scaffold de Angular: ese .ico seguía ganándole al PNG en algunos
+       navegadores, y la app se veía con el logo por defecto. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+  <!-- PWA: instalable. El manifest va con crossorigin porque asi lo requiere Chrome
+       para validar la instalabilidad. -->
+  <link rel="manifest" href="manifest.webmanifest" crossorigin>
+  <meta name="theme-color" content="#2d3e50">
+  <meta name="description" content="Control de finanzas personales: cuentas, categorías, transacciones, presupuesto, proyección y cuadre de gastos.">
+
+  <!-- iOS no lee el manifest: necesita sus propias meta tags para abrir sin barra
+       de navegador y para no usar el favicon como ícono de la pantalla de inicio. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Finanzas">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
   <app-root></app-root>
+  <!-- Config de produccion inyectada en runtime por la funcion serverless de Vercel.
+       NO es un asset del build, asi que el service worker no lo cachea (ngsw-config.json
+       no lo incluye): si quedara cacheado, una variable cambiada en Vercel seguiria
+       sirviendo el valor viejo desde el cache del dispositivo. -->
   <script src="/api/env.js"></script>
 </body>
 </html>
