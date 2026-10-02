@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@auth0/auth0-angular';
+import { TemaService } from '../../services/tema.service';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,8 @@ import { AuthService } from '@auth0/auth0-angular';
 })
 export class Header {
   private readonly auth = inject(AuthService);
+
+  protected readonly tema = inject(TemaService);
 
   readonly menuOpen = signal(false);
 
@@ -28,6 +31,17 @@ export class Header {
 
   cerrarMenu(): void {
     this.menuOpen.set(false);
+  }
+
+  /** El panel es absoluto: sin esto queda abierto sobre el contenido al navegar con el dedo. */
+  @HostListener('document:click')
+  cerrarMenuAlClickFuera(): void {
+    this.cerrarMenu();
+  }
+
+  @HostListener('document:keydown.escape')
+  cerrarMenuConEscape(): void {
+    this.cerrarMenu();
   }
 
   login(): void {
