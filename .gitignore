@@ -41,3 +41,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Originales de los iconos de la PWA en JPEG/JFIF (1.6 MB cada uno). Los PNG que
+# sí se versionan son los de public/icons/, ya recortados y en los tamaños que
+# pide el manifest. Los originales no hacen falta para el build y sumarian 3.4 MB
+# al repo, que git guarda sin comprimir.
+/iconos-originales/

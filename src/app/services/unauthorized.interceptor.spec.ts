@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AuthService } from '@auth0/auth0-angular';
+import { MessageService } from 'primeng/api';
 
 import { unauthorizedInterceptorFn } from './unauthorized.interceptor';
 
@@ -10,6 +11,7 @@ describe('unauthorizedInterceptorFn', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let loginWithRedirect: jasmine.Spy;
+  let messageService: MessageService;
 
   const configurar = (haySesion: boolean) => {
     loginWithRedirect = jasmine.createSpy('loginWithRedirect').and.returnValue(of(void 0));
@@ -22,11 +24,16 @@ describe('unauthorizedInterceptorFn', () => {
           provide: AuthService,
           useValue: { isAuthenticated$: of(haySesion), loginWithRedirect },
         },
+        // El interceptor avisa los errores de red con un toast, asi que necesita
+        // MessageService. En la app real lo registra app.config.ts; este TestBed
+        // no carga esa config, asi que hay que darle el provider aqui.
+        MessageService,
       ],
     });
 
     http = TestBed.inject(HttpClient);
     httpMock = TestBed.inject(HttpTestingController);
+    messageService = TestBed.inject(MessageService);
   };
 
   /** Dispara un GET que responde 401 y devuelve el error que llegó al suscriptor. */
@@ -73,5 +80,40 @@ describe('unauthorizedInterceptorFn', () => {
 
     expect(resultado).toEqual([{ id: 1 }]);
     expect(loginWithRedirect).not.toHaveBeenCalled();
+  });
+
+  describe('error de red (status 0)', () => {
+    /** Dispara un GET que falla como lo hace el navegador cuando no hay salida. */
+    const pedirYRecibirErrorDeRed = (): HttpErrorResponse => {
+      let error!: HttpErrorResponse;
+      http.get('/api/cuentas').subscribe({ error: (e: HttpErrorResponse) => (error = e) });
+      // status 0 es lo que Angular reporta cuando la peticion no llega al servidor:
+      // navigator.status undefined, como en un fallo de conexion real.
+      httpMock
+        .expectOne('/api/cuentas')
+        .error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
+      return error;
+    };
+
+    it('avisa con un toast y propaga el error al componente', () => {
+      configurar(true);
+      const spy = spyOn(messageService, 'add');
+
+      const error = pedirYRecibirErrorDeRed();
+
+      expect(error.status).toBe(0);
+      expect(spy).toHaveBeenCalledTimes(1);
+      const aviso = spy.calls.mostRecent().args[0];
+      expect(aviso.severity).toBe('warn');
+      expect(aviso.summary).toBe('Sin conexión');
+    });
+
+    it('NO intenta redirigir al login: no es un problema de sesión', () => {
+      configurar(true);
+
+      pedirYRecibirErrorDeRed();
+
+      expect(loginWithRedirect).not.toHaveBeenCalled();
+    });
   });
 });
