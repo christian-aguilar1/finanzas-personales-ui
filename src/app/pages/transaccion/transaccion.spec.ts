@@ -170,4 +170,69 @@ describe('Transaccion', () => {
 
     expect(agregarTransaccion).toHaveBeenCalledTimes(1);
   });
+
+  describe('medio de pago', () => {
+    const guardarConCuenta = (cuentaId: number) => {
+      component.transaccionForm.patchValue({
+        tipo: 'EGRESO',
+        cuenta: cuentaId,
+        monto: 1000,
+        categoria: 3,
+      });
+
+      component.guardar();
+
+      return agregarTransaccion.calls.mostRecent().args[0].medio;
+    };
+
+    it('usa el tipo de la cuenta seleccionada', () => {
+      crearComponente(
+        [
+          { id: 1, nombre: 'Cuenta Corriente', tipo: 'DEBITO' },
+          { id: 2, nombre: 'Billetera', tipo: 'EFECTIVO' },
+          { id: 3, nombre: 'Tarjeta', tipo: 'CREDITO' },
+        ],
+        categorias,
+      );
+      agregarTransaccion.calls.reset();
+
+      expect(guardarConCuenta(1)).toBe('DEBITO');
+      expect(guardarConCuenta(2)).toBe('EFECTIVO');
+      expect(guardarConCuenta(3)).toBe('CREDITO');
+    });
+
+    it('imputa una cuenta de ahorro como DEBITO', () => {
+      crearComponente([{ id: 7, nombre: 'Ahorro', tipo: 'AHORRO' }], categorias);
+      agregarTransaccion.calls.reset();
+
+      expect(guardarConCuenta(7)).toBe('DEBITO');
+    });
+
+    it('una compra en cuotas siempre va como CREDITO', () => {
+      crearComponente([{ id: 2, nombre: 'Billetera', tipo: 'EFECTIVO' }], categorias);
+      agregarTransaccion.calls.reset();
+
+      component.transaccionForm.patchValue({
+        tipo: 'EGRESO',
+        cuenta: 2,
+        monto: 120000,
+        categoria: 3,
+        esCompraCuotas: true,
+        cuotaActual: 1,
+        totalCuotas: 12,
+      });
+
+      component.guardar();
+
+      const request = agregarTransaccion.calls.mostRecent().args[0];
+
+      expect(request.medio).toBe('CREDITO');
+      expect(request.cuotaActual).toBe(1);
+      expect(request.totalCuotas).toBe(12);
+    });
+
+    it('cae a EFECTIVO si la cuenta ya no está en el catálogo', () => {
+      expect(guardarConCuenta(99)).toBe('EFECTIVO');
+    });
+  });
 });

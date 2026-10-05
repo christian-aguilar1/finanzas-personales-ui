@@ -90,6 +90,13 @@ export interface PaginaTransacciones {
     next?: { href: string };
     last?: { href: string };
   };
+  /**
+   * Saldo con el que abre el periodo consultado (arrastre acumulado). Lo
+   * calcula el backend; si no viene, la vista no lo inventa.
+   */
+  saldoInicio?: number;
+  /** Alias del mismo concepto que usa el backend en algunas respuestas. */
+  arrastre?: number;
   page: {
     size: number;
     totalElements: number;

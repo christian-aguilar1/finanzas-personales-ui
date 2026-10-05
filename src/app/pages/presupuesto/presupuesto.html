@@ -22,18 +22,24 @@
       <div class="estado estado-error">{{ error }}</div>
     } @else {
       <div class="resumen-grid">
+        <article class="resumen saldo">
+          <span>{{ etiquetaSaldoInicio() }}</span>
+          <strong>{{ saldoInicio | number: '1.0-2' }}</strong>
+          <small>{{ saldoInicioEsArrastre ? 'Con el que abre el periodo' : 'Suma del ancla de las cuentas' }}</small>
+        </article>
+
         <article class="resumen ingreso">
-          <span>Ingresos</span>
+          <span>Ingresos del periodo</span>
           <strong>{{ ingresoTotal | number: '1.0-2' }}</strong>
         </article>
 
         <article class="resumen egreso">
-          <span>Egresos</span>
+          <span>Egresos del periodo</span>
           <strong>{{ egresoTotal | number: '1.0-2' }}</strong>
         </article>
 
         <article class="resumen total">
-          <span>Total final</span>
+          <span>Saldo final</span>
           <strong>{{ obtenerTotalFinal() | number: '1.0-2' }}</strong>
         </article>
       </div>

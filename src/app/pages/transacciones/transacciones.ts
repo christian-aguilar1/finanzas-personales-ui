@@ -68,17 +68,7 @@ export class TransaccionesComponent implements OnInit {
   private transacciones: Transaccion[] = [];
   private paginasEnCache: Map<number, Transaccion[]> = new Map();
 
-  filtros: FiltroTransacciones = {
-    modoBusqueda: 'PERIODO_FACTURACION',
-    modoFecha: 'PREDEFINIDO',
-    periodo: 'MES_ACTUAL',
-    fechaDesde: null,
-    fechaHasta: null,
-    mesFacturacion: 'TODOS',
-    tipo: 'TODOS',
-    cuentaId: null,
-    categoriaId: null,
-  };
+  filtros: FiltroTransacciones = this.crearFiltrosPorDefecto();
 
   readonly periodosDisponibles: Array<{ valor: PeriodoFiltro; etiqueta: string }> = [
     {valor: 'HOY', etiqueta: 'Hoy'},
@@ -115,10 +105,32 @@ export class TransaccionesComponent implements OnInit {
   ngOnInit(): void {
     const filtrosGuardados = this.filtroService.obtenerFiltros();
     if (filtrosGuardados) {
-      this.filtros = filtrosGuardados.filtros;
-      this.modoBusqueda = filtrosGuardados.modoBusqueda;
+      // Se fusionan con los defaults: un objeto guardado por una versión anterior
+      // puede venir incompleto y dejar filtros en undefined.
+      this.filtros = {...this.crearFiltrosPorDefecto(), ...filtrosGuardados.filtros};
+      this.modoBusqueda = filtrosGuardados.modoBusqueda ?? this.modoBusqueda;
+      this.filtros.modoBusqueda = this.modoBusqueda;
     }
     this.cargarDatosIniciales();
+  }
+
+  /**
+   * Los filtros van al backend, no al cliente: la tabla muestra una página del
+   * resultado ya filtrado. Sin esto, entrar a la vista con filtros guardados
+   * traía todos los registros.
+   */
+  private construirFiltrosParaBackend(): Partial<FiltroTransacciones> {
+    return {
+      modoBusqueda: this.modoBusqueda,
+      modoFecha: this.filtros.modoFecha,
+      periodo: this.filtros.periodo,
+      fechaDesde: this.filtros.fechaDesde,
+      fechaHasta: this.filtros.fechaHasta,
+      mesFacturacion: this.filtros.mesFacturacion,
+      tipo: this.filtros.tipo,
+      cuentaId: this.filtros.cuentaId,
+      categoriaId: this.filtros.categoriaId,
+    };
   }
 
   private cargarDatosIniciales(): void {
@@ -129,7 +141,7 @@ export class TransaccionesComponent implements OnInit {
       categorias: this.categoriaService
         .obtenerCategorias()
         .pipe(catchError(() => of([]))),
-      transacciones: this.transaccionService.obtenerTransacciones(0, this.registrosPorPagina, undefined, this.sortState ?? undefined),
+      transacciones: this.transaccionService.obtenerTransacciones(0, this.registrosPorPagina, this.construirFiltrosParaBackend(), this.sortState ?? undefined),
     }).subscribe(({cuentas, categorias, transacciones}) => {
       this.cuentas = cuentas as Cuenta[];
       this.categorias = categorias as Categoria[];
@@ -152,6 +164,20 @@ export class TransaccionesComponent implements OnInit {
     this.dataSource.data = this.transaccionesFiltradas;
   }
 
+  private crearFiltrosPorDefecto(): FiltroTransacciones {
+    return {
+      modoBusqueda: 'PERIODO_FACTURACION',
+      modoFecha: 'PREDEFINIDO',
+      periodo: 'MES_ACTUAL',
+      fechaDesde: null,
+      fechaHasta: null,
+      mesFacturacion: 'TODOS',
+      tipo: 'TODOS',
+      cuentaId: null,
+      categoriaId: null,
+    };
+  }
+
   aplicarFiltros(): void {
     this.filtrando = true;
 
@@ -162,17 +188,7 @@ export class TransaccionesComponent implements OnInit {
     this.paginaActual = 1;
 
     // Construir objeto de filtros para enviar al backend
-    const filtrosParaBackend: Partial<FiltroTransacciones> = {
-      modoBusqueda: this.modoBusqueda,
-      modoFecha: this.filtros.modoFecha,
-      periodo: this.filtros.periodo,
-      fechaDesde: this.filtros.fechaDesde,
-      fechaHasta: this.filtros.fechaHasta,
-      mesFacturacion: this.filtros.mesFacturacion,
-      tipo: this.filtros.tipo,
-      cuentaId: this.filtros.cuentaId,
-      categoriaId: this.filtros.categoriaId,
-    };
+    const filtrosParaBackend = this.construirFiltrosParaBackend();
 
     // Cargar primera página con filtros
     this.cargandoTransacciones = true;
@@ -218,17 +234,7 @@ export class TransaccionesComponent implements OnInit {
     // Si no está en caché, traerla del backend con los filtros actuales
     this.cargandoTransacciones = true;
 
-    const filtrosParaBackend: Partial<FiltroTransacciones> = {
-      modoBusqueda: this.modoBusqueda,
-      modoFecha: this.filtros.modoFecha,
-      periodo: this.filtros.periodo,
-      fechaDesde: this.filtros.fechaDesde,
-      fechaHasta: this.filtros.fechaHasta,
-      mesFacturacion: this.filtros.mesFacturacion,
-      tipo: this.filtros.tipo,
-      cuentaId: this.filtros.cuentaId,
-      categoriaId: this.filtros.categoriaId,
-    };
+    const filtrosParaBackend = this.construirFiltrosParaBackend();
 
     this.transaccionService.obtenerTransacciones(indicePagina, this.registrosPorPagina, filtrosParaBackend, this.sortState ?? undefined).subscribe({
       next: (respuesta) => {
@@ -348,17 +354,7 @@ export class TransaccionesComponent implements OnInit {
     this.modoBusqueda = 'PERIODO_FACTURACION';
     this.paginaActual = 1;
     this.terminoBusqueda = '';
-    this.filtros = {
-      modoBusqueda: 'PERIODO_FACTURACION',
-      modoFecha: 'PREDEFINIDO',
-      periodo: 'MES_ACTUAL',
-      fechaDesde: null,
-      fechaHasta: null,
-      mesFacturacion: 'TODOS',
-      tipo: 'TODOS',
-      cuentaId: null,
-      categoriaId: null,
-    };
+    this.filtros = this.crearFiltrosPorDefecto();
 
     this.aplicarFiltros();
   }

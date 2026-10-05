@@ -138,7 +138,7 @@ export class TransaccionComponent implements OnInit {
       comercioId: form.comercio || null,
       descripcion: form.descripcion || "",
       esRecurrente: form.esRecurrente,
-      medio: esCompraCuotas ? 'CREDITO' : 'EFECTIVO',
+      medio: this.obtenerMedioPago(form.cuenta, esCompraCuotas),
       totalCuotas: esCompraCuotas ? Number(form.totalCuotas) : null,
       cuotaActual: esCompraCuotas ? Number(form.cuotaActual) : null,
       tagIds: []
@@ -175,6 +175,21 @@ export class TransaccionComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la transacción. Intente nuevamente.' });
       }
     });
+  }
+
+  /**
+   * El backend deduce el medio de pago salvo para compras en cuotas, que solo
+   * accepts `CREDITO`. `AHORRO` es un tipo de cuenta, no un `MedioPago`, así que
+   * se imputa como `DEBITO`.
+   */
+  private obtenerMedioPago(cuentaId: unknown, esCompraCuotas: boolean): string {
+    if (esCompraCuotas) {
+      return 'CREDITO';
+    }
+
+    const tipo = this.cuentas.find((cuenta) => cuenta.id === Number(cuentaId))?.tipo;
+
+    return tipo === 'AHORRO' ? 'DEBITO' : tipo ?? 'EFECTIVO';
   }
 
   cancelar() {

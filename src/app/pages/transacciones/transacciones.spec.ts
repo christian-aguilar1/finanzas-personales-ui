@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { TransaccionService } from '../../services/transaccion.service';
 import { CuentaService } from '../../services/cuenta.service';
 import { CategoriaService } from '../../services/categoria.service';
-import { Transaccion } from '../../models/transaccion.model';
+import { Transaccion, FiltroTransacciones } from '../../models/transaccion.model';
 import { MatSort } from '@angular/material/sort';
 import { FiltroService } from '../../services/filtro.service';
 
@@ -69,6 +69,99 @@ describe('TransaccionesComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('filtros guardados en localStorage', () => {
+    const reiniciarConFiltro = async (guardado: { filtros: Partial<FiltroTransacciones>; modoBusqueda: string } | null) => {
+      TestBed.resetTestingModule();
+
+      await TestBed.configureTestingModule({
+        imports: [TransaccionesComponent],
+        providers: [
+          { provide: TransaccionService, useValue: transaccionServiceSpy },
+          { provide: CuentaService, useValue: { obtenerCuentas: () => of([]) } },
+          { provide: CategoriaService, useValue: { obtenerCategorias: () => of([]) } },
+          provideRouter([]),
+          {
+            provide: FiltroService,
+            useValue: {
+              obtenerFiltros: () => guardado,
+              guardarFiltros: () => {},
+              limpiarFiltros: () => {},
+            },
+          },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(TransaccionesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    };
+
+    it('pide al backend los filtros guardados en vez de todos los registros', async () => {
+      transaccionServiceSpy.obtenerTransacciones.and.returnValue(of(crearPaginaMock([])));
+
+      await reiniciarConFiltro({
+        filtros: { tipo: 'EGRESO', mesFacturacion: '03' },
+        modoBusqueda: 'PERIODO_FACTURACION',
+      });
+
+      const filtrosEnviados = transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[2];
+
+      expect(filtrosEnviados).toBeTruthy();
+      expect(filtrosEnviados?.tipo).toBe('EGRESO');
+      expect(filtrosEnviados?.mesFacturacion).toBe('03');
+    });
+
+    it('muestra la tabla ya filtrada al entrar a la vista', async () => {
+      const transaccionesMock: Transaccion[] = [
+        { id: 1, fecha: '2026-03-01', periodoFacturacion: '2026-03', monto: 1000, tipo: 'INGRESO' },
+        { id: 2, fecha: '2026-03-10', periodoFacturacion: '2026-03', monto: 2000, tipo: 'EGRESO' },
+      ];
+
+      configurarMockFiltros(transaccionesMock);
+      await reiniciarConFiltro({ filtros: { tipo: 'EGRESO' }, modoBusqueda: 'PERIODO_FACTURACION' });
+
+      expect(component.transaccionesFiltradas.length).toBe(1);
+      expect(component.transaccionesFiltradas[0].id).toBe(2);
+    });
+
+    it('respeta el modo de búsqueda guardado', async () => {
+      transaccionServiceSpy.obtenerTransacciones.and.returnValue(of(crearPaginaMock([])));
+
+      await reiniciarConFiltro({
+        filtros: { modoFecha: 'RANGO', fechaDesde: '2026-03-01', fechaHasta: '2026-03-31' },
+        modoBusqueda: 'FECHA_TRANSACCION',
+      });
+
+      const filtrosEnviados = transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[2];
+
+      expect(component.modoBusqueda).toBe('FECHA_TRANSACCION');
+      expect(filtrosEnviados?.modoBusqueda).toBe('FECHA_TRANSACCION');
+      expect(filtrosEnviados?.fechaDesde).toBe('2026-03-01');
+      expect(filtrosEnviados?.fechaHasta).toBe('2026-03-31');
+    });
+
+    it('completa con los valores por defecto un filtro guardado incompleto', async () => {
+      transaccionServiceSpy.obtenerTransacciones.and.returnValue(of(crearPaginaMock([])));
+
+      await reiniciarConFiltro({ filtros: { tipo: 'INGRESO' }, modoBusqueda: 'PERIODO_FACTURACION' });
+
+      expect(component.filtros.periodo).toBe('MES_ACTUAL');
+      expect(component.filtros.mesFacturacion).toBe('TODOS');
+      expect(component.filtros.cuentaId).toBeNull();
+    });
+
+    it('envía los filtros por defecto cuando no hay nada guardado', async () => {
+      transaccionServiceSpy.obtenerTransacciones.and.returnValue(of(crearPaginaMock([])));
+
+      await reiniciarConFiltro(null);
+
+      const filtrosEnviados = transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[2];
+
+      expect(filtrosEnviados?.tipo).toBe('TODOS');
+      expect(filtrosEnviados?.mesFacturacion).toBe('TODOS');
+    });
   });
 
   it('debe filtrar por tipo desde la primera página', () => {

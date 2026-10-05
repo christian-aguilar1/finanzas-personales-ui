@@ -20,6 +20,17 @@
         </select>
       </label>
 
+      <label>
+        Saldo inicial
+        <input
+          type="number"
+          min="0"
+          step="1"
+          formControlName="saldoInicial"
+          [class.invalid]="cuentaForm.get('saldoInicial')?.invalid && cuentaForm.get('saldoInicial')?.touched"
+        />
+      </label>
+
       <div class="acciones-formulario">
         <button type="submit" class="btn btn-primario" [disabled]="guardando">
           {{ enEdicion ? 'Guardar cambios' : 'Agregar cuenta' }}
@@ -56,6 +67,7 @@
             <tr>
               <th>Nombre</th>
               <th>Tipo</th>
+              <th>Saldo inicial</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -64,6 +76,7 @@
               <tr>
                 <td data-label="Nombre">{{ cuenta.nombre }}</td>
                 <td data-label="Tipo">{{ cuenta.tipo }}</td>
+                <td data-label="Saldo inicial">{{ cuenta.saldoInicial ?? 0 | number: '1.0-0' }}</td>
                 <td data-label="Acciones">
                   <div class="acciones-tabla">
                     <button type="button" class="btn btn-secundario" (click)="editarCuenta(cuenta)">Editar</button>

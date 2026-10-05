@@ -88,4 +88,23 @@ describe('Header', () => {
 
     expect(enlaces).not.toContain('/comercios');
   });
+
+  it('el título es un enlace al inicio', () => {
+    configurarSesion(false, null);
+
+    const logo = fixture.nativeElement.querySelector('a.logo') as HTMLAnchorElement;
+
+    expect(logo).toBeTruthy();
+    expect(logo.textContent).toContain('Finanzas App');
+    expect(logo.getAttribute('href')).toBe('/inicio');
+  });
+
+  it('el enlace al inicio cierra el menú desplegable', () => {
+    configurarSesion(false, null);
+    component.menuOpen.set(true);
+
+    (fixture.nativeElement.querySelector('a.logo') as HTMLAnchorElement).click();
+
+    expect(component.menuOpen()).toBeFalse();
+  });
 });

@@ -151,10 +151,12 @@ export class TransaccionService {
   private normalizarPagina(pagina: PaginaTransacciones | null): PaginaTransacciones {
     const transacciones = pagina?._embedded?.transaccionResponseList ?? [];
     const paginacion = pagina?.page;
+    const saldoInicio = pagina?.saldoInicio ?? pagina?.arrastre;
 
     return {
       _embedded: { transaccionResponseList: transacciones },
       _links: pagina?._links ?? { self: { href: '' } },
+      ...(saldoInicio === undefined ? {} : { saldoInicio }),
       page: {
         size: paginacion?.size ?? transacciones.length,
         totalElements: paginacion?.totalElements ?? transacciones.length,
