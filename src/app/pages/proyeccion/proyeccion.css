@@ -224,9 +224,35 @@ td {
   color: var(--app-text);
 }
 
-td:last-child {
+table:not(.tabla-detalle) td:last-child {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+
+.tabla-detalle td.monto {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.estado-transaccion {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estado-transaccion.realizada {
+  background: var(--app-success-soft);
+  border: 1px solid var(--app-success-soft-2);
+  color: var(--app-success-ink);
+}
+
+.estado-transaccion.proyectada {
+  background: var(--app-primary-soft);
+  border: 1px solid var(--app-primary-soft-2);
+  color: var(--app-primary-ink);
 }
 
 .estado {

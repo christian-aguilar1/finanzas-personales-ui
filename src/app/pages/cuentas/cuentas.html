@@ -62,13 +62,13 @@
       </div>
     } @else {
       <div class="tabla-wrapper">
-        <table>
+        <table appTablaOrdenable>
           <thead>
             <tr>
               <th>Nombre</th>
               <th>Tipo</th>
-              <th>Saldo inicial</th>
-              <th>Acciones</th>
+              <th data-sort-type="numero">Saldo inicial</th>
+              <th data-sortable="false">Acciones</th>
             </tr>
           </thead>
           <tbody>

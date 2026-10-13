@@ -6,6 +6,7 @@ import {
   CrearTransaccionRequest,
   FiltroTransacciones,
   PaginaTransacciones,
+  PeriodoFiltro,
   Proyeccion,
   Transaccion,
   TransaccionRequest
@@ -136,15 +137,62 @@ export class TransaccionService {
       params = params.set('periodoFacturacion', `${anioActual}-${filtros.mesFacturacion}`);
     }
     if (filtros.modoBusqueda === 'FECHA_TRANSACCION') {
-      if (filtros.fechaDesde) {
-        params = params.set('fechaDesde', filtros.fechaDesde);
+      const {desde, hasta} = this.resolverRangoFechas(filtros);
+      if (desde) {
+        params = params.set('fechaDesde', desde);
       }
-      if (filtros.fechaHasta) {
-        params = params.set('fechaHasta', filtros.fechaHasta);
+      if (hasta) {
+        params = params.set('fechaHasta', hasta);
       }
     }
 
     return params;
+  }
+
+  /**
+   * El backend solo entiende `fechaDesde`/`fechaHasta`, no el periodo predefinido.
+   * Sin traducir `periodo` a un rango, entrar con un filtro guardado de tipo
+   * "periodo predefinido" mostraba todas las transacciones sin filtrar.
+   */
+  private resolverRangoFechas(
+    filtros: Partial<FiltroTransacciones>
+  ): { desde: string | null; hasta: string | null } {
+    if (filtros.modoFecha === 'RANGO') {
+      return {desde: filtros.fechaDesde ?? null, hasta: filtros.fechaHasta ?? null};
+    }
+    return this.rangoDePeriodo(filtros.periodo ?? 'MES_ACTUAL');
+  }
+
+  private rangoDePeriodo(periodo: PeriodoFiltro): { desde: string; hasta: string } {
+    const hoy = new Date();
+
+    const formatear = (fecha: Date): string => {
+      const anio = fecha.getFullYear();
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      return `${anio}-${mes}-${dia}`;
+    };
+
+    switch (periodo) {
+      case 'HOY':
+        return {desde: formatear(hoy), hasta: formatear(hoy)};
+      case 'ULTIMOS_7_DIAS': {
+        const desde = new Date(hoy);
+        desde.setDate(desde.getDate() - 6);
+        return {desde: formatear(desde), hasta: formatear(hoy)};
+      }
+      case 'ULTIMOS_30_DIAS': {
+        const desde = new Date(hoy);
+        desde.setDate(desde.getDate() - 29);
+        return {desde: formatear(desde), hasta: formatear(hoy)};
+      }
+      case 'MES_ACTUAL':
+      default:
+        return {
+          desde: formatear(new Date(hoy.getFullYear(), hoy.getMonth(), 1)),
+          hasta: formatear(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)),
+        };
+    }
   }
 
   /** El backend respondía 204 sin body para listas vacías: se normaliza a una página vacía. */

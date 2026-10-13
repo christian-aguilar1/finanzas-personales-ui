@@ -69,6 +69,32 @@ describe('Transaccion', () => {
     expect(component).toBeTruthy();
   });
 
+  it('marca como recurrente una transacción recurrente al cargarla para editar', () => {
+    (component as unknown as { cargarTransaccionEnFormulario: (t: unknown) => void })
+      .cargarTransaccionEnFormulario({
+        id: 5,
+        tipo: 'EGRESO',
+        fecha: '2026-10-01',
+        monto: 1000,
+        esRecurrente: true,
+      });
+
+    expect(component.transaccionForm.value.esRecurrente).toBeTrue();
+  });
+
+  it('deja desmarcada una transacción que no es recurrente', () => {
+    (component as unknown as { cargarTransaccionEnFormulario: (t: unknown) => void })
+      .cargarTransaccionEnFormulario({
+        id: 6,
+        tipo: 'EGRESO',
+        fecha: '2026-10-01',
+        monto: 1000,
+        esRecurrente: false,
+      });
+
+    expect(component.transaccionForm.value.esRecurrente).toBeFalse();
+  });
+
   it('acepta la cuota 0 en una compra en cuotas', () => {
     component.transaccionForm.patchValue({
       tipo: 'EGRESO',

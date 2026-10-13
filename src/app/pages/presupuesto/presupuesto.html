@@ -51,12 +51,12 @@
             <p class="estado">Sin ingresos en este periodo.</p>
           } @else {
             <div class="tabla-wrapper">
-              <table>
+              <table appTablaOrdenable>
                 <thead>
                   <tr>
                     <th>Categoría</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th data-sort-type="numero">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -79,12 +79,12 @@
             <p class="estado">Sin egresos en este periodo.</p>
           } @else {
             <div class="tabla-wrapper">
-              <table>
+              <table appTablaOrdenable>
                 <thead>
                   <tr>
                     <th>Categoría</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th data-sort-type="numero">Total</th>
                   </tr>
                 </thead>
                 <tbody>

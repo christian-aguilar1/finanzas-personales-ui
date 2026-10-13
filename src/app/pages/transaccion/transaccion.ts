@@ -275,7 +275,7 @@ export class TransaccionComponent implements OnInit {
       monto: transaccion.monto,
       categoria: transaccion.categoriaId ?? '',
       comercio: '',
-      esRecurrente: false,
+      esRecurrente: transaccion.esRecurrente ?? false,
       esCompraCuotas,
       cuotaActual: transaccion.cuotaActual ?? null,
       totalCuotas: transaccion.totalCuotas ?? null,

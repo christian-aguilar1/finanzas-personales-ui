@@ -3,11 +3,12 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Cuenta, CuentaRequest} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
+import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 
 @Component({
   selector: 'app-cuentas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TablaOrdenableDirective],
   templateUrl: './cuentas.html',
   styleUrl: './cuentas.css',
 })

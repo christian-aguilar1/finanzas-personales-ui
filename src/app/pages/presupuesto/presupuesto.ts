@@ -5,6 +5,7 @@ import {PaginaTransacciones, Transaccion} from '../../models/transaccion.model';
 import {Cuenta} from '../../models/cuenta.model';
 import {TransaccionService} from '../../services/transaccion.service';
 import {CuentaService} from '../../services/cuenta.service';
+import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 import {Observable, forkJoin, of} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import {Chart, registerables} from 'chart.js';
@@ -44,7 +45,7 @@ const COLORS_EGRESOS = [
 @Component({
   selector: 'app-presupuesto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TablaOrdenableDirective],
   templateUrl: './presupuesto.html',
   styleUrl: './presupuesto.css',
 })
