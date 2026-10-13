@@ -8,10 +8,11 @@ export interface Transaccion {
   periodoFacturacion?: string;
   monto: number;
   tipo: TipoTransaccion;
+  esRecurrente?: boolean;
   cuotaActual?: number | null;
   totalCuotas?: number | null;
   descripcion?: string;
-cuentaId?: number;
+  cuentaId?: number;
   cuentaNombre?: string;
   categoriaId?: number;
   categoriaNombre?: string;
@@ -68,6 +69,8 @@ export interface ProyeccionTransaccion {
   fecha: string;
   monto: number;
   tipo: TipoTransaccion;
+  /** true si ya está registrada en el periodo en curso; false si está proyectada. */
+  esRealizada: boolean;
 }
 
 export interface Proyeccion {
@@ -90,6 +93,13 @@ export interface PaginaTransacciones {
     next?: { href: string };
     last?: { href: string };
   };
+  /**
+   * Saldo con el que abre el periodo consultado (arrastre acumulado). Lo
+   * calcula el backend; si no viene, la vista no lo inventa.
+   */
+  saldoInicio?: number;
+  /** Alias del mismo concepto que usa el backend en algunas respuestas. */
+  arrastre?: number;
   page: {
     size: number;
     totalElements: number;

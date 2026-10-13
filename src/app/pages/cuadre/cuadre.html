@@ -137,12 +137,12 @@
             <p class="estado">Sin categorías en este periodo.</p>
           } @else {
             <div class="tabla-wrapper">
-              <table>
+              <table appTablaOrdenable>
                 <thead>
                   <tr>
                     <th>Nombre</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th data-sort-type="numero">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -168,12 +168,12 @@
             <p class="estado">Sin comercios en este periodo.</p>
           } @else {
             <div class="tabla-wrapper">
-              <table>
+              <table appTablaOrdenable>
                 <thead>
                   <tr>
                     <th>Nombre</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th data-sort-type="numero">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -197,15 +197,15 @@
       <div class="tabla-seccion detalle-seccion">
         <h2>Detalle de transacciones</h2>
         <div class="tabla-wrapper">
-          <table class="tabla-detalle">
+          <table appTablaOrdenable class="tabla-detalle">
             <thead>
               <tr>
                 <th>Descripción</th>
                 <th>Comercio</th>
                 <th>Categoría</th>
                 <th>Cuota</th>
-                <th>Fecha</th>
-                <th>Monto</th>
+                <th data-sort-type="fecha">Fecha</th>
+                <th data-sort-type="numero">Monto</th>
               </tr>
             </thead>
             <tbody>

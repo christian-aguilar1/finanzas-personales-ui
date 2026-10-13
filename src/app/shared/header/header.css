@@ -79,6 +79,23 @@ nav li:last-child a {
 
 .logo {
   min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.35rem;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo:hover {
+  background: var(--app-on-brand-hover);
+}
+
+.logo:focus-visible {
+  outline: 2px solid var(--app-on-brand);
+  outline-offset: 2px;
 }
 
 .logo h1 {

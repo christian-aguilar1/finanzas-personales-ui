@@ -3,11 +3,12 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Categoria, CategoriaRequest} from '../../models/categoria.model';
 import {CategoriaService} from '../../services/categoria.service';
+import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TablaOrdenableDirective],
   templateUrl: './categorias.html',
   styleUrl: './categorias.css',
 })

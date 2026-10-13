@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { environment } from '../../environments/environment';
+import { FiltroTransacciones } from '../models/transaccion.model';
 import { TransaccionService } from './transaccion.service';
 
 describe('TransaccionService', () => {
@@ -85,5 +86,81 @@ describe('TransaccionService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.params.has('userId')).toBeFalse();
     req.flush(null);
+  });
+
+  describe('traducción del filtro de fecha a rango', () => {
+    beforeEach(() => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date(2026, 9, 12));
+    });
+
+    afterEach(() => jasmine.clock().uninstall());
+
+    const pedirYCapturar = (filtros: Partial<FiltroTransacciones>) => {
+      service
+        .obtenerTransacciones(0, 10, filtros)
+        .subscribe();
+      const req = httpMock.expectOne((r) => r.url === `${environment.apiUrl}/transacciones`);
+      const params = req.request.params;
+      req.flush({ _embedded: { transaccionResponseList: [] }, page: {} });
+      return params;
+    };
+
+    it('convierte el periodo predefinido MES_ACTUAL en el rango del mes', () => {
+      const params = pedirYCapturar({
+        modoBusqueda: 'FECHA_TRANSACCION',
+        modoFecha: 'PREDEFINIDO',
+        periodo: 'MES_ACTUAL',
+      });
+
+      expect(params.get('fechaDesde')).toBe('2026-10-01');
+      expect(params.get('fechaHasta')).toBe('2026-10-31');
+    });
+
+    it('convierte ULTIMOS_7_DIAS en una ventana que termina hoy', () => {
+      const params = pedirYCapturar({
+        modoBusqueda: 'FECHA_TRANSACCION',
+        modoFecha: 'PREDEFINIDO',
+        periodo: 'ULTIMOS_7_DIAS',
+      });
+
+      expect(params.get('fechaDesde')).toBe('2026-10-06');
+      expect(params.get('fechaHasta')).toBe('2026-10-12');
+    });
+
+    it('usa exactamente la fecha de hoy en el periodo HOY', () => {
+      const params = pedirYCapturar({
+        modoBusqueda: 'FECHA_TRANSACCION',
+        modoFecha: 'PREDEFINIDO',
+        periodo: 'HOY',
+      });
+
+      expect(params.get('fechaDesde')).toBe('2026-10-12');
+      expect(params.get('fechaHasta')).toBe('2026-10-12');
+    });
+
+    it('respeta el rango manual cuando el modo es RANGO', () => {
+      const params = pedirYCapturar({
+        modoBusqueda: 'FECHA_TRANSACCION',
+        modoFecha: 'RANGO',
+        periodo: 'MES_ACTUAL',
+        fechaDesde: '2026-03-01',
+        fechaHasta: '2026-03-15',
+      });
+
+      expect(params.get('fechaDesde')).toBe('2026-03-01');
+      expect(params.get('fechaHasta')).toBe('2026-03-15');
+    });
+
+    it('no manda fechas cuando se filtra por periodo de facturación', () => {
+      const params = pedirYCapturar({
+        modoBusqueda: 'PERIODO_FACTURACION',
+        modoFecha: 'PREDEFINIDO',
+        periodo: 'MES_ACTUAL',
+      });
+
+      expect(params.has('fechaDesde')).toBeFalse();
+      expect(params.has('fechaHasta')).toBeFalse();
+    });
   });
 });

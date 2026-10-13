@@ -29,6 +29,7 @@ describe('ProyeccionComponent', () => {
         fecha: '2026-09-30',
         monto: 100000,
         tipo: 'INGRESO',
+        esRealizada: true,
       },
       {
         descripcion: 'BODEGA ACUENTA PANOTECA',
@@ -38,6 +39,7 @@ describe('ProyeccionComponent', () => {
         fecha: '2026-08-11',
         monto: 9573,
         tipo: 'EGRESO',
+        esRealizada: false,
       },
       {
         descripcion: 'Arriendo',
@@ -47,6 +49,7 @@ describe('ProyeccionComponent', () => {
         fecha: '2026-09-05',
         monto: 30000,
         tipo: 'EGRESO',
+        esRealizada: true,
       },
     ],
   };
@@ -117,6 +120,15 @@ describe('ProyeccionComponent', () => {
 
     expect(component.formatearCuota(null)).toBe('-');
     expect(filas[0].textContent).toContain('-');
+  });
+
+  it('etiqueta cada transacción como realizada o proyectada', () => {
+    const filas = fixture.nativeElement.querySelectorAll('.tabla-detalle tbody tr');
+
+    expect(filas[0].textContent).toContain('Realizada');
+    expect(filas[0].querySelector('.estado-transaccion.realizada')).toBeTruthy();
+    expect(filas[1].textContent).toContain('Proyectada');
+    expect(filas[1].querySelector('.estado-transaccion.proyectada')).toBeTruthy();
   });
 
   it('formatea las fechas de la proyección en formato dd-mm-aaaa', () => {

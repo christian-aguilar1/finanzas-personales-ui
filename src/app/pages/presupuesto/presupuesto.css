@@ -107,6 +107,17 @@
   color: var(--app-success-ink);
 }
 
+.resumen.saldo {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-2);
+  color: var(--app-text);
+}
+
+.resumen.saldo small {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
 .resumen.egreso {
   background: var(--app-danger-soft);
   border: 1px solid var(--app-danger-soft-2);
