@@ -1,15 +1,165 @@
-<div class="inicio-container">
-  <h1 class="titulo">💰 Finanzas Personales</h1>
-  <p class="descripcion">Gestiona tus ingresos y egresos de forma sencilla</p>
+<div class="inicio">
+  <header class="encabezado">
+    <div class="encabezado__texto">
+      <p class="encabezado__antetitulo">Panel</p>
+      <h1 class="encabezado__titulo">Mi resumen financiero</h1>
+      <p class="encabezado__subtitulo">{{ etiquetaVentana }}</p>
+    </div>
 
-  <div class="acciones-rapidas">
-    <button class="btn-agregar" (click)="agregarTransaccion()">
-      ➕ Agregar Transacción
-    </button>
+    <div class="encabezado__acciones">
+      <button
+        type="button"
+        class="boton boton--linea"
+        (click)="cargar()"
+        [disabled]="cargando()"
+        [attr.aria-busy]="cargando()"
+      >
+        {{ cargando() ? 'Actualizando…' : 'Actualizar' }}
+      </button>
+      <button type="button" class="boton boton--primario" (click)="agregarTransaccion()">
+        Nueva transacción
+      </button>
+    </div>
+  </header>
 
-    <button class="btn-ver" (click)="verTransacciones()">
-      Ver Transacciones
-    </button>
-  </div>
+  @if (error()) {
+    <section class="aviso" role="alert">
+      <h2 class="aviso__titulo">No se pudo cargar el resumen</h2>
+      <p class="aviso__texto">{{ error() }}</p>
+      <button type="button" class="boton boton--primario" (click)="cargar()">Reintentar</button>
+    </section>
+  } @else if (sinCuentas()) {
+    <section class="aviso">
+      <h2 class="aviso__titulo">Empieza creando una cuenta</h2>
+      <p class="aviso__texto">
+        El resumen se arma con los movimientos de tus cuentas. Crea la primera para ver el balance, la tendencia
+        mensual y el detalle por categoría.
+      </p>
+      <a class="boton boton--primario" routerLink="/cuentas">Crear cuenta</a>
+    </section>
+  } @else if (sinMovimientos()) {
+    <section class="aviso">
+      <h2 class="aviso__titulo">Todavía no hay movimientos</h2>
+      <p class="aviso__texto">
+        Registra tu primera transacción y este panel mostrará el balance del mes, la tendencia de los últimos 6 meses
+        y en qué se va el dinero.
+      </p>
+      <button type="button" class="boton boton--primario" (click)="agregarTransaccion()">
+        Registrar transacción
+      </button>
+    </section>
+  } @else {
+    <section class="tarjetas" aria-label="Métricas del mes">
+      @for (tarjeta of tarjetas(); track tarjeta.clave) {
+        <article
+          class="tarjeta"
+          [class.tarjeta--positivo]="tarjeta.tono === 'positivo'"
+          [class.tarjeta--negativo]="tarjeta.tono === 'negativo'"
+        >
+          <p class="tarjeta__titulo">{{ tarjeta.titulo }}</p>
+          <p class="tarjeta__valor">
+            {{ tarjeta.valor | number: '1.0-0' }}<span class="tarjeta__unidad">{{ tarjeta.esPorcentaje ? ' %' : '' }}</span>
+          </p>
+          <p class="tarjeta__detalle">{{ tarjeta.detalle }}</p>
+        </article>
+      }
+    </section>
+
+    <section class="indicadores" aria-label="Detalle de la ventana">
+      @for (indicador of indicadores(); track indicador.clave) {
+        <div class="indicador">
+          <p class="indicador__titulo">{{ indicador.titulo }}</p>
+          <p class="indicador__valor">{{ indicador.valor }}</p>
+          <p class="indicador__detalle">{{ indicador.detalle }}</p>
+        </div>
+      }
+    </section>
+
+    <div class="paneles">
+      <section class="panel">
+        <header class="panel__cabecera">
+          <h2 class="panel__titulo">Ingresos y egresos por mes</h2>
+          <p class="panel__subtitulo">Si los egresos crecen más rápido que los ingresos, el balance lo va a mostrar.</p>
+        </header>
+
+        @if (hayTendencia()) {
+          <div class="grafico">
+            <canvas
+              #graficoTendencia
+              role="img"
+              aria-label="Gráfico de barras comparando ingresos y egresos de los últimos 6 meses"
+            ></canvas>
+          </div>
+        } @else {
+          <p class="panel__vacio">Sin movimientos en la ventana de 6 meses.</p>
+        }
+      </section>
+
+      <section class="panel">
+        <header class="panel__cabecera">
+          <h2 class="panel__titulo">En qué se va el dinero</h2>
+          <p class="panel__subtitulo">Egresos del mes agrupados por categoría.</p>
+        </header>
+
+        @if (categoriasGasto().length > 0) {
+          <div class="categorias">
+            <div class="grafico grafico--anillo">
+              <canvas #graficoCategorias role="img" aria-label="Gráfico circular de egresos por categoría"></canvas>
+            </div>
+
+            <ul class="leyenda">
+              @for (categoria of categoriasGasto(); track categoria.nombre) {
+                <li class="leyenda__fila">
+                  <span class="leyenda__punto" [style.background-color]="colorSerie($index)"></span>
+                  <span class="leyenda__nombre">{{ categoria.nombre }}</span>
+                  <span class="leyenda__monto">{{ categoria.total | number: '1.0-0' }}</span>
+                  <span class="leyenda__porcentaje">{{ porcentaje(categoria.total) | number: '1.0-0' }} %</span>
+                </li>
+              }
+            </ul>
+          </div>
+        } @else {
+          <p class="panel__vacio">Sin egresos registrados este mes.</p>
+        }
+      </section>
+    </div>
+
+    <section class="panel">
+      <header class="panel__cabecera">
+        <div>
+          <h2 class="panel__titulo">Últimos movimientos</h2>
+          <p class="panel__subtitulo">Los 5 más recientes de la ventana.</p>
+        </div>
+        <button type="button" class="enlace" (click)="verTransacciones()">Ver todos</button>
+      </header>
+
+      <ul class="movimientos">
+        @for (movimiento of ultimasTransacciones(); track movimiento.id) {
+          <li class="movimiento">
+            <div class="movimiento__datos">
+              <span class="movimiento__descripcion">
+                {{ movimiento.descripcion || movimiento.categoriaNombre || 'Movimiento' }}
+              </span>
+              <span class="movimiento__meta">
+                {{ movimiento.categoriaNombre || 'Sin categoría' }} · {{ fechaCorta(movimiento.fecha) }}
+              </span>
+            </div>
+
+            <span
+              class="movimiento__monto"
+              [class.movimiento__monto--ingreso]="movimiento.tipo === 'INGRESO'"
+            >
+              {{ movimiento.tipo === 'INGRESO' ? '+' : '−' }}{{ movimiento.monto | number: '1.0-0' }}
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <nav class="atajos" aria-label="Accesos rápidos">
+      <a class="atajo" routerLink="/presupuesto">Presupuesto del mes</a>
+      <a class="atajo" routerLink="/transacciones">Explorar transacciones</a>
+      <a class="atajo" routerLink="/cuentas">Administrar cuentas</a>
+    </nav>
+  }
 </div>
-

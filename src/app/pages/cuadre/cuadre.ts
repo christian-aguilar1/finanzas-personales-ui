@@ -9,6 +9,7 @@ import { Cuenta } from '../../models/cuenta.model';
 import { CuadreAgrupado, CuadreGastos } from '../../models/cuadre.model';
 import { CuentaService } from '../../services/cuenta.service';
 import { CuadreService } from '../../services/cuadre.service';
+import { TablaOrdenableDirective } from '../../shared/sortable-table.directive';
 
 interface PeriodoOpcion {
   valor: string;
@@ -22,7 +23,7 @@ type TransaccionConComercio = Transaccion & { comercioNombre?: string | null };
 @Component({
   selector: 'app-cuadre',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TablaOrdenableDirective],
   templateUrl: './cuadre.html',
   styleUrl: './cuadre.css',
 })

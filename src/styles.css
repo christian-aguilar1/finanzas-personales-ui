@@ -184,3 +184,38 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--app-primary);
   box-shadow: 0 0 0 0.2rem var(--app-ring);
 }
+
+/* Cabeceras ordenables (directiva `appTablaOrdenable`): la flecha "⇅" aparece
+   al pasar el mouse y se convierte en "▲"/"▼" sobre la columna activa. */
+th.ordenable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+th.ordenable::after {
+  content: '\21C5';
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.65rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+th.ordenable:hover::after {
+  opacity: 0.5;
+}
+
+th.ordenable.orden-asc::after {
+  content: '\25B2';
+  opacity: 1;
+}
+
+th.ordenable.orden-desc::after {
+  content: '\25BC';
+  opacity: 1;
+}
+
+[data-theme='oscuro'] th.ordenable::after {
+  color: var(--app-text-muted);
+}

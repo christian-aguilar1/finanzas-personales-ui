@@ -5,6 +5,7 @@ import {PaginaTransacciones, Transaccion} from '../../models/transaccion.model';
 import {Cuenta} from '../../models/cuenta.model';
 import {TransaccionService} from '../../services/transaccion.service';
 import {CuentaService} from '../../services/cuenta.service';
+import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 import {Observable, forkJoin, of} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import {Chart, registerables} from 'chart.js';
@@ -24,8 +25,7 @@ interface ResumenCategoria {
 }
 
 const NOMBRE_COMPRAS_EN_CUOTAS = 'Compras en cuotas';
-const NOMBRE_SALDO_INICIAL = 'Saldo inicial';
-const TIPOS_CON_SALDO_INICIAL = ['DEBITO', 'EFECTIVO'];
+const TIPOS_CON_SALDO_INICIAL = ['DEBITO', 'EFECTIVO', 'AHORRO'];
 const COLORS_EGRESOS = [
   '#ef4444',
   '#f97316',
@@ -45,7 +45,7 @@ const COLORS_EGRESOS = [
 @Component({
   selector: 'app-presupuesto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TablaOrdenableDirective],
   templateUrl: './presupuesto.html',
   styleUrl: './presupuesto.css',
 })
@@ -67,6 +67,14 @@ export class PresupuestoComponent implements OnInit {
 
   ingresoTotal = 0;
   egresoTotal = 0;
+  /**
+   * Saldo con el que abre el periodo. Es stock, no un flujo del periodo: por eso
+   * no se suma a `ingresoTotal`. Lo entrega el backend; si no viene, se usa el
+   * ancla de las cuentas y `saldoInicioEsArrastre` lo deja marcado.
+   */
+  saldoInicio = 0;
+  saldoInicioEsArrastre = false;
+  private saldoInicioReportado: number | null = null;
 
   constructor(
     private transaccionService: TransaccionService,
@@ -105,6 +113,10 @@ export class PresupuestoComponent implements OnInit {
       .obtenerTransaccionesPorPeriodoFacturacion(this.periodoSeleccionado, page, 10)
       .pipe(
         concatMap((paginaTransacciones: PaginaTransacciones) => {
+          if (page === 0) {
+            this.saldoInicioReportado = paginaTransacciones.saldoInicio ?? paginaTransacciones.arrastre ?? null;
+          }
+
           const transaccionesActuales = [
             ...acumuladas,
             ...(paginaTransacciones._embedded?.transaccionResponseList ?? [])
@@ -131,7 +143,7 @@ export class PresupuestoComponent implements OnInit {
   }
 
   obtenerTotalFinal(): number {
-    return this.ingresoTotal - this.egresoTotal;
+    return this.saldoInicio + this.ingresoTotal - this.egresoTotal;
   }
 
   private procesarResumen(): void {
@@ -145,21 +157,29 @@ export class PresupuestoComponent implements OnInit {
     this.ingresoTotal = this.sumarMontos(ingresos);
     this.egresoTotal = this.sumarMontos(egresos);
 
-    this.agregarSaldoInicialComoIngresos();
+    this.resolverSaldoInicio();
   }
 
-  private agregarSaldoInicialComoIngresos(): void {
-    const saldoInicial = this.cuentas
+  /**
+   * El arrastre del periodo es el saldo acumulado hasta su inicio y lo calcula el
+   * backend. Mientras no lo informe, se muestra el ancla de las cuentas como
+   * saldo inicial, etiquetado como tal para no confundirlo con un ingreso.
+   */
+  private resolverSaldoInicio(): void {
+    if (this.saldoInicioReportado !== null) {
+      this.saldoInicio = this.saldoInicioReportado;
+      this.saldoInicioEsArrastre = true;
+      return;
+    }
+
+    this.saldoInicio = this.cuentas
       .filter((cuenta) => TIPOS_CON_SALDO_INICIAL.includes(cuenta.tipo))
       .reduce((total, cuenta) => total + Number(cuenta.saldoInicial ?? 0), 0);
+    this.saldoInicioEsArrastre = false;
+  }
 
-    if (saldoInicial !== 0) {
-      this.ingresoTotal += saldoInicial;
-      this.ingresosPorCategoria = [
-        ...this.ingresosPorCategoria,
-        { categoriaId: null, categoriaNombre: NOMBRE_SALDO_INICIAL, total: saldoInicial, cantidad: 1 },
-      ].sort((a, b) => b.total - a.total);
-    }
+  etiquetaSaldoInicio(): string {
+    return this.saldoInicioEsArrastre ? 'Saldo inicial' : 'Saldo inicial de cuentas';
   }
 
   private agruparPorCategoria(transacciones: Transaccion[]): ResumenCategoria[] {

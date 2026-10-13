@@ -3,11 +3,12 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Cuenta, CuentaRequest} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
+import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 
 @Component({
   selector: 'app-cuentas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TablaOrdenableDirective],
   templateUrl: './cuentas.html',
   styleUrl: './cuentas.css',
 })
@@ -30,6 +31,7 @@ export class CuentasComponent implements OnInit {
     this.cuentaForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       tipo: ['EFECTIVO', Validators.required],
+      saldoInicial: [0, [Validators.min(0)]],
     });
   }
 
@@ -66,7 +68,8 @@ export class CuentasComponent implements OnInit {
       nombre: this.cuentaForm.value.nombre ?? '',
       moneda: 'CLP',
       tipo: this.cuentaForm.value.tipo ?? 'EFECTIVO',
-      saldoInicial: 0,
+      // El valor del formulario, nunca un 0 fijo: pisar el ancla borraba el saldo de la cuenta.
+      saldoInicial: Number(this.cuentaForm.value.saldoInicial ?? 0),
     };
 
     const onSuccess = () => {
@@ -98,6 +101,7 @@ export class CuentasComponent implements OnInit {
     this.cuentaForm.patchValue({
       nombre: cuenta.nombre,
       tipo: cuenta.tipo,
+      saldoInicial: cuenta.saldoInicial ?? 0,
     });
   }
 
@@ -133,6 +137,7 @@ export class CuentasComponent implements OnInit {
     this.cuentaForm.reset({
       nombre: '',
       tipo: 'EFECTIVO',
+      saldoInicial: 0,
     });
   }
 }

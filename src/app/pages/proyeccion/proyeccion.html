@@ -63,12 +63,12 @@
             <p class="estado">Sin ingresos recurrentes proyectados.</p>
           } @else {
             <div class="tabla-wrapper">
-              <table>
+              <table appTablaOrdenable>
                 <thead>
                   <tr>
                     <th>Categoría</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th data-sort-type="numero">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -91,12 +91,12 @@
             <p class="estado">Sin egresos recurrentes proyectados.</p>
           } @else {
             <div class="tabla-wrapper">
-              <table>
+              <table appTablaOrdenable>
                 <thead>
                   <tr>
                     <th>Categoría</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th data-sort-type="numero">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -120,15 +120,16 @@
           <p class="estado">Sin transacciones proyectadas para este periodo.</p>
         } @else {
           <div class="tabla-wrapper">
-            <table class="tabla-detalle">
+            <table appTablaOrdenable class="tabla-detalle">
               <thead>
                 <tr>
                   <th>Descripción</th>
                   <th>Cuenta</th>
                   <th>Categoría</th>
                   <th>Cuota</th>
-                  <th>Fecha</th>
-                  <th>Monto</th>
+                  <th data-sort-type="fecha">Fecha</th>
+                  <th data-sort-type="numero">Monto</th>
+                  <th data-sortable="false">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -141,6 +142,11 @@
                     <td>{{ formatearFecha(item.fecha) }}</td>
                     <td class="monto">
                       {{ item.monto | number: '1.0-2' }}
+                    </td>
+                    <td>
+                      <span class="estado-transaccion" [class.realizada]="item.esRealizada" [class.proyectada]="!item.esRealizada">
+                        @if (item.esRealizada) { Realizada } @else { Proyectada }
+                      </span>
                     </td>
                   </tr>
                 }

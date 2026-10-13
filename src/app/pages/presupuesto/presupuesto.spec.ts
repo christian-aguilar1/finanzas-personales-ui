@@ -127,9 +127,19 @@ describe('PresupuestoComponent', () => {
     });
 
     it('no cuenta en el total las transacciones con cuotaActual 0 pero si las de categoria hija', () => {
+      // El saldo inicial es stock, no un flujo del periodo: los ingresos son solo
+      // los movimientos del periodo (5000 de sueldo), sin los 318177 de la cuenta.
       expect(component.egresoTotal).toBe(20777);
-      expect(component.ingresoTotal).toBe(323177);
-      expect(component.obtenerTotalFinal()).toBe(302400);
+      expect(component.ingresoTotal).toBe(5000);
+      expect(component.saldoInicio).toBe(318177);
+      expect(component.saldoInicioEsArrastre).toBeFalse();
+      expect(component.obtenerTotalFinal()).toBe(318177 + 5000 - 20777);
+    });
+
+    it('no muestra el saldo inicial como fila de ingresos', () => {
+      const nombres = component.ingresosPorCategoria.map((item) => item.categoriaNombre);
+
+      expect(nombres).toEqual(['Sueldo']);
     });
 
     it('cuenta las transacciones con cuotaActual mayor a 0', () => {
@@ -138,26 +148,86 @@ describe('PresupuestoComponent', () => {
       expect(enCuotas.map((item) => item.monto)).toEqual([10000, 7777]);
     });
 
-    it('suma el saldo inicial de las cuentas DEBITO y EFECTIVO como ingreso', () => {
-      expect(component.ingresoTotal).toBe(5000 + 318177);
-      expect(component.obtenerTotalFinal()).toBe(5000 + 318177 - 20777);
+    it('incluye AHORRO entre los tipos con saldo inicial', async () => {
+      TestBed.resetTestingModule();
+
+      await TestBed.configureTestingModule({
+        imports: [PresupuestoComponent],
+        providers: [
+          {
+            provide: TransaccionService,
+            useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => of(mockPaginaVacia) },
+          },
+          {
+            provide: CuentaService,
+            useValue: {
+              obtenerCuentas: () =>
+                of([
+                  { id: 1, nombre: 'Ahorro', tipo: 'AHORRO', saldoInicial: 90000 },
+                  { id: 2, nombre: 'Tarjeta', tipo: 'CREDITO', saldoInicial: 50000 },
+                ]),
+            },
+          },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(PresupuestoComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.saldoInicio).toBe(90000);
+      expect(component.etiquetaSaldoInicio()).toBe('Saldo inicial de cuentas');
     });
 
-    it('muestra el saldo inicial como fila de ingresos', () => {
-      const saldo = component.ingresosPorCategoria.find((item) => item.categoriaNombre === 'Saldo inicial');
-      expect(saldo?.total).toBe(318177);
-      expect(saldo?.cantidad).toBe(1);
+    it('usa el arrastre que informa el backend en vez del ancla de las cuentas', async () => {
+      TestBed.resetTestingModule();
+
+      await TestBed.configureTestingModule({
+        imports: [PresupuestoComponent],
+        providers: [
+          {
+            provide: TransaccionService,
+            useValue: {
+              obtenerTransaccionesPorPeriodoFacturacion: () => of({ ...pagina, saldoInicio: 123456 }),
+            },
+          },
+          { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(PresupuestoComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.saldoInicio).toBe(123456);
+      expect(component.saldoInicioEsArrastre).toBeTrue();
+      expect(component.etiquetaSaldoInicio()).toBe('Saldo inicial');
+      expect(component.obtenerTotalFinal()).toBe(123456 + 5000 - 20777);
     });
 
-    it('no suma el saldo inicial de cuentas CREDITO', () => {
-      const totalSaldoCreditos = cuentas
-        .filter((cuenta) => cuenta.tipo === 'CREDITO')
-        .reduce((total, cuenta) => total + Number(cuenta.saldoInicial ?? 0), 0);
-      expect(totalSaldoCreditos).toBe(50000);
-      const filaSaldo = component.ingresosPorCategoria.find((item) => item.categoriaNombre === 'Saldo inicial');
-      expect(filaSaldo?.total).toBe(318177);
-    });
+    it('acepta arrastre como alias de saldoInicio', async () => {
+      TestBed.resetTestingModule();
 
+      await TestBed.configureTestingModule({
+        imports: [PresupuestoComponent],
+        providers: [
+          {
+            provide: TransaccionService,
+            useValue: {
+              obtenerTransaccionesPorPeriodoFacturacion: () => of({ ...pagina, arrastre: 777 }),
+            },
+          },
+          { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(PresupuestoComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.saldoInicio).toBe(777);
+      expect(component.saldoInicioEsArrastre).toBeTrue();
+    });
     it('suma los montos de las categorias hijas dentro de su categoria padre', () => {
       const mercaderia = component.egresosPorCategoria.find((item) => item.categoriaNombre === 'Mercadería');
       expect(mercaderia?.total).toBe(3000);

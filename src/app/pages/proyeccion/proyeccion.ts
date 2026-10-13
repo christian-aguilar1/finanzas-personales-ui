@@ -3,6 +3,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Proyeccion, ProyeccionCategoria, ProyeccionTransaccion} from '../../models/transaccion.model';
 import {TransaccionService} from '../../services/transaccion.service';
+import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 import {Chart, registerables} from 'chart.js';
 
 Chart.register(...registerables);
@@ -30,7 +31,7 @@ const COLORS_EGRESOS = [
 @Component({
   selector: 'app-proyeccion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TablaOrdenableDirective],
   templateUrl: './proyeccion.html',
   styleUrl: './proyeccion.css',
 })
