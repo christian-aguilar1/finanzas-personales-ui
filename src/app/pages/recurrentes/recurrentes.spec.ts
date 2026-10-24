@@ -1,5 +1,6 @@
 import {TestBed} from '@angular/core/testing';
-import {provideRouter} from '@angular/router';
+import {By} from '@angular/platform-browser';
+import {RouterLink, provideRouter} from '@angular/router';
 import {of, throwError} from 'rxjs';
 import {RecurrentesComponent} from './recurrentes';
 import {TransaccionService} from '../../services/transaccion.service';
@@ -21,7 +22,9 @@ describe('Recurrentes', () => {
     expect(c.visibles.map(t => t.id)).toEqual([1]);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Trimestral');
-    expect(fixture.nativeElement.querySelector('tbody a').getAttribute('href')).toContain('/transaccion/1');
+    const editar = fixture.debugElement.query(By.css('tbody button')).injector.get(RouterLink);
+    expect(editar.urlTree?.toString()).toBe('/transaccion/1?volver=recurrentes');
+    expect(editar.state).toEqual({transaccion: c.visibles[0]});
   });
   it('ordena todas las columnas ascendente y descendente sin modificar la lista original', () => {
     const fixture = TestBed.createComponent(RecurrentesComponent); fixture.detectChanges();
@@ -48,6 +51,24 @@ describe('Recurrentes', () => {
     boton.click(); fixture.detectChanges();
     expect(boton.closest('th').getAttribute('aria-sort')).toBe('descending');
     expect(fixture.nativeElement.querySelector('tbody tr').textContent).toContain('Sueldo');
+  });
+
+  it('mantiene Editar visible sin desplazar horizontalmente una tabla angosta', () => {
+    const fixture = TestBed.createComponent(RecurrentesComponent);
+    fixture.nativeElement.style.display = 'block';
+    fixture.nativeElement.style.width = '390px';
+    fixture.detectChanges();
+    const contenedor: HTMLElement = fixture.nativeElement.querySelector('.tabla-wrapper');
+    const celda: HTMLElement = fixture.nativeElement.querySelector('tbody .acciones');
+    const boton: HTMLElement = celda.querySelector('button')!;
+    expect(getComputedStyle(celda).position).toBe('sticky');
+    expect(contenedor.scrollWidth).toBeGreaterThan(contenedor.clientWidth);
+    expect(boton.getBoundingClientRect().right).toBeLessThanOrEqual(contenedor.getBoundingClientRect().right + 1);
+    expect(boton.getBoundingClientRect().left).toBeGreaterThanOrEqual(contenedor.getBoundingClientRect().left);
+    expect(boton.textContent).toContain('Editar');
+    expect(boton.querySelector('mat-icon')?.textContent).toBe('edit');
+    contenedor.scrollLeft = contenedor.scrollWidth;
+    expect(boton.getBoundingClientRect().right).toBeLessThanOrEqual(contenedor.getBoundingClientRect().right + 1);
   });
 
   it('muestra el estado vacío', () => {
