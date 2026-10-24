@@ -25,3 +25,8 @@ button:hover { background: var(--app-surface-2); }
 .estado { text-align: center; padding: 48px 24px; background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 12px; margin-top: 24px; }
 .estado h2 { font-size: 1.25rem; }
 @media (max-width: 640px) { .recurrentes { padding: 24px 16px; } .encabezado { align-items: flex-start; flex-direction: column; gap: 16px; } .filtros { grid-template-columns: 1fr; padding: 16px; } th, td { padding: 12px; } }
+
+.orden-columna { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
+.orden-columna:hover { color: var(--app-primary); background: transparent; }
+.orden-columna span { color: var(--app-text-muted); }
+th[aria-sort='ascending'] .orden-columna, th[aria-sort='descending'] .orden-columna { color: var(--app-primary); }

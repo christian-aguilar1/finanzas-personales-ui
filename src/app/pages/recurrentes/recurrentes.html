@@ -29,17 +29,31 @@
     } @else {
       <div class="tabla-wrapper" tabindex="0" role="region" aria-label="Lista de transacciones recurrentes">
         <table>
-          <caption>Se agrupa por nombre, monto y descripción. Editar abre el movimiento más reciente de cada grupo.</caption>
-          <thead><tr><th scope="col">Recurrente</th><th scope="col">Frecuencia</th><th scope="col">Mes de referencia</th><th scope="col">Cuenta / categoría</th><th scope="col" class="monto">Último monto</th><th scope="col">Acciones</th></tr></thead>
+          <caption>Se agrupa por nombre, descripción, categoría y comercio. Se conserva el período más reciente, aunque cambie el precio.</caption>
+          <thead><tr>
+            @for (columna of columnas; track columna.clave) {
+              <th scope="col" [class.monto]="columna.clave === 'monto'"
+                [attr.aria-sort]="columnaOrden === columna.clave ? (direccionOrden === 'asc' ? 'ascending' : 'descending') : 'none'">
+                <button type="button" class="orden-columna" (click)="ordenarPor(columna.clave)"
+                  [attr.aria-label]="'Ordenar ' + columna.etiqueta + (columnaOrden === columna.clave && direccionOrden === 'asc' ? ' descendente' : ' ascendente')">
+                  {{ columna.etiqueta }} <span aria-hidden="true">{{ columnaOrden === columna.clave ? (direccionOrden === 'asc' ? '↑' : '↓') : '↕' }}</span>
+                </button>
+              </th>
+            }
+            <th scope="col">Acciones</th>
+          </tr></thead>
           <tbody>
             @for (t of visibles; track t.id) {
               <tr>
                 <td><strong>{{ t.nombreRecurrente || 'Sin nombre' }}</strong>
-                  @if (t.descripcion) { <small>{{ t.descripcion }}</small> }
-                  <small>{{ t.tipo === 'EGRESO' ? 'Egreso' : 'Ingreso' }}{{ !t.nombreRecurrente ? ' · Asigna un nombre al editar' : '' }}</small></td>
+                  @if (!t.nombreRecurrente) { <small>Asigna un nombre al editar</small> }</td>
+                <td>{{ t.descripcion || 'Sin descripción' }}</td>
+                <td>{{ t.tipo === 'EGRESO' ? 'Egreso' : 'Ingreso' }}</td>
                 <td><span class="frecuencia">{{ etiquetaFrecuencia(t) }}</span></td>
                 <td>{{ t.periodoFacturacion || t.fecha.slice(0, 7) }}</td>
-                <td>{{ t.cuentaNombre || 'Sin cuenta' }}<small>{{ t.categoriaNombre || 'Sin categoría' }}</small></td>
+                <td>{{ t.cuentaNombre || 'Sin cuenta' }}</td>
+                <td>{{ t.categoriaNombre || 'Sin categoría' }}</td>
+                <td>{{ t.comercioNombre || 'Sin comercio' }}</td>
                 <td class="monto" [class.ingreso]="t.tipo === 'INGRESO'">{{ t.monto | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
                 <td><a [routerLink]="['/transaccion', t.id]" [state]="{transaccion: t}" [queryParams]="{volver: 'recurrentes'}" [attr.aria-label]="'Editar ' + (t.nombreRecurrente || 'recurrente sin nombre')">Editar</a></td>
               </tr>

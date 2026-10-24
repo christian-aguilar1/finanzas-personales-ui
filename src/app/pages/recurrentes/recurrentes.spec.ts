@@ -23,6 +23,33 @@ describe('Recurrentes', () => {
     expect(fixture.nativeElement.textContent).toContain('Trimestral');
     expect(fixture.nativeElement.querySelector('tbody a').getAttribute('href')).toContain('/transaccion/1');
   });
+  it('ordena todas las columnas ascendente y descendente sin modificar la lista original', () => {
+    const fixture = TestBed.createComponent(RecurrentesComponent); fixture.detectChanges();
+    const c = fixture.componentInstance;
+    c.transacciones = [
+      {id: 2, fecha: '2026-11-01', monto: 10000, tipo: 'INGRESO', nombreRecurrente: 'Zeta', descripcion: 'Zeta', frecuenciaRecurrencia: 'ANUAL', cuentaNombre: 'Zeta', categoriaNombre: 'Zeta', comercioNombre: 'Zeta'},
+      {id: 1, fecha: '2026-10-01', monto: 2500, tipo: 'EGRESO', nombreRecurrente: 'Água', descripcion: 'Agua', frecuenciaRecurrencia: 'MENSUAL', cuentaNombre: 'Agua', categoriaNombre: 'Agua', comercioNombre: 'Agua'},
+    ];
+    for (const columna of c.columnas) {
+      c.columnaOrden = columna.clave; c.direccionOrden = 'asc';
+      expect(c.visibles.map(t => t.id)).withContext(columna.clave).toEqual([1, 2]);
+      c.ordenarPor(columna.clave);
+      expect(c.visibles.map(t => t.id)).withContext(columna.clave).toEqual([2, 1]);
+    }
+    expect(c.transacciones.map(t => t.id)).toEqual([2, 1]);
+    c.tipo = 'EGRESO'; expect(c.visibles.map(t => t.id)).toEqual([1]);
+  });
+
+  it('permite ordenar desde el encabezado y anuncia la dirección', () => {
+    const fixture = TestBed.createComponent(RecurrentesComponent); fixture.detectChanges();
+    const boton = fixture.nativeElement.querySelector('button[aria-label="Ordenar Último monto ascendente"]');
+    boton.click(); fixture.detectChanges();
+    expect(boton.closest('th').getAttribute('aria-sort')).toBe('ascending');
+    boton.click(); fixture.detectChanges();
+    expect(boton.closest('th').getAttribute('aria-sort')).toBe('descending');
+    expect(fixture.nativeElement.querySelector('tbody tr').textContent).toContain('Sueldo');
+  });
+
   it('muestra el estado vacío', () => {
     servicio.obtenerRecurrentes.and.returnValue(of([]));
     const fixture = TestBed.createComponent(RecurrentesComponent); fixture.detectChanges();
