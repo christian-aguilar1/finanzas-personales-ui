@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router, convertToParamMap } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CategoriaService } from '../../services/categoria.service';
 import { CuentaService } from '../../services/cuenta.service';
@@ -98,6 +98,26 @@ describe('Transaccion', () => {
     expect(agregarTransaccion.calls.mostRecent().args[0].frecuenciaRecurrencia).toBe('ANUAL');
     component.transaccionForm.patchValue({esRecurrente: false}); component.guardar();
     expect(agregarTransaccion.calls.mostRecent().args[0].frecuenciaRecurrencia).toBeNull();
+  });
+
+  it('vuelve a recurrentes al guardar o cancelar una edición iniciada allí', () => {
+    Object.assign(TestBed.inject(ActivatedRoute).snapshot, {queryParamMap: convertToParamMap({volver: 'recurrentes'})});
+    Object.assign(TestBed.inject(TransaccionService), {actualizarTransaccion: agregarTransaccion});
+    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    component.ngOnInit(); component.modoEdicion = true; component.transaccionId = 42;
+    component.transaccionForm.patchValue({cuenta: 1, monto: 100, categoria: 3, esRecurrente: true, nombreRecurrente: 'Disney+'});
+    component.cancelar();
+    expect(navegar).toHaveBeenCalledWith(['/recurrentes']);
+    navegar.calls.reset(); component.guardar();
+    expect(navegar).toHaveBeenCalledWith(['/recurrentes']);
+  });
+
+  it('ignora signos en las sugerencias y rechaza nombres formados solo por símbolos', () => {
+    component.nombresRecurrentes = ['Disney+', 'Gasto común'];
+    component.transaccionForm.patchValue({nombreRecurrente: 'DÍS-NEY'});
+    expect(component.sugerenciasRecurrentes).toEqual(['Disney+']);
+    component.transaccionForm.patchValue({esRecurrente: true, nombreRecurrente: '***'});
+    expect(component.transaccionForm.get('nombreRecurrente')?.invalid).toBeTrue();
   });
 
   it('should create', () => {
