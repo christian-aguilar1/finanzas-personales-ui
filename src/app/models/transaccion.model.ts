@@ -1,3 +1,12 @@
+export type FrecuenciaRecurrencia = 'MENSUAL' | 'TRIMESTRAL' | 'CUATRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
+export const FRECUENCIAS_RECURRENCIA: {valor: FrecuenciaRecurrencia; etiqueta: string}[] = [
+  {valor: 'MENSUAL', etiqueta: 'Mensual'},
+  {valor: 'TRIMESTRAL', etiqueta: 'Trimestral'},
+  {valor: 'CUATRIMESTRAL', etiqueta: 'Cuatrimestral'},
+  {valor: 'SEMESTRAL', etiqueta: 'Semestral'},
+  {valor: 'ANUAL', etiqueta: 'Anual'},
+];
+
 export type TipoTransaccion = 'INGRESO' | 'EGRESO';
 export type ModoBusquedaTransacciones = 'PERIODO_FACTURACION' | 'FECHA_TRANSACCION';
 export type ModoFechaFiltro = 'PREDEFINIDO' | 'RANGO';
@@ -9,6 +18,8 @@ export interface Transaccion {
   monto: number;
   tipo: TipoTransaccion;
   esRecurrente?: boolean;
+  nombreRecurrente?: string | null;
+  frecuenciaRecurrencia?: FrecuenciaRecurrencia | null;
   cuotaActual?: number | null;
   totalCuotas?: number | null;
   descripcion?: string;
@@ -33,6 +44,8 @@ export interface TransaccionRequest {
   comercioId: number | null;
   descripcion: string;
   esRecurrente: boolean;
+  nombreRecurrente?: string | null;
+  frecuenciaRecurrencia?: FrecuenciaRecurrencia | null;
   totalCuotas: number | null;
   cuotaActual: number | null;
   tagIds: number[];

@@ -1,3 +1,4 @@
+import {By} from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
@@ -65,6 +66,39 @@ describe('TransaccionesComponent', () => {
     fixture = TestBed.createComponent(TransaccionesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('envía ambas direcciones al servidor y conserva el orden al limpiar filtros', () => {
+    component.cambiarOrden({active: 'monto', direction: 'asc'});
+    expect(transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[3]).toBe('monto,asc');
+    component.cambiarOrden({active: 'monto', direction: 'desc'});
+    fixture.detectChanges();
+    expect(transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[3]).toBe('monto,desc');
+    expect(component.direccionOrden).toBe('desc');
+    expect(component.dataSource.sort).toBeFalsy();
+    component.limpiarFiltros();
+    expect(component.sortState).toBe('monto,desc');
+    component.cambiarOrden({active: 'monto', direction: ''});
+    expect(transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[3]).toBeUndefined();
+  });
+
+  it('restaura el encabezado al reconstruir la tabla y continúa con descendente', () => {
+    transaccionServiceSpy.obtenerTransacciones.and.returnValue(of(crearPaginaMock([
+      {id: 1, monto: 100, tipo: 'EGRESO', fecha: '2026-10-01'}
+    ])));
+    component.ngOnInit();
+    fixture.detectChanges();
+    let sort = fixture.debugElement.query(By.directive(MatSort)).injector.get(MatSort);
+    sort.sort(sort.sortables.get('monto')!);
+    component.cargandoTransacciones = true;
+    fixture.detectChanges();
+    component.cargandoTransacciones = false;
+    fixture.detectChanges();
+    sort = fixture.debugElement.query(By.directive(MatSort)).injector.get(MatSort);
+    expect(sort.active).toBe('monto');
+    expect(sort.direction).toBe('asc');
+    sort.sort(sort.sortables.get('monto')!);
+    expect(transaccionServiceSpy.obtenerTransacciones.calls.mostRecent().args[3]).toBe('monto,desc');
   });
 
   it('should create', () => {
