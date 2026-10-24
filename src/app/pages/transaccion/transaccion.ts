@@ -30,6 +30,7 @@ export class TransaccionComponent implements OnInit {
   transaccionForm: FormGroup;
   transaccionId: number | null = null;
   modoEdicion = false;
+  private volverARecurrentes = false;
 
   categorias: Categoria[] = [];
   cuentas: Cuenta[] = [];
@@ -75,6 +76,7 @@ export class TransaccionComponent implements OnInit {
     this.periodosFacturacion = this.crearOpcionesMesesFacturacion();
     this.actualizarValidacionesCuotas();
 
+    this.volverARecurrentes = this.route.snapshot.queryParamMap?.get('volver') === 'recurrentes';
     const navigationState = history.state?.transaccion as Transaccion | undefined;
     const paramId = this.route.snapshot.paramMap.get('id');
     if (paramId) {
@@ -170,7 +172,7 @@ export class TransaccionComponent implements OnInit {
         }
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: this.modoEdicion ? 'Transacción actualizada con éxito' : 'Transacción registrada con éxito' });
         if (this.modoEdicion)
-          this.router.navigate(['/transacciones']);
+          this.router.navigate([this.volverARecurrentes ? '/recurrentes' : '/transacciones']);
         // this.transaccionForm.reset({
         //   tipo: 'EGRESO',
         //   fecha: new Date().toISOString().split('T')[0],
@@ -211,7 +213,7 @@ export class TransaccionComponent implements OnInit {
   }
 
   private normalizarNombre(nombre: string): string {
-    return nombre.trim().replace(/\s+/g, ' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    return nombre.trim().replace(/\s+/g, ' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase();
   }
 
   get sugerenciasRecurrentes(): string[] {
@@ -226,7 +228,7 @@ export class TransaccionComponent implements OnInit {
   private actualizarValidacionRecurrente(): void {
     const control = this.transaccionForm.get('nombreRecurrente')!;
     control.setValidators(this.transaccionForm.get('esRecurrente')?.value
-      ? [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)] : []);
+      ? [Validators.required, Validators.maxLength(100), Validators.pattern(/.*[\p{L}\p{N}].*/u)] : []);
     control.updateValueAndValidity();
     const frecuencia = this.transaccionForm.get('frecuenciaRecurrencia')!;
     frecuencia.setValidators(this.transaccionForm.get('esRecurrente')?.value ? [Validators.required] : []);
@@ -234,7 +236,7 @@ export class TransaccionComponent implements OnInit {
   }
 
   cancelar() {
-    this.router.navigate(['/inicio']);
+    this.router.navigate([this.volverARecurrentes ? '/recurrentes' : '/inicio']);
   }
 
   mostrarCamposCuotas(): boolean {

@@ -36,7 +36,7 @@ export class RecurrentesComponent implements OnInit {
   }
 
   get visibles(): Transaccion[] {
-    const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase();
     const termino = normalizar(this.busqueda.trim());
     return this.transacciones.filter(t => (!this.tipo || t.tipo === this.tipo)
       && (!this.frecuencia || (t.frecuenciaRecurrencia ?? 'MENSUAL') === this.frecuencia)

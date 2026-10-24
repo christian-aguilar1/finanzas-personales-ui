@@ -122,7 +122,7 @@
               [style]="{width: '100%'}" [inputStyle]="{width: '100%'}"
               ariaLabel="Nombre del recurrente" />
             }
-            <small id="ayuda-recurrente">Usa el mismo nombre cada mes, aunque cambie el monto.</small>
+            <small id="ayuda-recurrente">Se agrupa por nombre, monto y descripción. Si cambia el monto o la descripción, se considera otro recurrente.</small>
             @if (transaccionForm.get('nombreRecurrente')?.touched && transaccionForm.get('nombreRecurrente')?.invalid) {
               <small role="alert">Ingresa un nombre de hasta 100 caracteres.</small>
             }
