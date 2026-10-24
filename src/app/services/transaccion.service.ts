@@ -44,6 +44,10 @@ export class TransaccionService {
     return this.http.post<void>(`${this.apiUrl}/transacciones/${id}/eliminar`, null);
   }
 
+  obtenerNombresRecurrentes(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/transacciones/nombres-recurrentes`);
+  }
+
   obtenerTransacciones(
     page: number = 0,
     size: number = 10,

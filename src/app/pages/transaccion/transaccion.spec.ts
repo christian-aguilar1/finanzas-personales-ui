@@ -34,7 +34,7 @@ describe('Transaccion', () => {
         { provide: ActivatedRoute, useValue: { snapshot: crearSnapshot() } },
         { provide: CategoriaService, useValue: { obtenerCategorias: () => of(categoriasRespuesta) } },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentasRespuesta) } },
-        { provide: TransaccionService, useValue: { agregarTransaccion } },
+        { provide: TransaccionService, useValue: { agregarTransaccion, obtenerNombresRecurrentes: () => of([]) } },
         { provide: MessageService, useValue: { add: jasmine.createSpy('add') } },
       ],
     });
@@ -54,7 +54,7 @@ describe('Transaccion', () => {
         { provide: ActivatedRoute, useValue: { snapshot: crearSnapshot() } },
         { provide: CategoriaService, useValue: { obtenerCategorias: () => of(categorias) } },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
-        { provide: TransaccionService, useValue: { agregarTransaccion } },
+        { provide: TransaccionService, useValue: { agregarTransaccion, obtenerNombresRecurrentes: () => of([]) } },
         { provide: MessageService, useValue: { add: jasmine.createSpy('add') } },
       ],
     })
@@ -63,6 +63,32 @@ describe('Transaccion', () => {
     fixture = TestBed.createComponent(TransaccionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('exige nombre al marcar recurrente y acepta texto libre', () => {
+    component.transaccionForm.patchValue({esRecurrente: true, nombreRecurrente: '   '});
+    expect(component.transaccionForm.get('nombreRecurrente')?.invalid).toBeTrue();
+    component.transaccionForm.patchValue({nombreRecurrente: 'Gasto común'});
+    expect(component.transaccionForm.get('nombreRecurrente')?.valid).toBeTrue();
+    component.transaccionForm.patchValue({nombreRecurrente: 'x'.repeat(101)});
+    expect(component.transaccionForm.get('nombreRecurrente')?.invalid).toBeTrue();
+    component.transaccionForm.patchValue({esRecurrente: false});
+    expect(component.transaccionForm.get('nombreRecurrente')?.valid).toBeTrue();
+  });
+
+  it('sugiere por prefijo ignorando mayúsculas y tildes', () => {
+    component.nombresRecurrentes = ['Gas', 'Gasto común', 'Luz'];
+    component.transaccionForm.patchValue({nombreRecurrente: 'GÁ'});
+    expect(component.sugerenciasRecurrentes).toEqual(['Gas', 'Gasto común']);
+  });
+
+  it('envía el nombre normalizado y null al desmarcar recurrente', () => {
+    component.transaccionForm.patchValue({cuenta: 1, monto: 100, categoria: 3, esRecurrente: true, nombreRecurrente: ' Gasto   común '});
+    component.guardar();
+    expect(agregarTransaccion.calls.mostRecent().args[0].nombreRecurrente).toBe('Gasto común');
+    component.transaccionForm.patchValue({esRecurrente: false});
+    component.guardar();
+    expect(agregarTransaccion.calls.mostRecent().args[0].nombreRecurrente).toBeNull();
   });
 
   it('should create', () => {

@@ -1,3 +1,4 @@
+import {AutoComplete} from 'primeng/autocomplete';
 import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
@@ -23,7 +24,7 @@ import {Transaccion, TransaccionRequest} from '../../models/transaccion.model';
   templateUrl: './transaccion.html',
   styleUrls: ['./transaccion.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass, RouterLink]
+  imports: [ReactiveFormsModule, NgClass, RouterLink, AutoComplete]
 })
 export class TransaccionComponent implements OnInit {
   transaccionForm: FormGroup;
@@ -33,6 +34,8 @@ export class TransaccionComponent implements OnInit {
   categorias: Categoria[] = [];
   cuentas: Cuenta[] = [];
   comercios: any[] = [];
+  nombresRecurrentes: string[] = [];
+  opcionesRecurrentes: string[] = [];
   cargandoCatalogos = true;
   private catalogosPendientes = 2;
   periodosFacturacion: Array<{ etiqueta: string; valor: string }> = [];
@@ -56,6 +59,7 @@ export class TransaccionComponent implements OnInit {
       categoria: ['', Validators.required],
       comercio: [''],
       esRecurrente: [false],
+      nombreRecurrente: [''],
       esCompraCuotas: [false],
       cuotaActual: [null],
       totalCuotas: [null],
@@ -82,6 +86,13 @@ export class TransaccionComponent implements OnInit {
 
     this.transaccionForm.get('esCompraCuotas')?.valueChanges.subscribe(() => {
       this.actualizarValidacionesCuotas();
+    });
+
+    this.actualizarValidacionRecurrente();
+    this.transaccionForm.get('esRecurrente')?.valueChanges.subscribe(() => this.actualizarValidacionRecurrente());
+    this.transaccionService.obtenerNombresRecurrentes().subscribe({
+      next: nombres => this.nombresRecurrentes = nombres,
+      error: () => this.nombresRecurrentes = []
     });
 
     // Cargar categorías
@@ -138,6 +149,7 @@ export class TransaccionComponent implements OnInit {
       comercioId: form.comercio || null,
       descripcion: form.descripcion || "",
       esRecurrente: form.esRecurrente,
+      nombreRecurrente: form.esRecurrente ? form.nombreRecurrente.trim().replace(/\s+/g, ' ') : null,
       medio: this.obtenerMedioPago(form.cuenta, esCompraCuotas),
       totalCuotas: esCompraCuotas ? Number(form.totalCuotas) : null,
       cuotaActual: esCompraCuotas ? Number(form.cuotaActual) : null,
@@ -150,6 +162,9 @@ export class TransaccionComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
+        if (request.nombreRecurrente && !this.nombresRecurrentes.some(n => this.normalizarNombre(n) === this.normalizarNombre(request.nombreRecurrente!))) {
+          this.nombresRecurrentes = [...this.nombresRecurrentes, request.nombreRecurrente];
+        }
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: this.modoEdicion ? 'Transacción actualizada con éxito' : 'Transacción registrada con éxito' });
         if (this.modoEdicion)
           this.router.navigate(['/transacciones']);
@@ -190,6 +205,26 @@ export class TransaccionComponent implements OnInit {
     const tipo = this.cuentas.find((cuenta) => cuenta.id === Number(cuentaId))?.tipo;
 
     return tipo === 'AHORRO' ? 'DEBITO' : tipo ?? 'EFECTIVO';
+  }
+
+  private normalizarNombre(nombre: string): string {
+    return nombre.trim().replace(/\s+/g, ' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  get sugerenciasRecurrentes(): string[] {
+    const prefijo = this.normalizarNombre(this.transaccionForm.get('nombreRecurrente')?.value ?? '');
+    return this.nombresRecurrentes.filter(nombre => this.normalizarNombre(nombre).startsWith(prefijo));
+  }
+
+  buscarNombresRecurrentes(): void {
+    this.opcionesRecurrentes = this.sugerenciasRecurrentes;
+  }
+
+  private actualizarValidacionRecurrente(): void {
+    const control = this.transaccionForm.get('nombreRecurrente')!;
+    control.setValidators(this.transaccionForm.get('esRecurrente')?.value
+      ? [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)] : []);
+    control.updateValueAndValidity();
   }
 
   cancelar() {
@@ -276,6 +311,7 @@ export class TransaccionComponent implements OnInit {
       categoria: transaccion.categoriaId ?? '',
       comercio: '',
       esRecurrente: transaccion.esRecurrente ?? false,
+      nombreRecurrente: transaccion.nombreRecurrente ?? '',
       esCompraCuotas,
       cuotaActual: transaccion.cuotaActual ?? null,
       totalCuotas: transaccion.totalCuotas ?? null,

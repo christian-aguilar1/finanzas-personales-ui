@@ -113,7 +113,7 @@
       }
     } @else {
       <div class="tabla-wrapper">
-        <table mat-table [dataSource]="dataSource" matSort class="transacciones-table">
+        <table mat-table [dataSource]="dataSource" [matSortActive]="columnaOrden" [matSortDirection]="direccionOrden" (matSortChange)="cambiarOrden($event)" matSort class="transacciones-table">
           <ng-container matColumnDef="monto">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Monto</th>
             <td mat-cell *matCellDef="let transaccion">{{ transaccion.monto | number: '1.0-2' }}</td>

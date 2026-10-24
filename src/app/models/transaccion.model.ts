@@ -9,6 +9,7 @@ export interface Transaccion {
   monto: number;
   tipo: TipoTransaccion;
   esRecurrente?: boolean;
+  nombreRecurrente?: string | null;
   cuotaActual?: number | null;
   totalCuotas?: number | null;
   descripcion?: string;
@@ -33,6 +34,7 @@ export interface TransaccionRequest {
   comercioId: number | null;
   descripcion: string;
   esRecurrente: boolean;
+  nombreRecurrente?: string | null;
   totalCuotas: number | null;
   cuotaActual: number | null;
   tagIds: number[];
