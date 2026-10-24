@@ -91,6 +91,15 @@ describe('Transaccion', () => {
     expect(agregarTransaccion.calls.mostRecent().args[0].nombreRecurrente).toBeNull();
   });
 
+  it('envía la frecuencia seleccionada y mantiene mensual como predeterminado', () => {
+    expect(component.transaccionForm.value.frecuenciaRecurrencia).toBe('MENSUAL');
+    component.transaccionForm.patchValue({cuenta: 1, monto: 100, categoria: 3, esRecurrente: true, nombreRecurrente: 'Seguro', frecuenciaRecurrencia: 'ANUAL'});
+    component.guardar();
+    expect(agregarTransaccion.calls.mostRecent().args[0].frecuenciaRecurrencia).toBe('ANUAL');
+    component.transaccionForm.patchValue({esRecurrente: false}); component.guardar();
+    expect(agregarTransaccion.calls.mostRecent().args[0].frecuenciaRecurrencia).toBeNull();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });

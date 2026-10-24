@@ -17,7 +17,7 @@ import {CuentaService} from '../../services/cuenta.service';
 import {NgClass} from '@angular/common';
 import {TransaccionService} from '../../services/transaccion.service';
 import {MessageService} from 'primeng/api';
-import {Transaccion, TransaccionRequest} from '../../models/transaccion.model';
+import {Transaccion, TransaccionRequest, FRECUENCIAS_RECURRENCIA} from '../../models/transaccion.model';
 
 @Component({
   selector: 'app-transaccion',
@@ -34,6 +34,7 @@ export class TransaccionComponent implements OnInit {
   categorias: Categoria[] = [];
   cuentas: Cuenta[] = [];
   comercios: any[] = [];
+  readonly frecuencias = FRECUENCIAS_RECURRENCIA;
   nombresRecurrentes: string[] = [];
   opcionesRecurrentes: string[] = [];
   cargandoCatalogos = true;
@@ -60,6 +61,7 @@ export class TransaccionComponent implements OnInit {
       comercio: [''],
       esRecurrente: [false],
       nombreRecurrente: [''],
+      frecuenciaRecurrencia: ['MENSUAL'],
       esCompraCuotas: [false],
       cuotaActual: [null],
       totalCuotas: [null],
@@ -149,6 +151,7 @@ export class TransaccionComponent implements OnInit {
       comercioId: form.comercio || null,
       descripcion: form.descripcion || "",
       esRecurrente: form.esRecurrente,
+      frecuenciaRecurrencia: form.esRecurrente ? form.frecuenciaRecurrencia : null,
       nombreRecurrente: form.esRecurrente ? form.nombreRecurrente.trim().replace(/\s+/g, ' ') : null,
       medio: this.obtenerMedioPago(form.cuenta, esCompraCuotas),
       totalCuotas: esCompraCuotas ? Number(form.totalCuotas) : null,
@@ -225,6 +228,9 @@ export class TransaccionComponent implements OnInit {
     control.setValidators(this.transaccionForm.get('esRecurrente')?.value
       ? [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)] : []);
     control.updateValueAndValidity();
+    const frecuencia = this.transaccionForm.get('frecuenciaRecurrencia')!;
+    frecuencia.setValidators(this.transaccionForm.get('esRecurrente')?.value ? [Validators.required] : []);
+    frecuencia.updateValueAndValidity();
   }
 
   cancelar() {
@@ -312,6 +318,7 @@ export class TransaccionComponent implements OnInit {
       comercio: '',
       esRecurrente: transaccion.esRecurrente ?? false,
       nombreRecurrente: transaccion.nombreRecurrente ?? '',
+      frecuenciaRecurrencia: transaccion.frecuenciaRecurrencia ?? 'MENSUAL',
       esCompraCuotas,
       cuotaActual: transaccion.cuotaActual ?? null,
       totalCuotas: transaccion.totalCuotas ?? null,

@@ -129,6 +129,18 @@
           </div>
         }
 
+        @if (transaccionForm.get('esRecurrente')?.value) {
+          <div class="form-group">
+            <label for="frecuenciaRecurrencia">Frecuencia</label>
+            <select id="frecuenciaRecurrencia" formControlName="frecuenciaRecurrencia">
+              @for (frecuencia of frecuencias; track frecuencia.valor) {
+                <option [value]="frecuencia.valor">{{ frecuencia.etiqueta }}</option>
+              }
+            </select>
+            <small>Se repite desde el período de facturación indicado.</small>
+          </div>
+        }
+
         <!-- Compra en cuotas -->
         <div class="form-group checkbox-group">
           <label>
