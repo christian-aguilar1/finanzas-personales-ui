@@ -112,6 +112,34 @@
             <input type="checkbox" formControlName="esRecurrente" /> Recurrente
           </label>
         </div>
+        @if (transaccionForm.get('esRecurrente')?.value) {
+          <div class="form-group">
+            <label for="nombreRecurrente">Nombre del recurrente</label>
+            @defer (on immediate) {
+            <p-autocomplete inputId="nombreRecurrente" formControlName="nombreRecurrente"
+              [suggestions]="opcionesRecurrentes" (completeMethod)="buscarNombresRecurrentes()"
+              [forceSelection]="false" [maxlength]="100" [minLength]="0" appendTo="body"
+              [style]="{width: '100%'}" [inputStyle]="{width: '100%'}"
+              ariaLabel="Nombre del recurrente" />
+            }
+            <small id="ayuda-recurrente">Usa el mismo nombre cada mes, aunque cambie el monto.</small>
+            @if (transaccionForm.get('nombreRecurrente')?.touched && transaccionForm.get('nombreRecurrente')?.invalid) {
+              <small role="alert">Ingresa un nombre de hasta 100 caracteres.</small>
+            }
+          </div>
+        }
+
+        @if (transaccionForm.get('esRecurrente')?.value) {
+          <div class="form-group">
+            <label for="frecuenciaRecurrencia">Frecuencia</label>
+            <select id="frecuenciaRecurrencia" formControlName="frecuenciaRecurrencia">
+              @for (frecuencia of frecuencias; track frecuencia.valor) {
+                <option [value]="frecuencia.valor">{{ frecuencia.etiqueta }}</option>
+              }
+            </select>
+            <small>Se repite desde el período de facturación indicado.</small>
+          </div>
+        }
 
         <!-- Compra en cuotas -->
         <div class="form-group checkbox-group">

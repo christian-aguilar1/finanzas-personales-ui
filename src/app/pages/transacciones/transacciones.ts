@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {forkJoin, of} from 'rxjs';
@@ -18,7 +18,7 @@ import {FiltroService} from '../../services/filtro.service';
 import {MatTableModule, MatTableDataSource} from '@angular/material/table';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-import {MatSort, MatSortModule} from '@angular/material/sort';
+import {MatSortModule} from '@angular/material/sort';
 
 @Component({
   selector: 'app-transacciones',
@@ -28,18 +28,14 @@ import {MatSort, MatSortModule} from '@angular/material/sort';
   styleUrl: './transacciones.css',
 })
 export class TransaccionesComponent implements OnInit {
-  @ViewChild(MatSort) set sort(v: MatSort) {
-    if (v) {
-      this.dataSource.sort = v;
-      v.sortChange.subscribe((sort: { active: string, direction: string }) => {
-        if (sort.direction) {
-          this.sortState = `${sort.active},${sort.direction}`;
-        } else {
-          this.sortState = null;
-        }
-        this.aplicarFiltros();
-      });
-    }
+  get columnaOrden(): string { return this.sortState?.split(',')[0] ?? ''; }
+  get direccionOrden(): 'asc' | 'desc' | '' {
+    return (this.sortState?.split(',')[1] as 'asc' | 'desc') ?? '';
+  }
+
+  cambiarOrden(sort: {active: string; direction: string}): void {
+    this.sortState = sort.direction ? `${sort.active},${sort.direction}` : null;
+    this.aplicarFiltros();
   }
 
   /** Un usuario nuevo entra con cero cuentas: la tabla vacía no explica por qué. */
@@ -108,6 +104,7 @@ export class TransaccionesComponent implements OnInit {
       // Se fusionan con los defaults: un objeto guardado por una versión anterior
       // puede venir incompleto y dejar filtros en undefined.
       this.filtros = {...this.crearFiltrosPorDefecto(), ...filtrosGuardados.filtros};
+      this.sortState = filtrosGuardados.sort;
       this.modoBusqueda = filtrosGuardados.modoBusqueda ?? this.modoBusqueda;
       this.filtros.modoBusqueda = this.modoBusqueda;
     }
@@ -181,7 +178,7 @@ export class TransaccionesComponent implements OnInit {
   aplicarFiltros(): void {
     this.filtrando = true;
 
-    this.filtroService.guardarFiltros(this.filtros, this.modoBusqueda);
+    this.filtroService.guardarFiltros(this.filtros, this.modoBusqueda, this.sortState);
 
     // Reiniciar caché y paginación
     this.paginasEnCache.clear();

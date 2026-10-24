@@ -1,0 +1,50 @@
+<main class="recurrentes">
+  <header class="encabezado">
+    <div>
+      <p class="antetitulo">Planificación</p>
+      <h1>Transacciones recurrentes</h1>
+      <p class="subtitulo">Tus compromisos e ingresos periódicos, con el último monto registrado de cada uno.</p>
+    </div>
+    <a class="boton primario" routerLink="/transaccion">Nueva transacción</a>
+  </header>
+
+  <section class="filtros" aria-label="Filtrar recurrentes">
+    <label>Buscar<input type="search" [(ngModel)]="busqueda" placeholder="Nombre, cuenta o categoría" /></label>
+    <label>Tipo<select [(ngModel)]="tipo"><option value="">Todos</option><option value="EGRESO">Egresos</option><option value="INGRESO">Ingresos</option></select></label>
+    <label>Frecuencia<select [(ngModel)]="frecuencia"><option value="">Todas</option>
+      @for (f of frecuencias; track f.valor) { <option [value]="f.valor">{{ f.etiqueta }}</option> }
+    </select></label>
+  </section>
+
+  @if (cargando) {
+    <p class="estado" role="status">Cargando recurrentes…</p>
+  } @else if (error) {
+    <div class="estado" role="alert"><p>No se pudieron cargar las transacciones recurrentes.</p><button class="boton" (click)="cargar()">Reintentar</button></div>
+  } @else if (!transacciones.length) {
+    <section class="estado"><h2>Aún no tienes recurrentes</h2><p>Marca «Recurrente» al ingresar una transacción y elige cada cuánto se repite.</p><a routerLink="/transaccion">Ingresar una transacción</a></section>
+  } @else {
+    <p class="recuento" role="status">{{ visibles.length }} de {{ transacciones.length }} recurrentes</p>
+    @if (!visibles.length) {
+      <p class="estado">No hay recurrentes que coincidan con estos filtros.</p>
+    } @else {
+      <div class="tabla-wrapper" tabindex="0" role="region" aria-label="Lista de transacciones recurrentes">
+        <table>
+          <caption>La frecuencia se cuenta desde el mes de referencia. Editar abre el último movimiento del recurrente.</caption>
+          <thead><tr><th scope="col">Recurrente</th><th scope="col">Frecuencia</th><th scope="col">Mes de referencia</th><th scope="col">Cuenta / categoría</th><th scope="col" class="monto">Último monto</th><th scope="col">Acciones</th></tr></thead>
+          <tbody>
+            @for (t of visibles; track t.id) {
+              <tr>
+                <td><strong>{{ t.nombreRecurrente || 'Sin nombre' }}</strong><small>{{ t.tipo === 'EGRESO' ? 'Egreso' : 'Ingreso' }}{{ !t.nombreRecurrente ? ' · Asigna un nombre al editar' : '' }}</small></td>
+                <td><span class="frecuencia">{{ etiquetaFrecuencia(t) }}</span></td>
+                <td>{{ t.periodoFacturacion || t.fecha.slice(0, 7) }}</td>
+                <td>{{ t.cuentaNombre || 'Sin cuenta' }}<small>{{ t.categoriaNombre || 'Sin categoría' }}</small></td>
+                <td class="monto" [class.ingreso]="t.tipo === 'INGRESO'">{{ t.monto | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
+                <td><a [routerLink]="['/transaccion', t.id]" [state]="{transaccion: t}" [attr.aria-label]="'Editar ' + (t.nombreRecurrente || 'recurrente sin nombre')">Editar</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</main>

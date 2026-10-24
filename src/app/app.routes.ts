@@ -1,3 +1,4 @@
+import { RecurrentesComponent } from './pages/recurrentes/recurrentes';
 import { Routes } from '@angular/router';
 import { authGuardFn } from '@auth0/auth0-angular';
 import { CallbackComponent } from './pages/callback/callback';
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'inicio', component: Inicio, canActivate: [authGuardFn] },
   { path: 'transaccion', component: TransaccionComponent, canActivate: [authGuardFn] },
   { path: 'transaccion/:id', component: TransaccionComponent, canActivate: [authGuardFn] },
+  { path: 'recurrentes', component: RecurrentesComponent, canActivate: [authGuardFn] },
   { path: 'transacciones', component: TransaccionesComponent, canActivate: [authGuardFn] },
   { path: 'presupuesto', component: PresupuestoComponent, canActivate: [authGuardFn] },
   { path: 'proyeccion', component: ProyeccionComponent, canActivate: [authGuardFn] },
