@@ -40,7 +40,7 @@
                 </button>
               </th>
             }
-            <th scope="col">Acciones</th>
+            <th scope="col" class="acciones">Acciones</th>
           </tr></thead>
           <tbody>
             @for (t of visibles; track t.id) {
@@ -55,7 +55,13 @@
                 <td>{{ t.categoriaNombre || 'Sin categoría' }}</td>
                 <td>{{ t.comercioNombre || 'Sin comercio' }}</td>
                 <td class="monto" [class.ingreso]="t.tipo === 'INGRESO'">{{ t.monto | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
-                <td><a [routerLink]="['/transaccion', t.id]" [state]="{transaccion: t}" [queryParams]="{volver: 'recurrentes'}" [attr.aria-label]="'Editar ' + (t.nombreRecurrente || 'recurrente sin nombre')">Editar</a></td>
+                <td class="acciones">
+                  <button type="button" mat-button color="primary" [routerLink]="['/transaccion', t.id]"
+                    [state]="{transaccion: t}" [queryParams]="{volver: 'recurrentes'}"
+                    [attr.aria-label]="'Editar ' + (t.nombreRecurrente || 'recurrente sin nombre')">
+                    <mat-icon aria-hidden="true">edit</mat-icon> Editar
+                  </button>
+                </td>
               </tr>
             }
           </tbody>

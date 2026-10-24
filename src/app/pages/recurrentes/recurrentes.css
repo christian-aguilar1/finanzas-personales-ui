@@ -30,3 +30,7 @@ button:hover { background: var(--app-surface-2); }
 .orden-columna:hover { color: var(--app-primary); background: transparent; }
 .orden-columna span { color: var(--app-text-muted); }
 th[aria-sort='ascending'] .orden-columna, th[aria-sort='descending'] .orden-columna { color: var(--app-primary); }
+
+.acciones { position: sticky; right: 0; z-index: 1; min-width: 120px; white-space: nowrap; background: var(--app-surface); box-shadow: -1px 0 0 var(--app-border); }
+th.acciones { z-index: 2; background: var(--app-surface-2); }
+.acciones button { min-height: 44px; }

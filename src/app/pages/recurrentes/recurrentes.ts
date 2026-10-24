@@ -1,3 +1,5 @@
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 import {CommonModule} from '@angular/common';
 import {Component, OnInit, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
@@ -9,7 +11,7 @@ type ColumnaOrden = 'nombre' | 'descripcion' | 'tipo' | 'frecuencia' | 'periodo'
 
 @Component({
   selector: 'app-recurrentes', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './recurrentes.html', styleUrl: './recurrentes.css',
 })
 export class RecurrentesComponent implements OnInit {
