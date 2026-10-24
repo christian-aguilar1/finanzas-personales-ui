@@ -317,7 +317,7 @@ export class TransaccionComponent implements OnInit {
       cuenta: transaccion.cuentaId ?? '',
       monto: transaccion.monto,
       categoria: transaccion.categoriaId ?? '',
-      comercio: '',
+      comercio: transaccion.comercioId ?? '',
       esRecurrente: transaccion.esRecurrente ?? false,
       nombreRecurrente: transaccion.nombreRecurrente ?? '',
       frecuenciaRecurrencia: transaccion.frecuenciaRecurrencia ?? 'MENSUAL',

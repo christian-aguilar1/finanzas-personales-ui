@@ -23,6 +23,8 @@ export interface Transaccion {
   cuotaActual?: number | null;
   totalCuotas?: number | null;
   descripcion?: string;
+  comercioId?: number | null;
+  comercioNombre?: string | null;
   cuentaId?: number;
   cuentaNombre?: string;
   categoriaId?: number;
