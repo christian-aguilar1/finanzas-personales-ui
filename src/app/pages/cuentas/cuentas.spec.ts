@@ -117,4 +117,17 @@ describe('CuentasComponent', () => {
 
     expect(fila?.textContent).toContain('318,177');
   });
+
+  it('muestra el saldo calculado de cuentas propias sin presentar el crédito como efectivo', async () => {
+    await configurar([
+      cuenta({ saldoInicial: 70635, saldoActual: 170635 }),
+      cuenta({ id: 2, nombre: 'Tarjeta', tipo: 'CREDITO', saldoInicial: 0, saldoActual: 0 }),
+    ]);
+    fixture.detectChanges();
+
+    const filas = (fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr');
+    expect(filas[0].textContent).toContain('170,635 CLP');
+    expect(filas[1].textContent).toContain('Crédito · ver movimientos');
+    expect(filas[1].textContent).not.toContain('0 CLP');
+  });
 });

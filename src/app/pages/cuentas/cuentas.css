@@ -73,6 +73,19 @@ th {
   text-align: left;
 }
 
+.saldo-actual {
+  color: var(--app-text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.saldo-actual__credito {
+  color: var(--app-text-muted);
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
 .acciones-tabla {
   display: flex;
   gap: 0.5rem;

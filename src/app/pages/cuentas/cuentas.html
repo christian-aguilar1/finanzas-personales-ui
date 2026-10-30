@@ -2,7 +2,7 @@
   <section class="crud-section">
     <div class="section-header">
       <h2>Cuentas</h2>
-      <p>Administra tus cuentas para registrar movimientos.</p>
+      <p>Consulta el saldo calculado con tus movimientos y administra tus cuentas.</p>
     </div>
 
     <form class="crud-form" [formGroup]="cuentaForm" (ngSubmit)="guardarCuenta()">
@@ -68,6 +68,7 @@
               <th>Nombre</th>
               <th>Tipo</th>
               <th data-sort-type="numero">Saldo inicial</th>
+              <th data-sort-type="numero">Saldo actual</th>
               <th data-sortable="false">Acciones</th>
             </tr>
           </thead>
@@ -77,6 +78,17 @@
                 <td data-label="Nombre">{{ cuenta.nombre }}</td>
                 <td data-label="Tipo">{{ cuenta.tipo }}</td>
                 <td data-label="Saldo inicial">{{ cuenta.saldoInicial ?? 0 | number: '1.0-0' }}</td>
+                <td data-label="Saldo actual" class="saldo-actual">
+                  @if (tieneDineroDisponible(cuenta)) {
+                    @if (cuenta.saldoActual != null) {
+                      {{ cuenta.saldoActual | number: '1.0-0' }} CLP
+                    } @else {
+                      No disponible
+                    }
+                  } @else {
+                    <span class="saldo-actual__credito">Crédito · ver movimientos</span>
+                  }
+                </td>
                 <td data-label="Acciones">
                   <div class="acciones-tabla">
                     <button type="button" class="btn btn-secundario" (click)="editarCuenta(cuenta)">Editar</button>

@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Cuenta, CuentaRequest} from '../../models/cuenta.model';
+import {Cuenta, CuentaRequest, tieneDineroDisponible} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
 import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 
@@ -13,6 +13,7 @@ import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
   styleUrl: './cuentas.css',
 })
 export class CuentasComponent implements OnInit {
+  readonly tieneDineroDisponible = tieneDineroDisponible;
   @ViewChild('campoNombre') campoNombre?: ElementRef<HTMLInputElement>;
 
   cuentas: Cuenta[] = [];
