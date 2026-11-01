@@ -14,6 +14,11 @@ describe('app.routes', () => {
     );
   });
 
+  it('protege la pantalla de Telegram y la carga de forma diferida', () => {
+    expect(buscarRuta('telegram')?.canActivate?.length).toBe(1);
+    expect(buscarRuta('telegram')?.loadComponent).toBeDefined();
+  });
+
   it('protege con authGuardFn todas las páginas de la app', () => {
     const protegidas = rutasConComponente();
 

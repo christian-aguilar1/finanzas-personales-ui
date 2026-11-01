@@ -1,0 +1,90 @@
+<section class="telegram-page" aria-labelledby="titulo-telegram">
+  <header class="encabezado">
+    <a routerLink="/inicio" class="volver">← Volver a mi resumen</a>
+    <p class="eyebrow">TU ASISTENTE, MÁS CERCA</p>
+    <h1 id="titulo-telegram">Conectar Telegram</h1>
+    <p>Consulta tus números y prepara movimientos desde una conversación privada con tu bot.</p>
+  </header>
+
+  <div class="conexion-panel" [attr.aria-busy]="guardando() || cargando()">
+    <div class="panel-titulo">
+      <div class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m21 3-5 18-6-7-7-4 18-7ZM10 14 21 3M10 14v6l4-3" /></svg>
+      </div>
+      <div>
+        <h2>Tu cuenta y tu Telegram</h2>
+        <p>Una conexión personal. Tú decides cuándo desconectarla.</p>
+      </div>
+      @if (estado(); as estado) {
+        <span class="estado" [class.conectado]="estado.vinculado">{{ estado.vinculado ? 'Conectado' : 'Sin conectar' }}</span>
+      }
+    </div>
+
+    @if (cargando() && !estado()) {
+      <p class="mensaje" role="status">Comprobando la conexión con Telegram…</p>
+    }
+    @if (error()) {
+      <div class="error" role="alert"><p>{{ error() }}</p>
+        <button type="button" class="secundario" (click)="actualizar()" [disabled]="cargando() || guardando()">Volver a comprobar</button>
+      </div>
+    }
+    @if (aviso()) { <p class="aviso" role="status">{{ aviso() }}</p> }
+    @if (conexion.sinConexion()) { <p class="error" role="status">Sin conexión. Podrás continuar cuando vuelva la red.</p> }
+
+    @if (estado(); as estado) {
+      @if (!estado.disponible) {
+        <div class="pendiente">
+          <h3>Telegram todavía no está habilitado</h3>
+          <p>La conexión con el bot está en preparación. Puedes seguir usando el asistente dentro de la app.</p>
+          <button type="button" class="secundario" (click)="actualizar()" [disabled]="cargando() || guardando()">Comprobar disponibilidad</button>
+        </div>
+      }
+      @if (estado.vinculado) {
+        <div class="vinculado">
+          <h3>Ya puedes escribirle a tu asistente</h3>
+          @if (estado.telegramUsername) { <p>Cuenta conectada: <strong>&#64;{{ estado.telegramUsername }}</strong></p> }
+          @if (estado.vinculadoEn) { <p class="detalle">Conectada el {{ estado.vinculadoEn | date:'dd/MM/yyyy HH:mm' }}.</p> }
+          <div class="acciones">
+            @if (estado.botUsername && estado.disponible) {
+              <a class="primario" [href]="'https://t.me/' + estado.botUsername" target="_blank" rel="noopener noreferrer">Abrir mi bot en Telegram ↗</a>
+            }
+            <button type="button" class="desconectar" (click)="desconectar()"
+              [disabled]="guardando() || cargando() || conexion.sinConexion()">{{ guardando() ? 'Desconectando…' : 'Desconectar Telegram' }}</button>
+          </div>
+          <p class="detalle">Al desconectar se borra el contexto y se invalidan los botones de las propuestas de esta conexión.</p>
+        </div>
+      } @else if (estado.disponible) {
+        <ol class="pasos">
+          <li><span class="numero">1</span><div><strong>Genera tu enlace personal</strong><p>Lo creamos desde tu sesión para vincular únicamente tu cuenta.</p></div></li>
+          <li><span class="numero">2</span><div><strong>Abre el bot en Telegram</strong><p>Funciona desde el celular, el escritorio o Telegram Web.</p></div></li>
+          <li><span class="numero">3</span><div><strong>Pulsa Iniciar y comienza a conversar</strong><p>Después de conectarlo, escribe tu consulta en el chat privado.</p></div></li>
+        </ol>
+        @if (enlace(); as enlace) {
+          <div class="enlace-listo">
+            <strong>Tu enlace está listo</strong>
+            <p>Vence a las {{ enlace.expiraEn | date:'HH:mm' }} y solo puede usarse una vez. No lo compartas.</p>
+            <a class="primario" [href]="enlace.url" target="_blank" rel="noopener noreferrer">Abrir Telegram y vincular ↗</a>
+            <p class="detalle">Esperando que pulses Iniciar en Telegram…</p>
+            <div class="acciones">
+              <button type="button" class="secundario" (click)="actualizar()" [disabled]="guardando() || cargando() || conexion.sinConexion()">{{ cargando() ? 'Comprobando…' : 'Ya pulsé Iniciar' }}</button>
+              <button type="button" class="texto" (click)="conectar()" [disabled]="guardando() || cargando() || conexion.sinConexion()">Generar otro enlace</button>
+              <button type="button" class="texto" (click)="desconectar()" [disabled]="guardando() || cargando() || conexion.sinConexion()">Cancelar vinculación</button>
+            </div>
+          </div>
+        } @else {
+          <button type="button" class="primario" (click)="conectar()"
+            [disabled]="guardando() || cargando() || conexion.sinConexion()">{{ guardando() ? 'Preparando enlace…' : 'Conectar mi Telegram' }}</button>
+        }
+      }
+      @if (estado.disponible && !estado.asistenteDisponible) {
+        <p class="advertencia" role="status">Puedes vincular Telegram, pero el asistente de IA todavía no está disponible para consultas.</p>
+      }
+    }
+  </div>
+
+  <aside class="alcance" aria-labelledby="titulo-alcance">
+    <h2 id="titulo-alcance">Tus movimientos siguen bajo tu control</h2>
+    <p>El bot usa los mismos datos y reglas que el chat de la app. Cada gasto o ingreso se muestra como propuesta: solo se guarda cuando pulsas <strong>Confirmar y guardar</strong>.</p>
+    <p class="detalle">Usa conversaciones privadas. Los mensajes pasan por Telegram y los datos necesarios se envían al proveedor de IA. El contexto dura 30 minutos; puedes reiniciarlo con /nuevo.</p>
+  </aside>
+</section>

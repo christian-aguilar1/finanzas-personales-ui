@@ -1,0 +1,48 @@
+:host { display: block; flex: 1; background: var(--app-page-gradient); color: var(--app-text); }
+.telegram-page { width: min(920px, 100%); margin: 0 auto; padding: 32px 24px 104px; }
+.volver { display: inline-flex; align-items: center; min-height: 44px; color: var(--app-text-muted); text-decoration: none; font-size: .875rem; }
+.volver:hover { color: var(--app-primary-ink); }
+.eyebrow { margin: 24px 0 8px; color: var(--app-primary-ink); font-size: .75rem; font-weight: 600; letter-spacing: .1em; }
+h1 { margin: 0; font-size: clamp(1.75rem, 4vw, 2.25rem); font-weight: 600; letter-spacing: -.04em; }
+.encabezado > p:last-child { margin: 12px 0 28px; max-width: 640px; color: var(--app-text-2); line-height: 1.7; }
+.conexion-panel { padding: 28px; background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 20px; }
+.panel-titulo { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--app-border); }
+.panel-titulo > div:nth-child(2) { flex: 1; min-width: 160px; }
+.panel-titulo h2 { margin: 0 0 4px; font-size: 1.125rem; font-weight: 600; }
+.panel-titulo p { margin: 0; color: var(--app-text-muted); font-size: .8125rem; line-height: 1.6; }
+.icono { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--app-primary-soft); color: var(--app-primary-ink); }
+svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado { padding: 6px 12px; border-radius: 20px; background: var(--app-surface-3); color: var(--app-text-2); font-size: .75rem; font-weight: 500; }
+.conectado { background: var(--app-success-soft); color: var(--app-success-ink); }
+.pasos { display: grid; gap: 20px; list-style: none; padding: 24px 0; margin: 0; }
+.pasos li { display: flex; gap: 16px; }
+.numero { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--app-surface-3); color: var(--app-text-muted); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.pasos strong { font-size: .9375rem; font-weight: 500; }
+.pasos p { margin: 4px 0 0; color: var(--app-text-muted); font-size: .8125rem; line-height: 1.6; }
+button, .primario { font: inherit; font-size: .875rem; min-height: 44px; border-radius: 10px; padding: 12px 16px; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; }
+button:disabled { opacity: .55; cursor: default; }
+.primario { color: var(--app-on-primary); background: var(--app-primary-strong); font-weight: 500; }
+.primario:not(:disabled):hover { filter: brightness(1.08); }
+.secundario { color: var(--app-text-2); background: var(--app-surface); border-color: var(--app-border-2); }
+.secundario:not(:disabled):hover, .texto:not(:disabled):hover { background: var(--app-surface-3); }
+.texto { color: var(--app-primary-ink); background: transparent; }
+.desconectar { color: var(--app-danger-ink); border-color: var(--app-danger-soft-2); background: var(--app-danger-soft); }
+.desconectar:not(:disabled):hover { border-color: var(--app-danger); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--app-primary); outline-offset: 3px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.enlace-listo { padding: 20px; border: 1px solid var(--app-primary-soft-2); border-radius: 12px; background: var(--app-primary-soft); }
+.enlace-listo p { color: var(--app-text-2); font-size: .875rem; line-height: 1.6; }
+.enlace-listo .acciones { margin-bottom: 0; }
+.vinculado, .pendiente { padding-top: 24px; }
+h3 { font-size: 1.125rem; font-weight: 500; margin: 0 0 12px; }
+.detalle { color: var(--app-text-muted); font-size: .8125rem; line-height: 1.7; overflow-wrap: anywhere; }
+.mensaje, .error, .aviso, .advertencia { padding: 12px 16px; border-radius: 10px; margin: 20px 0 0; font-size: .875rem; line-height: 1.6; }
+.error { background: var(--app-danger-soft); color: var(--app-danger-ink); }
+.error p { margin-top: 0; }
+.aviso { background: var(--app-success-soft); color: var(--app-success-ink); }
+.advertencia { background: var(--app-warning-soft); color: var(--app-warning-ink); }
+.alcance { margin-top: 24px; padding: 0 8px; }
+.alcance h2 { font-size: 1rem; font-weight: 500; }
+.alcance > p { color: var(--app-text-2); line-height: 1.7; font-size: .875rem; }
+.alcance > .detalle { color: var(--app-text-muted); font-size: .8125rem; }
+@media (max-width: 600px) { .telegram-page { padding: 20px 16px 96px; } .conexion-panel { padding: 20px; border-radius: 16px; } .panel-titulo { gap: 12px; } .enlace-listo { padding: 16px; } .enlace-listo > .primario { width: 100%; } }
