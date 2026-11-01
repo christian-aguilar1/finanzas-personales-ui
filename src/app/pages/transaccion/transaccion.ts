@@ -14,17 +14,18 @@ import { CategoriaService } from '../../services/categoria.service';
 import { Categoria } from '../../models/categoria.model';
 import {Cuenta} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
-import {NgClass} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {TransaccionService} from '../../services/transaccion.service';
 import {MessageService} from 'primeng/api';
 import {Transaccion, TransaccionRequest, FRECUENCIAS_RECURRENCIA} from '../../models/transaccion.model';
+import {Prestamo, PrestamoService} from '../../services/prestamo.service';
 
 @Component({
   selector: 'app-transaccion',
   templateUrl: './transaccion.html',
   styleUrls: ['./transaccion.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass, RouterLink, AutoComplete]
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, AutoComplete]
 })
 export class TransaccionComponent implements OnInit {
   transaccionForm: FormGroup;
@@ -33,6 +34,9 @@ export class TransaccionComponent implements OnInit {
   private volverARecurrentes = false;
 
   categorias: Categoria[] = [];
+  prestamos: Prestamo[] = [];
+  buscarCategoria = '';
+  selectorCategoriasAbierto = false;
   cuentas: Cuenta[] = [];
   comercios: any[] = [];
   readonly frecuencias = FRECUENCIAS_RECURRENCIA;
@@ -49,7 +53,8 @@ export class TransaccionComponent implements OnInit {
     private categoriaService: CategoriaService,
     private cuentaService: CuentaService,
     private transaccionService: TransaccionService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private prestamoService: PrestamoService
     // private comercioService: ComercioService
   ) {
     this.transaccionForm = this.fb.group({
@@ -59,6 +64,9 @@ export class TransaccionComponent implements OnInit {
       cuenta: ['', Validators.required],
       monto: [null, [Validators.required, Validators.min(1)]],
       categoria: ['', Validators.required],
+      prestamoPersona: [''],
+      prestamoFechaDevolucion: [''],
+      prestamoOrigenId: [''],
       comercio: [''],
       esRecurrente: [false],
       nombreRecurrente: [''],
@@ -91,6 +99,11 @@ export class TransaccionComponent implements OnInit {
     this.transaccionForm.get('esCompraCuotas')?.valueChanges.subscribe(() => {
       this.actualizarValidacionesCuotas();
     });
+    this.transaccionForm.get('categoria')?.valueChanges.subscribe(() => this.actualizarValidacionesPrestamo());
+    this.transaccionForm.get('tipo')?.valueChanges.subscribe(() => {
+      this.transaccionForm.patchValue({ categoria: '', prestamoOrigenId: '' });
+      this.actualizarValidacionesPrestamo();
+    });
 
     this.actualizarValidacionRecurrente();
     this.transaccionForm.get('esRecurrente')?.valueChanges.subscribe(() => this.actualizarValidacionRecurrente());
@@ -101,7 +114,14 @@ export class TransaccionComponent implements OnInit {
 
     // Cargar categorías
     this.categoriaService.obtenerCategorias().subscribe({
-      next: data => this.categorias = data,
+      next: data => {
+        this.categorias = data;
+        this.actualizarValidacionesPrestamo();
+        this.prestamoService.obtenerPrestamos().subscribe({
+          next: prestamos => this.prestamos = prestamos,
+          error: () => this.prestamos = []
+        });
+      },
       error: err => console.error('Error cargando categorías', err),
       complete: () => this.cerrarCargaCatalogos()
     });
@@ -158,7 +178,10 @@ export class TransaccionComponent implements OnInit {
       medio: this.obtenerMedioPago(form.cuenta, esCompraCuotas),
       totalCuotas: esCompraCuotas ? Number(form.totalCuotas) : null,
       cuotaActual: esCompraCuotas ? Number(form.cuotaActual) : null,
-      tagIds: []
+      tagIds: [],
+      prestamoPersona: this.esPrestamoEgreso ? form.prestamoPersona?.trim() : null,
+      prestamoFechaDevolucion: this.esPrestamoEgreso ? form.prestamoFechaDevolucion : null,
+      prestamoOrigenId: this.esPrestamoIngreso && form.prestamoOrigenId ? Number(form.prestamoOrigenId) : null
     };
 
     const request$ = this.modoEdicion && this.transaccionId !== null
@@ -173,6 +196,8 @@ export class TransaccionComponent implements OnInit {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: this.modoEdicion ? 'Transacción actualizada con éxito' : 'Transacción registrada con éxito' });
         if (this.modoEdicion)
           this.router.navigate([this.volverARecurrentes ? '/recurrentes' : '/transacciones']);
+        else if (this.esPrestamoEgreso || this.esPrestamoIngreso)
+          this.router.navigate(['/prestamos']);
         // this.transaccionForm.reset({
         //   tipo: 'EGRESO',
         //   fecha: new Date().toISOString().split('T')[0],
@@ -237,6 +262,59 @@ export class TransaccionComponent implements OnInit {
 
   cancelar() {
     this.router.navigate([this.volverARecurrentes ? '/recurrentes' : '/inicio']);
+  }
+
+  get categoriaSeleccionada(): Categoria | undefined {
+    return this.categorias.find(c => c.id === Number(this.transaccionForm.get('categoria')?.value));
+  }
+
+  get esPrestamoEgreso(): boolean {
+    return this.categoriaSeleccionada?.codigoSistema === 'PRESTAMO_EGRESO';
+  }
+
+  get esPrestamoIngreso(): boolean {
+    return this.categoriaSeleccionada?.codigoSistema === 'PRESTAMO_INGRESO';
+  }
+
+  get prestamoSeleccionadoId(): number {
+    return Number(this.transaccionForm.get('prestamoOrigenId')?.value);
+  }
+
+  get categoriasPadreFiltradas(): Categoria[] {
+    const tipo = this.transaccionForm.get('tipo')?.value;
+    const busqueda = this.buscarCategoria.trim().toLocaleLowerCase('es');
+    return this.categorias.filter(c => c.tipo === tipo && c.parentId == null)
+      .filter(c => !busqueda || c.nombre.toLocaleLowerCase('es').includes(busqueda)
+        || this.hijasDe(c.id).some(h => h.nombre.toLocaleLowerCase('es').includes(busqueda)))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  }
+
+  hijasDe(parentId: number): Categoria[] {
+    const busqueda = this.buscarCategoria.trim().toLocaleLowerCase('es');
+    const padreCoincide = this.categorias.find(c => c.id === parentId)?.nombre.toLocaleLowerCase('es').includes(busqueda);
+    return this.categorias.filter(c => c.parentId === parentId
+      && (!busqueda || padreCoincide || c.nombre.toLocaleLowerCase('es').includes(busqueda)))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  }
+
+  seleccionarCategoria(categoria: Categoria): void {
+    this.transaccionForm.get('categoria')?.setValue(categoria.id);
+    this.selectorCategoriasAbierto = false;
+    this.buscarCategoria = '';
+  }
+
+  private actualizarValidacionesPrestamo(): void {
+    const persona = this.transaccionForm.get('prestamoPersona')!;
+    const fecha = this.transaccionForm.get('prestamoFechaDevolucion')!;
+    persona.setValidators(this.esPrestamoEgreso ? [Validators.required, Validators.maxLength(120)] : []);
+    fecha.setValidators(this.esPrestamoEgreso ? [Validators.required] : []);
+    if (!this.esPrestamoEgreso) {
+      persona.setValue('', {emitEvent: false});
+      fecha.setValue('', {emitEvent: false});
+    }
+    if (!this.esPrestamoIngreso) this.transaccionForm.get('prestamoOrigenId')?.setValue('', {emitEvent: false});
+    persona.updateValueAndValidity({emitEvent: false});
+    fecha.updateValueAndValidity({emitEvent: false});
   }
 
   mostrarCamposCuotas(): boolean {
@@ -324,7 +402,10 @@ export class TransaccionComponent implements OnInit {
       esCompraCuotas,
       cuotaActual: transaccion.cuotaActual ?? null,
       totalCuotas: transaccion.totalCuotas ?? null,
-      descripcion: transaccion.descripcion ?? ''
+      descripcion: transaccion.descripcion ?? '',
+      prestamoPersona: transaccion.prestamoPersona ?? '',
+      prestamoFechaDevolucion: transaccion.prestamoFechaDevolucion ?? '',
+      prestamoOrigenId: transaccion.prestamoOrigenId ?? ''
     });
 
     if (esCompraCuotas) {

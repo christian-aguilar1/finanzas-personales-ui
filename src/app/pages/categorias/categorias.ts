@@ -117,9 +117,9 @@ export class CategoriasComponent implements OnInit {
   }
 
   eliminarCategoria(categoria: Categoria): void {
-    const confirmado = window.confirm(
-      `¿Eliminar la categoría ${categoria.nombre}? Solo se puede eliminar si no tiene subcategorías ni transacciones asociadas.`
-    );
+    const confirmado = window.confirm(categoria.codigoSistema?.startsWith('PRESTAMO_')
+      ? '¿Ocultar la categoría Préstamo? Dejarás de ver la sección Préstamos y sus movimientos asociados allí. Tus transacciones se conservarán.'
+      : `¿Eliminar la categoría ${categoria.nombre}? Solo se puede eliminar si no tiene subcategorías ni transacciones asociadas.`);
     if (!confirmado) {
       return;
     }
@@ -135,6 +135,17 @@ export class CategoriasComponent implements OnInit {
 
   get enEdicion(): boolean {
     return this.editandoCategoriaId !== null;
+  }
+
+  get prestamosOcultos(): boolean {
+    return !this.cargando && !this.categorias.some(c => c.codigoSistema === 'PRESTAMO_EGRESO');
+  }
+
+  reactivarPrestamos(): void {
+    this.categoriaService.reactivarPrestamos().subscribe({
+      next: () => this.cargarCategorias(),
+      error: () => this.error = 'No se pudo volver a mostrar la categoría Préstamo.'
+    });
   }
 
   get categoriasPadreDisponibles(): Categoria[] {

@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { CategoriaService } from '../../services/categoria.service';
 import { CuentaService } from '../../services/cuenta.service';
 import { TransaccionService } from '../../services/transaccion.service';
+import { PrestamoService } from '../../services/prestamo.service';
 
 import { TransaccionComponent } from './transaccion';
 
@@ -35,6 +36,7 @@ describe('Transaccion', () => {
         { provide: CategoriaService, useValue: { obtenerCategorias: () => of(categoriasRespuesta) } },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentasRespuesta) } },
         { provide: TransaccionService, useValue: { agregarTransaccion, obtenerNombresRecurrentes: () => of([]) } },
+        { provide: PrestamoService, useValue: { obtenerPrestamos: () => of([]) } },
         { provide: MessageService, useValue: { add: jasmine.createSpy('add') } },
       ],
     });
@@ -55,6 +57,7 @@ describe('Transaccion', () => {
         { provide: CategoriaService, useValue: { obtenerCategorias: () => of(categorias) } },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
         { provide: TransaccionService, useValue: { agregarTransaccion, obtenerNombresRecurrentes: () => of([]) } },
+        { provide: PrestamoService, useValue: { obtenerPrestamos: () => of([]) } },
         { provide: MessageService, useValue: { add: jasmine.createSpy('add') } },
       ],
     })
@@ -74,6 +77,22 @@ describe('Transaccion', () => {
     expect(component.transaccionForm.get('nombreRecurrente')?.invalid).toBeTrue();
     component.transaccionForm.patchValue({esRecurrente: false});
     expect(component.transaccionForm.get('nombreRecurrente')?.valid).toBeTrue();
+  });
+
+  it('pide persona y fecha al registrar un préstamo y ordena las categorías padre', () => {
+    component.categorias = [
+      { id: 9, nombre: 'Viajes', tipo: 'EGRESO', parentId: null },
+      { id: 8, nombre: 'Préstamo', tipo: 'EGRESO', parentId: null, codigoSistema: 'PRESTAMO_EGRESO' },
+      { id: 7, nombre: 'Abarrotes', tipo: 'EGRESO', parentId: 9 },
+    ];
+    expect(component.categoriasPadreFiltradas.map(c => c.nombre)).toEqual(['Préstamo', 'Viajes']);
+    component.buscarCategoria = 'abarrotes';
+    expect(component.categoriasPadreFiltradas.map(c => c.nombre)).toEqual(['Viajes']);
+    component.seleccionarCategoria(component.categorias[1]);
+    expect(component.transaccionForm.get('prestamoPersona')?.invalid).toBeTrue();
+    expect(component.transaccionForm.get('prestamoFechaDevolucion')?.invalid).toBeTrue();
+    component.transaccionForm.patchValue({ prestamoPersona: 'Ana', prestamoFechaDevolucion: '2026-11-30' });
+    expect(component.transaccionForm.get('prestamoPersona')?.valid).toBeTrue();
   });
 
   it('sugiere por prefijo ignorando mayúsculas y tildes', () => {

@@ -32,6 +32,9 @@ export interface Transaccion {
   categoriaEsHija?: boolean | null;
   categoriaPadreId?: number | null;
   categoriaPadreNombre?: string;
+  prestamoPersona?: string | null;
+  prestamoFechaDevolucion?: string | null;
+  prestamoOrigenId?: number | null;
 }
 
 export interface TransaccionRequest {
@@ -51,6 +54,9 @@ export interface TransaccionRequest {
   totalCuotas: number | null;
   cuotaActual: number | null;
   tagIds: number[];
+  prestamoPersona?: string | null;
+  prestamoFechaDevolucion?: string | null;
+  prestamoOrigenId?: number | null;
 }
 
 export type CrearTransaccionRequest = TransaccionRequest;

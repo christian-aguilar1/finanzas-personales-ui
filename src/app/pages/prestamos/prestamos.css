@@ -1,0 +1,11 @@
+:host { display: block; flex: 1; background: var(--app-page-bg); }
+.prestamos-page { width: min(960px, 100%); margin: auto; padding: 2rem 1rem; color: var(--app-text); }
+.encabezado { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+h1 { margin: 0; } .encabezado p, .prestamo p, .prestamo span, .prestamo small { color: var(--app-text-muted); }
+.accion { padding: .65rem 1rem; border-radius: 8px; background: var(--app-brand-navy); color: var(--app-on-brand); text-decoration: none; }
+.resumen, .prestamo { background: var(--app-surface); border: 1px solid var(--app-border-2); border-radius: 12px; padding: 1.2rem; margin: 1rem 0; }
+.resumen { display: flex; flex-direction: column; gap: .25rem; } .resumen strong { font-size: 2rem; }
+.prestamo { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; align-items: center; }
+.prestamo div { display: flex; flex-direction: column; gap: .2rem; } .prestamo h3, .prestamo p { margin: 0; }
+.vencido { color: var(--app-danger); }
+@media(max-width: 650px) { .encabezado { align-items: flex-start; flex-direction: column; } .prestamo { grid-template-columns: 1fr 1fr; } .prestamo div:first-child { grid-column: 1 / -1; } }

@@ -87,13 +87,69 @@
         <!-- Categoría -->
         <div class="form-group">
           <label>Categoría:</label>
-          <select formControlName="categoria">
-            <option value="" disabled>Selecciona una categoría</option>
-            @for (cat of categorias; track cat.id) {
-              <option [value]="cat.id">{{ cat.nombre }}</option>
-            }
-          </select>
+          <button type="button" class="categoria-actual" [attr.aria-expanded]="selectorCategoriasAbierto"
+                  (click)="selectorCategoriasAbierto = !selectorCategoriasAbierto">
+            {{ categoriaSeleccionada?.nombre || 'Selecciona una categoría' }} <span aria-hidden="true">▾</span>
+          </button>
+          @if (selectorCategoriasAbierto) {
+            <div class="categoria-menu">
+              <input type="search" aria-label="Buscar categoría" placeholder="Buscar categoría"
+                     [value]="buscarCategoria" (input)="buscarCategoria = $any($event.target).value" />
+              <div class="categoria-opciones">
+                @for (padre of categoriasPadreFiltradas; track padre.id) {
+                  <div class="categoria-padre" tabindex="0">
+                    <button type="button" (click)="seleccionarCategoria(padre)">
+                      {{ padre.nombre }}
+                    </button>
+                    @if (hijasDe(padre.id).length > 0) {
+                      <span aria-hidden="true">›</span>
+                      <div class="categoria-hijas">
+                        @for (hija of hijasDe(padre.id); track hija.id) {
+                          <button type="button" (click)="seleccionarCategoria(hija)">{{ hija.nombre }}</button>
+                        }
+                      </div>
+                    }
+                  </div>
+                } @empty {
+                  <p class="sin-resultados">Sin resultados</p>
+                }
+              </div>
+            </div>
+          }
+          @if (transaccionForm.get('categoria')?.invalid && transaccionForm.get('categoria')?.touched) {
+            <small class="error">Selecciona una categoría.</small>
+          }
         </div>
+
+        @if (esPrestamoEgreso) {
+          <div class="form-group">
+            <label for="prestamoPersona">¿A quién le prestaste?</label>
+            <input id="prestamoPersona" type="text" formControlName="prestamoPersona" maxlength="120" />
+            @if (transaccionForm.get('prestamoPersona')?.invalid && transaccionForm.get('prestamoPersona')?.touched) {
+              <small class="error">Ingresa el nombre de la persona.</small>
+            }
+          </div>
+          <div class="form-group">
+            <label for="prestamoFechaDevolucion">Fecha esperada de devolución</label>
+            <input id="prestamoFechaDevolucion" type="date" formControlName="prestamoFechaDevolucion" />
+            @if (transaccionForm.get('prestamoFechaDevolucion')?.invalid && transaccionForm.get('prestamoFechaDevolucion')?.touched) {
+              <small class="error">Selecciona una fecha.</small>
+            }
+          </div>
+        }
+        @if (esPrestamoIngreso) {
+          <div class="form-group descripcion-full">
+            <label for="prestamoOrigenId">¿Qué préstamo te devolvieron?</label>
+            <select id="prestamoOrigenId" formControlName="prestamoOrigenId">
+              <option value="">Otro o ninguno</option>
+              @for (prestamo of prestamos; track prestamo.transaccionId) {
+                @if (prestamo.pendiente > 0 || prestamo.transaccionId === prestamoSeleccionadoId) {
+                  <option [value]="prestamo.transaccionId">{{ prestamo.persona }} — pendiente {{ prestamo.pendiente | number:'1.0-0' }}</option>
+                }
+              }
+            </select>
+          </div>
+        }
 
         <!-- Comercio -->
         <div class="form-group">
