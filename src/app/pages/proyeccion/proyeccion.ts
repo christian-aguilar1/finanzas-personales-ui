@@ -1,5 +1,7 @@
 import {CommonModule} from '@angular/common';
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CambiosFinancierosService} from '../../services/cambios-financieros.service';
 import {FormsModule} from '@angular/forms';
 import {Proyeccion, ProyeccionCategoria, ProyeccionTransaccion} from '../../models/transaccion.model';
 import {TransaccionService} from '../../services/transaccion.service';
@@ -49,7 +51,10 @@ export class ProyeccionComponent implements OnInit {
   error = '';
   proyeccion: Proyeccion | null = null;
 
-  constructor(private transaccionService: TransaccionService) {}
+  constructor(private transaccionService: TransaccionService) {
+    inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.cargarProyeccion());
+  }
 
   ngOnInit(): void {
     this.cargarProyeccion();

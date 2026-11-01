@@ -16,3 +16,8 @@
 </main>
 
 <app-footer></app-footer>
+@if (autenticado()) {
+  @defer (on idle) {
+    <app-asistente-chat></app-asistente-chat>
+  }
+}

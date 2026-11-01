@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CambiosFinancierosService } from '../../services/cambios-financieros.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { of } from 'rxjs';
@@ -45,7 +47,10 @@ export class CuadreComponent implements OnInit {
   constructor(
     private cuentaService: CuentaService,
     private cuadreService: CuadreService,
-  ) {}
+  ) {
+    inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.cargar());
+  }
 
   ngOnInit(): void {
     this.cargar();

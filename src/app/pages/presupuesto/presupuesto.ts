@@ -1,5 +1,7 @@
 import {CommonModule} from '@angular/common';
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CambiosFinancierosService} from '../../services/cambios-financieros.service';
 import {FormsModule} from '@angular/forms';
 import {PaginaTransacciones, Transaccion} from '../../models/transaccion.model';
 import {Cuenta} from '../../models/cuenta.model';
@@ -79,7 +81,10 @@ export class PresupuestoComponent implements OnInit {
   constructor(
     private transaccionService: TransaccionService,
     private cuentaService: CuentaService
-  ) {}
+  ) {
+    inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.cargarPresupuesto());
+  }
 
   ngOnInit(): void {
     this.cargarPresupuesto();
