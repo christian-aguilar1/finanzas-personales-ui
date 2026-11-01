@@ -97,6 +97,22 @@ describe('Inicio', () => {
     expect(component).toBeTruthy();
   });
 
+  it('muestra el saldo disponible por cuenta incluso sin movimientos del mes', async () => {
+    await configurar([[]], [
+      { id: 1, nombre: 'CC Banco Chile', tipo: 'DEBITO', saldoInicial: 70635, saldoActual: 120635 },
+      { id: 2, nombre: 'Ahorro', tipo: 'AHORRO', saldoInicial: 30000, saldoActual: 30000 },
+      { id: 3, nombre: 'Tarjeta', tipo: 'CREDITO', saldoInicial: 0, saldoActual: 0 },
+    ]);
+    fixture.detectChanges();
+
+    expect(component.totalDisponible()).toBe(150635);
+    const saldos = (fixture.nativeElement as HTMLElement).querySelector('.saldos');
+    expect(saldos?.textContent).toContain('CC Banco Chile');
+    expect(saldos?.textContent).toContain('120,635');
+    expect(saldos?.textContent).toContain('150,635');
+    expect(saldos?.textContent).not.toContain('Tarjeta 0');
+  });
+
   it('debe navegar a ingresar transaccion', () => {
     const navegar = spyOn(router, 'navigate').and.resolveTo(true);
     component.agregarTransaccion();
