@@ -5,6 +5,7 @@ export interface Categoria {
   icono?: string;
   color?: string;
   parentId?: number | null;
+  codigoSistema?: string | null;
 }
 
 export interface CategoriaRequest {

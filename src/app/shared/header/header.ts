@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@auth0/auth0-angular';
 import { TemaService } from '../../services/tema.service';
+import { CategoriaService } from '../../services/categoria.service';
 
 @Component({
   selector: 'app-header',
@@ -16,6 +17,7 @@ export class Header {
   private readonly auth = inject(AuthService);
 
   protected readonly tema = inject(TemaService);
+  protected readonly categorias = inject(CategoriaService);
 
   readonly menuOpen = signal(false);
 
@@ -24,6 +26,12 @@ export class Header {
   private readonly usuario = toSignal(this.auth.user$, { initialValue: null });
 
   readonly email = computed(() => this.usuario()?.email ?? null);
+
+  constructor() {
+    this.auth.isAuthenticated$.subscribe(autenticado => {
+      if (autenticado) this.categorias.obtenerCategorias().subscribe({ error: () => undefined });
+    });
+  }
 
   toggleMenu(): void {
     this.menuOpen.update((abierto) => !abierto);

@@ -4,6 +4,8 @@ import { of } from 'rxjs';
 import { AuthService } from '@auth0/auth0-angular';
 
 import { Header } from './header';
+import { CategoriaService } from '../../services/categoria.service';
+import { signal } from '@angular/core';
 
 describe('Header', () => {
   let component: Header;
@@ -17,6 +19,7 @@ describe('Header', () => {
       imports: [Header],
       providers: [
         provideRouter([]),
+        { provide: CategoriaService, useValue: { prestamosVisibles: signal(true), obtenerCategorias: () => of([]) } },
         {
           provide: AuthService,
           useValue: {

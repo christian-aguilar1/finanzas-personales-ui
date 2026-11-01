@@ -4,6 +4,12 @@
 	  <h2>Categorias</h2>
 	  <p>Administra tus categorias de ingreso y egreso.</p>
 	</div>
+	@if (prestamosOcultos) {
+	  <div class="prestamos-ocultos">
+	    <span>La sección Préstamos está oculta.</span>
+	    <button type="button" class="btn btn-secundario" (click)="reactivarPrestamos()">Volver a mostrar préstamos</button>
+	  </div>
+	}
 
 	<form class="crud-form" [formGroup]="categoriaForm" (ngSubmit)="guardarCategoria()">
 	  <label>

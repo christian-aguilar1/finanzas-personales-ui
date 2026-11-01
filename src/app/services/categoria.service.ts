@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {map} from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 import {Categoria, CategoriaRequest} from '../models/categoria.model';
 import {environment} from '../../environments/environment';
 
@@ -9,6 +9,8 @@ import {environment} from '../../environments/environment';
   providedIn: 'root'
 })
 export class CategoriaService {
+
+  readonly prestamosVisibles = signal(true);
 
   private apiUrl = environment.apiUrl;
 
@@ -18,7 +20,8 @@ export class CategoriaService {
     // El backend deduce el usuario del access token. Un 204 sin body llega como null.
     return this.http
       .get<Categoria[] | null>(`${this.apiUrl}/categorias`)
-      .pipe(map((categorias) => categorias ?? []));
+      .pipe(map((categorias) => categorias ?? []),
+        tap(categorias => this.prestamosVisibles.set(categorias.some(c => c.codigoSistema === 'PRESTAMO_EGRESO'))));
   }
 
   crearCategoria(request: CategoriaRequest): Observable<Categoria> {
@@ -31,5 +34,9 @@ export class CategoriaService {
 
   eliminarCategoria(id: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/categorias/${id}/eliminar`, null);
+  }
+
+  reactivarPrestamos(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/categorias/prestamo/reactivar`, null);
   }
 }
