@@ -23,9 +23,13 @@
     } @else {
       <div class="resumen-grid">
         <article class="resumen saldo">
-          <span>{{ etiquetaSaldoInicio() }}</span>
-          <strong>{{ saldoInicio | number: '1.0-2' }}</strong>
-          <small>{{ saldoInicioEsArrastre ? 'Con el que abre el periodo' : 'Suma del ancla de las cuentas' }}</small>
+          <span>Saldo actual de cuentas</span>
+          @if (obtenerSaldoActual() !== null) {
+            <strong>{{ obtenerSaldoActual() | number: '1.0-2' }}</strong>
+          } @else {
+            <strong>No disponible</strong>
+          }
+          <small>Al día de hoy · débito, efectivo y ahorro</small>
         </article>
 
         <article class="resumen ingreso">
@@ -39,8 +43,8 @@
         </article>
 
         <article class="resumen total">
-          <span>Saldo final</span>
-          <strong>{{ obtenerTotalFinal() | number: '1.0-2' }}</strong>
+          <span>Balance del periodo</span>
+          <strong>{{ obtenerBalancePeriodo() | number: '1.0-2' }}</strong>
         </article>
       </div>
 
