@@ -1,5 +1,7 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CambiosFinancierosService} from '../../services/cambios-financieros.service';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {forkJoin, of} from 'rxjs';
@@ -96,6 +98,12 @@ export class TransaccionesComponent implements OnInit {
     private filtroService: FiltroService,
     private router: Router,
   ) {
+    inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.paginasEnCache.clear();
+        this.paginaActual = 1;
+        this.cargarDatosIniciales();
+      });
   }
 
   ngOnInit(): void {

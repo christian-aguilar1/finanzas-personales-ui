@@ -1,0 +1,115 @@
+<button #lanzador type="button" class="lanzador" (click)="abrir()"
+  aria-label="Abrir asistente de finanzas" aria-haspopup="dialog" [attr.aria-expanded]="visible">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2v-9.5A8.5 8.5 0 0 1 10.5 4H13M17 2v8M13 6h8M7 11h6M7 15h9" /></svg>
+  <span>Asistente</span>
+</button>
+
+<p-dialog header="Asistente de finanzas" [(visible)]="visible" [modal]="true"
+  closeAriaLabel="Cerrar asistente"
+  [draggable]="false" [resizable]="false" position="bottomright" [focusOnShow]="false"
+  [style]="{ width: '440px', height: 'min(760px, calc(100dvh - 24px))', maxHeight: 'calc(100dvh - 24px)', maxWidth: 'calc(100vw - 24px)', margin: '12px', background: 'var(--app-surface)', color: 'var(--app-text)' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '0' }"
+  (onShow)="enfocar()" (onHide)="alCerrar()">
+  <div class="chat">
+    <div class="chat-contexto">
+      <span class="etiqueta">TUS FINANZAS, EN CONVERSACIÓN</span>
+      <button type="button" class="texto-boton" (click)="nuevaConversacion()"
+        [disabled]="enviando() || confirmando() || mensajes().length === 0">Nueva conversación</button>
+    </div>
+
+    <div #conversacion class="conversacion" role="log" aria-label="Conversación con el asistente"
+      aria-live="polite" aria-relevant="additions text" [attr.aria-busy]="enviando()">
+      @if (mensajes().length === 0) {
+        <div class="bienvenida">
+          <span class="sello" aria-hidden="true">$</span>
+          <h2>Hablemos de tus números</h2>
+          <p>Consulta tus gastos, entiende tu proyección o prepara un movimiento.</p>
+          <p class="nota">Tú tienes la última palabra: revisa y confirma cada movimiento antes de guardarlo.</p>
+        </div>
+        @if (estado()?.disponible) {
+          <div class="sugerencias" aria-label="Preguntas sugeridas">
+            @for (sugerencia of sugerencias; track sugerencia) {
+              <button type="button" (click)="usarSugerencia(sugerencia)"
+                [disabled]="enviando() || conexion.sinConexion()">{{ sugerencia }} <span aria-hidden="true">↗</span></button>
+            }
+          </div>
+        }
+      }
+      @for (mensaje of mensajes(); track $index) {
+        <article class="mensaje" [class.mensaje-usuario]="mensaje.role === 'user'">
+          <span class="autor">{{ mensaje.role === 'user' ? 'Tú' : 'Asistente' }}</span>
+          <p>{{ mensaje.content }}</p>
+          @for (propuesta of mensaje.propuestas; track propuesta.id) {
+            <section class="propuesta" aria-label="Propuesta de movimiento">
+              <div class="propuesta-cabecera">
+                <span>{{ propuesta.transaccion.tipo === 'EGRESO' ? 'Gasto' : 'Ingreso' }} puntual</span>
+                <strong>{{ propuesta.transaccion.monto | currency:'CLP':'symbol-narrow':'1.0-2' }}</strong>
+              </div>
+              <p class="descripcion">{{ propuesta.transaccion.descripcion || propuesta.categoriaNombre }}</p>
+              <dl>
+                <div><dt>Cuenta</dt><dd>{{ propuesta.cuentaNombre }}</dd></div>
+                <div><dt>Categoría</dt><dd>{{ propuesta.categoriaNombre }}</dd></div>
+                <div><dt>Fecha</dt><dd>{{ propuesta.transaccion.fecha | date:'dd/MM/yyyy' }}</dd></div>
+                <div><dt>Medio</dt><dd>{{ propuesta.transaccion.medio }}</dd></div>
+                @if (propuesta.transaccion.periodoFacturacion) {
+                  <div><dt>Facturación</dt><dd>{{ propuesta.transaccion.periodoFacturacion }}</dd></div>
+                }
+              </dl>
+              @if (propuesta.estado === 'pendiente' || propuesta.estado === 'guardando') {
+                <p class="nota">Propuesta válida por 30 minutos.</p>
+                <div class="acciones">
+                  <button type="button" class="primario" (click)="confirmar(propuesta)"
+                    [disabled]="confirmando() || enviando() || conexion.sinConexion()">
+                    {{ propuesta.estado === 'guardando' ? 'Guardando…' : 'Confirmar y guardar' }}
+                  </button>
+                  <button type="button" class="texto-boton" (click)="descartar(propuesta)"
+                    [disabled]="confirmando()">Descartar</button>
+                </div>
+              } @else if (propuesta.estado === 'guardada') {
+                <p class="guardada" role="status">Movimiento guardado</p>
+                <a routerLink="/transacciones" (click)="visible = false">Ver transacciones</a>
+              } @else {
+                <p class="nota">{{ propuesta.estado === 'vencida' ? 'La propuesta venció. Pide una nueva.' : 'Propuesta descartada. No se guardó.' }}</p>
+              }
+              @if (propuesta.error) { <p class="error" role="alert">{{ propuesta.error }}</p> }
+            </section>
+          }
+        </article>
+      }
+      @if (enviando()) { <p class="consultando" role="status">Consultando tus datos…</p> }
+    </div>
+
+    <div class="pie-chat">
+      @if (cargandoEstado()) {
+        <p class="nota" role="status">Conectando con el asistente…</p>
+      } @else if (estado() && !estado()?.disponible) {
+        <div class="aviso" role="status">
+          <strong>Pronto podrás conversar con tus finanzas</strong>
+          <p>{{ estado()?.mensaje }}</p>
+          <button type="button" class="texto-boton" (click)="cargarEstado()">Volver a comprobar</button>
+        </div>
+      }
+      @if (conexion.sinConexion()) { <p class="error" role="status">Sin conexión. Podrás continuar cuando vuelva la red.</p> }
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+        @if (!estado()) { <button type="button" class="texto-boton" (click)="cargarEstado()">Reintentar conexión</button> }
+      }
+      @if (!estado() || estado()?.disponible) {
+      <form (ngSubmit)="enviar()">
+        <label for="mensaje-asistente">Tu mensaje</label>
+        <div class="compositor">
+          <textarea #campoMensaje id="mensaje-asistente" name="mensaje" [(ngModel)]="texto" rows="2"
+            maxlength="2000" placeholder="Ej.: gasté 15 lucas en bencina…"
+            [disabled]="!estado()?.disponible || enviando() || confirmando() || conexion.sinConexion()"
+            (keydown)="enviarConTeclado($event)"></textarea>
+          <button type="submit" class="enviar primario" aria-label="Enviar mensaje"
+            [disabled]="!texto.trim() || !estado()?.disponible || enviando() || confirmando() || conexion.sinConexion()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 5v15" /></svg>
+          </button>
+        </div>
+      </form>
+      }
+      <p class="privacidad">La IA recibe tu mensaje y los datos necesarios para responder. La conversación dura esta sesión.</p>
+    </div>
+  </div>
+</p-dialog>

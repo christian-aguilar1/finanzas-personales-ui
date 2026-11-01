@@ -1,5 +1,7 @@
 import {CommonModule} from '@angular/common';
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CambiosFinancierosService} from '../../services/cambios-financieros.service';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Cuenta, CuentaRequest, tieneDineroDisponible} from '../../models/cuenta.model';
 import {CuentaService} from '../../services/cuenta.service';
@@ -29,6 +31,8 @@ export class CuentasComponent implements OnInit {
     private fb: FormBuilder,
     private cuentaService: CuentaService,
   ) {
+    inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.cargarCuentas());
     this.cuentaForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       tipo: ['EFECTIVO', Validators.required],

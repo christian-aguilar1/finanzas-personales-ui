@@ -8,10 +8,22 @@ import { CategoriaService } from '../../services/categoria.service';
 import { Transaccion, FiltroTransacciones } from '../../models/transaccion.model';
 import { MatSort } from '@angular/material/sort';
 import { FiltroService } from '../../services/filtro.service';
+import { CambiosFinancierosService } from '../../services/cambios-financieros.service';
 
 import { TransaccionesComponent } from './transacciones';
 
 describe('TransaccionesComponent', () => {
+  it('recarga tras guardar en el chat, reinicia la página y conserva filtros y orden', () => {
+    component.paginaActual = 3;
+    component.filtros.tipo = 'EGRESO';
+    component.sortState = 'monto,desc';
+    transaccionServiceSpy.obtenerTransacciones.calls.reset();
+    TestBed.inject(CambiosFinancierosService).notificar();
+    expect(component.paginaActual).toBe(1);
+    expect(transaccionServiceSpy.obtenerTransacciones).toHaveBeenCalledWith(
+      0, 10, jasmine.objectContaining({ tipo: 'EGRESO' }), 'monto,desc',
+    );
+  });
   let component: TransaccionesComponent;
   let fixture: ComponentFixture<TransaccionesComponent>;
   let transaccionServiceSpy: jasmine.SpyObj<TransaccionService>;
