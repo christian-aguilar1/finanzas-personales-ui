@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { Observable, forkJoin, of } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { Cuenta } from '../../models/cuenta.model';
+import { Cuenta, tieneDineroDisponible } from '../../models/cuenta.model';
 import { FiltroTransacciones, Transaccion } from '../../models/transaccion.model';
 import { CuentaService } from '../../services/cuenta.service';
 import { TemaService } from '../../services/tema.service';
@@ -166,6 +166,15 @@ export class Inicio implements OnInit {
   readonly sinMovimientos = computed(
     () => !this.cargando() && !this.error() && !this.sinCuentas() && this.transacciones().length === 0,
   );
+
+  readonly cuentasConDinero = computed(() => this.cuentas().filter(tieneDineroDisponible));
+  readonly tarjetasCredito = computed(() => this.cuentas().filter((cuenta) => cuenta.tipo === 'CREDITO'));
+  readonly totalDisponible = computed(() => {
+    const cuentas = this.cuentasConDinero();
+    return cuentas.every((cuenta) => cuenta.saldoActual != null)
+      ? cuentas.reduce((total, cuenta) => total + Number(cuenta.saldoActual), 0)
+      : null;
+  });
 
   /** `cuotaActual === 0` es una cuota que todavía no se imputa: se excluye igual que en el presupuesto. */
   private readonly imputables = computed(() => this.transacciones().filter((item) => item.cuotaActual !== 0));

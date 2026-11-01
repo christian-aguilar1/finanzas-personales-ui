@@ -14,3 +14,7 @@ export interface CuentaRequest {
   tipo: string;
   saldoInicial: number;
 }
+
+export function tieneDineroDisponible(cuenta: Cuenta): boolean {
+  return cuenta.tipo === 'DEBITO' || cuenta.tipo === 'EFECTIVO' || cuenta.tipo === 'AHORRO';
+}
