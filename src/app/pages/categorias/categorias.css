@@ -21,6 +21,8 @@
   padding: 1.2rem;
 }
 
+.prestamos-ocultos { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .8rem; margin-bottom: 1rem; border-radius: 8px; background: var(--app-warning-soft); color: var(--app-warning-ink); }
+
 .section-header h2 {
   margin: 0;
   color: var(--app-text);

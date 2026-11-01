@@ -6,6 +6,7 @@ import { AuthService } from '@auth0/auth0-angular';
 import { MessageService } from 'primeng/api';
 import { App } from './app';
 import { ConexionService } from './services/conexion.service';
+import { CategoriaService } from './services/categoria.service';
 
 describe('App', () => {
   let fixture: ComponentFixture<App>;
@@ -20,6 +21,7 @@ describe('App', () => {
       imports: [App],
       providers: [
         provideRouter([]),
+        { provide: CategoriaService, useValue: { prestamosVisibles: signal(true), obtenerCategorias: () => of([]) } },
         {
           provide: AuthService,
           useValue: {
@@ -53,6 +55,7 @@ describe('App', () => {
       imports: [App],
       providers: [
         provideRouter([]),
+        { provide: CategoriaService, useValue: { prestamosVisibles: signal(true), obtenerCategorias: () => of([]) } },
         {
           provide: AuthService,
           useValue: { isAuthenticated$: of(false), user$: of(null) },

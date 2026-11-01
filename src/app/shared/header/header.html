@@ -19,6 +19,9 @@
         <li><a routerLink="/cuadre" (click)="cerrarMenu()">Cuadre de gastos</a></li>
         <li><a routerLink="/categorias" (click)="cerrarMenu()">Categorías</a></li>
         <li><a routerLink="/cuentas" (click)="cerrarMenu()">Cuentas</a></li>
+        @if (categorias.prestamosVisibles()) {
+          <li><a routerLink="/prestamos" (click)="cerrarMenu()">Préstamos</a></li>
+        }
       </ul>
     </nav>
   </div>

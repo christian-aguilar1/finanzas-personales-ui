@@ -10,6 +10,7 @@ import { CuentasComponent } from './pages/cuentas/cuentas';
 import { PresupuestoComponent } from './pages/presupuesto/presupuesto';
 import { ProyeccionComponent } from './pages/proyeccion/proyeccion';
 import { CuadreComponent } from './pages/cuadre/cuadre';
+import { PrestamosComponent } from './pages/prestamos/prestamos';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'presupuesto', component: PresupuestoComponent, canActivate: [authGuardFn] },
   { path: 'proyeccion', component: ProyeccionComponent, canActivate: [authGuardFn] },
   { path: 'cuadre', component: CuadreComponent, canActivate: [authGuardFn] },
+  { path: 'prestamos', component: PrestamosComponent, canActivate: [authGuardFn] },
   { path: 'categorias', component: CategoriasComponent, canActivate: [authGuardFn] },
   { path: 'cuentas', component: CuentasComponent, canActivate: [authGuardFn] },
   { path: '**', redirectTo: '/inicio' },
