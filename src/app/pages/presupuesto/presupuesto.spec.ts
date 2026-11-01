@@ -96,9 +96,9 @@ describe('PresupuestoComponent', () => {
     };
 
     const cuentas: Cuenta[] = [
-      { id: 35, nombre: 'CC Banco Chile', tipo: 'DEBITO', saldoInicial: 318177 },
-      { id: 34, nombre: 'TC Tenpo', tipo: 'EFECTIVO', saldoInicial: 0 },
-      { id: 1, nombre: 'Tarjeta Banco Falabella', tipo: 'CREDITO', saldoInicial: 50000 },
+      { id: 35, nombre: 'CC Banco Chile', tipo: 'DEBITO', saldoInicial: 70635, saldoActual: 125000 },
+      { id: 34, nombre: 'Efectivo', tipo: 'EFECTIVO', saldoInicial: 0, saldoActual: 20000 },
+      { id: 1, nombre: 'Tarjeta Banco Falabella', tipo: 'CREDITO', saldoInicial: 50000, saldoActual: 50000 },
     ];
 
     beforeEach(async () => {
@@ -127,16 +127,18 @@ describe('PresupuestoComponent', () => {
     });
 
     it('no cuenta en el total las transacciones con cuotaActual 0 pero si las de categoria hija', () => {
-      // El saldo inicial es stock, no un flujo del periodo: los ingresos son solo
-      // los movimientos del periodo (5000 de sueldo), sin los 318177 de la cuenta.
       expect(component.egresoTotal).toBe(20777);
       expect(component.ingresoTotal).toBe(5000);
-      expect(component.saldoInicio).toBe(318177);
-      expect(component.saldoInicioEsArrastre).toBeFalse();
-      expect(component.obtenerTotalFinal()).toBe(318177 + 5000 - 20777);
+      expect(component.obtenerBalancePeriodo()).toBe(5000 - 20777);
     });
 
-    it('no muestra el saldo inicial como fila de ingresos', () => {
+    it('muestra el saldo actual de cuentas propias sin sumar las tarjetas de crédito', () => {
+      expect(component.obtenerSaldoActual()).toBe(145000);
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain('145,000');
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain('Al día de hoy');
+    });
+
+    it('no muestra el saldo actual como fila de ingresos', () => {
       const nombres = component.ingresosPorCategoria.map((item) => item.categoriaNombre);
 
       expect(nombres).toEqual(['Sueldo']);
@@ -148,7 +150,7 @@ describe('PresupuestoComponent', () => {
       expect(enCuotas.map((item) => item.monto)).toEqual([10000, 7777]);
     });
 
-    it('incluye AHORRO entre los tipos con saldo inicial', async () => {
+    it('incluye AHORRO entre las cuentas con saldo actual', async () => {
       TestBed.resetTestingModule();
 
       await TestBed.configureTestingModule({
@@ -163,8 +165,8 @@ describe('PresupuestoComponent', () => {
             useValue: {
               obtenerCuentas: () =>
                 of([
-                  { id: 1, nombre: 'Ahorro', tipo: 'AHORRO', saldoInicial: 90000 },
-                  { id: 2, nombre: 'Tarjeta', tipo: 'CREDITO', saldoInicial: 50000 },
+                  { id: 1, nombre: 'Ahorro', tipo: 'AHORRO', saldoInicial: 90000, saldoActual: 97000 },
+                  { id: 2, nombre: 'Tarjeta', tipo: 'CREDITO', saldoInicial: 50000, saldoActual: 50000 },
                 ]),
             },
           },
@@ -175,58 +177,15 @@ describe('PresupuestoComponent', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.saldoInicio).toBe(90000);
-      expect(component.etiquetaSaldoInicio()).toBe('Saldo inicial de cuentas');
+      expect(component.obtenerSaldoActual()).toBe(97000);
     });
 
-    it('usa el arrastre que informa el backend en vez del ancla de las cuentas', async () => {
-      TestBed.resetTestingModule();
-
-      await TestBed.configureTestingModule({
-        imports: [PresupuestoComponent],
-        providers: [
-          {
-            provide: TransaccionService,
-            useValue: {
-              obtenerTransaccionesPorPeriodoFacturacion: () => of({ ...pagina, saldoInicio: 123456 }),
-            },
-          },
-          { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
-        ],
-      }).compileComponents();
-
-      fixture = TestBed.createComponent(PresupuestoComponent);
-      component = fixture.componentInstance;
+    it('no presenta el saldo original como saldo actual si la API no informa el valor calculado', () => {
+      component.cuentas = [{ id: 35, nombre: 'CC Banco Chile', tipo: 'DEBITO', saldoInicial: 70635 }];
       fixture.detectChanges();
 
-      expect(component.saldoInicio).toBe(123456);
-      expect(component.saldoInicioEsArrastre).toBeTrue();
-      expect(component.etiquetaSaldoInicio()).toBe('Saldo inicial');
-      expect(component.obtenerTotalFinal()).toBe(123456 + 5000 - 20777);
-    });
-
-    it('acepta arrastre como alias de saldoInicio', async () => {
-      TestBed.resetTestingModule();
-
-      await TestBed.configureTestingModule({
-        imports: [PresupuestoComponent],
-        providers: [
-          {
-            provide: TransaccionService,
-            useValue: {
-              obtenerTransaccionesPorPeriodoFacturacion: () => of({ ...pagina, arrastre: 777 }),
-            },
-          },
-          { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
-        ],
-      }).compileComponents();
-
-      fixture = TestBed.createComponent(PresupuestoComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      expect(component.saldoInicio).toBe(777);
-      expect(component.saldoInicioEsArrastre).toBeTrue();
+      expect(component.obtenerSaldoActual()).toBeNull();
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain('No disponible');
     });
     it('suma los montos de las categorias hijas dentro de su categoria padre', () => {
       const mercaderia = component.egresosPorCategoria.find((item) => item.categoriaNombre === 'Mercadería');
