@@ -5,15 +5,19 @@ import {Footer} from './shared/footer/footer';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import { ConexionService } from './services/conexion.service';
+import { AsistenteChatComponent } from './shared/asistente-chat/asistente-chat';
+import { AuthService } from '@auth0/auth0-angular';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Header, Footer, ToastModule],
+  imports: [RouterOutlet, Header, Footer, ToastModule, AsistenteChatComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
+  protected readonly autenticado = toSignal(inject(AuthService).isAuthenticated$, { initialValue: false });
   protected readonly title = signal('finanzas-personales-ui');
 
   private readonly conexion = inject(ConexionService);

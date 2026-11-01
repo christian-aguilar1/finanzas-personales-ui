@@ -9,6 +9,8 @@ import { FiltroTransacciones, Transaccion } from '../../models/transaccion.model
 import { CuentaService } from '../../services/cuenta.service';
 import { TemaService } from '../../services/tema.service';
 import { TransaccionService } from '../../services/transaccion.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CambiosFinancierosService } from '../../services/cambios-financieros.service';
 
 Chart.register(...registerables);
 
@@ -100,6 +102,8 @@ export class Inicio implements OnInit {
   )}`;
 
   constructor() {
+    inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.cargar());
     // Los charts se redibujan al cambiar los datos o el tema para heredar los tokens del layout.
     effect(() => {
       this.serieMensual();
