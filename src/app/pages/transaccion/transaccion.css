@@ -46,11 +46,11 @@ h2 {
 
 .categoria-menu { position: relative; z-index: 5; border: 1px solid var(--app-border-2); border-radius: 8px; background: var(--app-surface); box-shadow: 0 8px 20px var(--app-shadow-color); padding: .45rem; }
 .categoria-menu input { width: 100%; }
-.categoria-opciones { max-height: 240px; overflow: visible; }
+.categoria-opciones { max-height: 240px; overflow-y: auto; overflow-x: hidden; }
 .categoria-padre { position: relative; display: flex; align-items: center; justify-content: space-between; }
 .categoria-padre > button, .categoria-hijas button { width: 100%; text-align: left; border: 0; background: transparent; color: var(--app-text); padding: .55rem; cursor: pointer; }
 .categoria-padre:hover, .categoria-padre:focus-within, .categoria-hijas button:hover { background: var(--app-surface-3); }
-.categoria-hijas { display: none; position: absolute; left: 100%; top: 0; min-width: 180px; max-height: 240px; overflow-y: auto; background: var(--app-surface); border: 1px solid var(--app-border-2); box-shadow: 0 8px 20px var(--app-shadow-color); }
+.categoria-hijas { display: none; position: static; min-width: 180px; max-height: 180px; overflow-y: auto; background: var(--app-surface-3); border: 1px solid var(--app-border-2); }
 .categoria-padre:hover .categoria-hijas, .categoria-padre:focus-within .categoria-hijas { display: block; }
 .categoria-actual { display: flex; justify-content: space-between; width: 100%; padding: 10px 12px; border: 1px solid var(--app-border-2); border-radius: 8px; background: var(--app-surface); color: var(--app-text); cursor: pointer; }
 .sin-resultados { padding: .5rem; color: var(--app-text-muted); }
@@ -238,3 +238,4 @@ input.invalid, select.invalid, textarea.invalid {
   padding: 0.4rem 0.8rem;
   text-decoration: none;
 }
+
