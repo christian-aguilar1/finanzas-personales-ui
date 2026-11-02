@@ -11,3 +11,8 @@ export interface EnlaceTelegram {
   url: string;
   expiraEn: string;
 }
+
+export interface PreferenciasTelegram {
+  cuentaId: number | null;
+  categoriaId: number | null;
+}
