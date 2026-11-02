@@ -15,6 +15,7 @@ describe('Inicio', () => {
   let component: Inicio;
   let fixture: ComponentFixture<Inicio>;
   let router: Router;
+  let obtenerPorPeriodo: jasmine.Spy;
 
   const ahora = new Date();
   const periodoActual = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}`;
@@ -49,8 +50,9 @@ describe('Inicio', () => {
   const cuentas: Cuenta[] = [{ id: 1, nombre: 'Cuenta corriente', tipo: 'DEBITO', saldoInicial: 100000 }];
 
   const pagina = (transacciones: Transaccion[], page: number, totalPages: number) => ({
-    transacciones,
-    paginacion: {
+    _embedded: { transaccionResponseList: transacciones },
+    _links: { self: { href: '' } },
+    page: {
       totalPages,
       totalElements: transacciones.length,
       currentPage: page,
@@ -60,6 +62,13 @@ describe('Inicio', () => {
 
   const configurar = async (transaccionesPorPagina: Transaccion[][], cuentasRespuesta: Cuenta[] = cuentas) => {
     TestBed.resetTestingModule();
+    obtenerPorPeriodo = jasmine.createSpy('obtenerTransaccionesPorPeriodoFacturacion')
+      .and.callFake((periodo: string, page: number) => {
+        const paginas = transaccionesPorPagina
+          .map((transacciones) => transacciones.filter((item) => item.periodoFacturacion === periodo))
+          .filter((transacciones) => transacciones.length > 0);
+        return of(pagina(paginas[page] ?? [], page, paginas.length));
+      });
 
     await TestBed.configureTestingModule({
       imports: [Inicio],
@@ -67,16 +76,7 @@ describe('Inicio', () => {
         provideRouter([]),
         {
           provide: TransaccionService,
-          useValue: {
-            obtenerTransacciones: (page: number) =>
-              of(
-                pagina(
-                  transaccionesPorPagina[page] ?? [],
-                  page,
-                  transaccionesPorPagina.length > 0 ? transaccionesPorPagina.length : 0,
-                ),
-              ),
-          },
+          useValue: { obtenerTransaccionesPorPeriodoFacturacion: obtenerPorPeriodo },
         },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentasRespuesta) } },
         { provide: TemaService, useValue: { esOscuro: signal(false) } },
@@ -183,7 +183,7 @@ describe('Inicio', () => {
       [
         ingreso(1, 500000, periodoActual),
         egreso(2, 120000, periodoActual),
-        ingreso(5, 300000, periodoPrevio, { fecha: '2026-01-10', periodoFacturacion: periodoPrevio }),
+        ingreso(5, 300000, periodoPrevio, { fecha: '2020-01-10', periodoFacturacion: periodoPrevio }),
       ],
     ]);
 
@@ -195,6 +195,8 @@ describe('Inicio', () => {
     expect(serie[serie.length - 1].egresos).toBe(120000);
     expect(serie[serie.length - 2].ingresos).toBe(300000);
     expect(serie[serie.length - 2].etiqueta.length).toBeGreaterThan(0);
+    expect(obtenerPorPeriodo).toHaveBeenCalledWith(periodoPrevio, 0, 100);
+    expect(obtenerPorPeriodo).toHaveBeenCalledTimes(6);
   });
 
   it('acumula todas las páginas de la ventana', async () => {
@@ -300,7 +302,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
         provideRouter([]),
         {
           provide: TransaccionService,
-          useValue: { obtenerTransacciones: () => throwError(() => new Error('sin red')) },
+          useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => throwError(() => new Error('sin red')) },
         },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
         { provide: TemaService, useValue: { esOscuro: signal(false) } },
@@ -373,7 +375,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
         imports: [Inicio],
         providers: [
           provideRouter([]),
-          { provide: TransaccionService, useValue: { obtenerTransacciones: () => throwError(() => new Error('x')) } },
+          { provide: TransaccionService, useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => throwError(() => new Error('x')) } },
           { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
           { provide: TemaService, useValue: { esOscuro: signal(false) } },
         ],

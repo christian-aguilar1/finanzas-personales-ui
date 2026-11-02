@@ -26,7 +26,7 @@ describe('Recurrentes', () => {
     expect(editar.urlTree?.toString()).toBe('/transaccion/1?volver=recurrentes');
     expect(editar.state).toEqual({transaccion: c.visibles[0]});
   });
-  it('ordena todas las columnas ascendente y descendente sin modificar la lista original', () => {
+  it('alterna cada columna entre ascendente, descendente y orden original', () => {
     const fixture = TestBed.createComponent(RecurrentesComponent); fixture.detectChanges();
     const c = fixture.componentInstance;
     c.transacciones = [
@@ -34,9 +34,14 @@ describe('Recurrentes', () => {
       {id: 1, fecha: '2026-10-01', monto: 2500, tipo: 'EGRESO', nombreRecurrente: 'Água', descripcion: 'Agua', frecuenciaRecurrencia: 'MENSUAL', cuentaNombre: 'Agua', categoriaNombre: 'Agua', comercioNombre: 'Agua'},
     ];
     for (const columna of c.columnas) {
-      c.columnaOrden = columna.clave; c.direccionOrden = 'asc';
+      c.columnaOrden = null;
+      expect(c.visibles.map(t => t.id)).withContext(columna.clave).toEqual([2, 1]);
+      c.ordenarPor(columna.clave);
       expect(c.visibles.map(t => t.id)).withContext(columna.clave).toEqual([1, 2]);
       c.ordenarPor(columna.clave);
+      expect(c.visibles.map(t => t.id)).withContext(columna.clave).toEqual([2, 1]);
+      c.ordenarPor(columna.clave);
+      expect(c.columnaOrden).toBeNull();
       expect(c.visibles.map(t => t.id)).withContext(columna.clave).toEqual([2, 1]);
     }
     expect(c.transacciones.map(t => t.id)).toEqual([2, 1]);
@@ -45,12 +50,23 @@ describe('Recurrentes', () => {
 
   it('permite ordenar desde el encabezado y anuncia la dirección', () => {
     const fixture = TestBed.createComponent(RecurrentesComponent); fixture.detectChanges();
+    const encabezados = fixture.nativeElement.querySelectorAll('thead th');
+    const celdas = fixture.nativeElement.querySelectorAll('tbody tr:first-child td');
+    expect(encabezados[0].textContent).toContain('Recurrente');
+    expect(encabezados[1].textContent).toContain('Último monto');
+    expect(celdas[1].textContent).toContain('80');
     const boton = fixture.nativeElement.querySelector('button[aria-label="Ordenar Último monto ascendente"]');
     boton.click(); fixture.detectChanges();
     expect(boton.closest('th').getAttribute('aria-sort')).toBe('ascending');
+    expect(boton.getAttribute('aria-label')).toBe('Ordenar Último monto descendente');
     boton.click(); fixture.detectChanges();
     expect(boton.closest('th').getAttribute('aria-sort')).toBe('descending');
+    expect(boton.getAttribute('aria-label')).toBe('Quitar orden de Último monto');
     expect(fixture.nativeElement.querySelector('tbody tr').textContent).toContain('Sueldo');
+    boton.click(); fixture.detectChanges();
+    expect(boton.closest('th').getAttribute('aria-sort')).toBe('none');
+    expect(boton.getAttribute('aria-label')).toBe('Ordenar Último monto ascendente');
+    expect(fixture.nativeElement.querySelector('tbody tr').textContent).toContain('Gasto común');
   });
 
   it('mantiene Editar visible sin desplazar horizontalmente una tabla angosta', () => {
