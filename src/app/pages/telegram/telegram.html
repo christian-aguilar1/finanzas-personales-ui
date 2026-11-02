@@ -82,6 +82,17 @@
     }
   </div>
 
+  <div class="preferencias-acceso">
+    @defer (on interaction) {
+      <app-preferencias-telegram></app-preferencias-telegram>
+    } @placeholder {
+      <section class="conexion-panel" aria-labelledby="titulo-configurar">
+        <h2 id="titulo-configurar">Valores predeterminados del bot</h2>
+        <p>Si no indicas período, se usará el mes actual. También puedes marcar una cuenta y una categoría para los gastos.</p>
+        <button type="button" class="secundario">Configurar valores predeterminados</button>
+      </section>
+    }
+  </div>
   <aside class="alcance" aria-labelledby="titulo-alcance">
     <h2 id="titulo-alcance">Tus movimientos siguen bajo tu control</h2>
     <p>El bot usa los mismos datos y reglas que el chat de la app. Cada gasto o ingreso se muestra como propuesta: solo se guarda cuando pulsas <strong>Confirmar y guardar</strong>.</p>

@@ -1,0 +1,46 @@
+<section class="preferencias" aria-labelledby="titulo-preferencias">
+  <h2 id="titulo-preferencias">Valores predeterminados del bot</h2>
+  <p>Elige los datos que usará Telegram cuando no los indiques. Lo que escribas para un movimiento tendrá prioridad.</p>
+  <div class="periodo"><span>Período de facturación</span><strong>Mes actual</strong>
+    <p>Se calcula al preparar cada movimiento, incluso si es a crédito. Si indicas otro período, se respetará.</p>
+  </div>
+  @if (cargando()) { <p role="status">Cargando tus preferencias…</p> }
+  @if (error()) {
+    <div class="error" role="alert"><p>{{ error() }}</p>
+      @if (!cargado()) { <button type="button" class="secundario" (click)="cargar()" [disabled]="cargando()">Reintentar</button> }
+    </div>
+  }
+  @if (aviso()) { <p class="aviso" role="status">{{ aviso() }}</p> }
+  @if (cargado()) {
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <fieldset [disabled]="guardando() || conexion.sinConexion()">
+        <div class="campos">
+          <div><label for="telegram-cuenta-default">Cuenta predeterminada</label>
+            <select #campoCuenta id="telegram-cuenta-default" formControlName="cuentaId" aria-describedby="ayuda-cuenta">
+              <option [ngValue]="null">Sin cuenta predeterminada</option>
+              @if (cuentaNoDisponible) { <option [ngValue]="form.controls.cuentaId.value">Cuenta guardada no disponible</option> }
+              @for (cuenta of cuentas(); track cuenta.id) { <option [ngValue]="cuenta.id">{{ cuenta.nombre }}</option> }
+            </select>
+            <p id="ayuda-cuenta" class="detalle">Se aplica si no indicas una cuenta para el movimiento.</p>
+          </div>
+          <div><label for="telegram-categoria-default">Categoría predeterminada para gastos</label>
+            <select id="telegram-categoria-default" formControlName="categoriaId" aria-describedby="ayuda-categoria">
+              <option [ngValue]="null">Sin categoría predeterminada</option>
+              @if (categoriaNoDisponible) { <option [ngValue]="form.controls.categoriaId.value">Categoría guardada no disponible</option> }
+              @for (categoria of categoriasGasto(); track categoria.id) { <option [ngValue]="categoria.id">{{ etiquetaCategoria(categoria) }}</option> }
+            </select>
+            <p id="ayuda-categoria" class="detalle">Puedes elegir una subcategoría. No se aplicará a ingresos.</p>
+          </div>
+        </div>
+        @if (cuentaNoDisponible || categoriaNoDisponible) {
+          <p class="advertencia" role="status">Una preferencia ya no está disponible. Elige otra o selecciona «Sin predeterminada».</p>
+        }
+        @if (cuentas().length === 0) { <p class="detalle">Crea primero una cuenta en la app para poder marcarla aquí.</p> }
+        <button type="submit" class="primario" [disabled]="guardando() || !form.dirty || conexion.sinConexion()">
+          {{ guardando() ? 'Guardando…' : 'Guardar preferencias' }}
+        </button>
+      </fieldset>
+    </form>
+  }
+  <p class="detalle">Los datos se verán en la propuesta antes de confirmar. El medio de pago sigue siendo necesario. Desconectar Telegram conserva estas preferencias.</p>
+</section>
