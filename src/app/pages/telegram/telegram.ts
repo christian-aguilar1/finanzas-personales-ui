@@ -7,10 +7,11 @@ import { timer } from 'rxjs';
 import { EnlaceTelegram, EstadoTelegram } from '../../models/telegram.model';
 import { TelegramService } from '../../services/telegram.service';
 import { ConexionService } from '../../services/conexion.service';
+import { PreferenciasTelegramComponent } from './preferencias-telegram';
 
 @Component({
   selector: 'app-telegram', standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PreferenciasTelegramComponent],
   templateUrl: './telegram.html', styleUrl: './telegram.css',
 })
 export class TelegramComponent implements OnInit {
