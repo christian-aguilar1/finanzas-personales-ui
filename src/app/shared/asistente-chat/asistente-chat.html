@@ -25,6 +25,7 @@
           <h2>Hablemos de tus números</h2>
           <p>Consulta tus gastos, entiende tu proyección o prepara un movimiento.</p>
           <p class="nota">Tú tienes la última palabra: revisa y confirma cada movimiento antes de guardarlo.</p>
+          <a routerLink="/telegram" (click)="visible = false">Conectar Telegram ↗</a>
         </div>
         @if (estado()?.disponible) {
           <div class="sugerencias" aria-label="Preguntas sugeridas">

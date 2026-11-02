@@ -4,6 +4,11 @@
 
 @include mat.core();
 
+/* En móvil, el acceso flotante al chat no debe tapar los controles de vinculación. */
+@media (max-width: 600px) {
+  body:has(app-telegram) app-asistente-chat .lanzador { display: none; }
+}
+
 /* Sin esto, un contenedor con `width: min(900px, 100%)` más padding se dibuja
    más ancho que su padre y empuja el centrado en móvil. */
 *,
