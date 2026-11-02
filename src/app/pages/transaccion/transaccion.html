@@ -155,9 +155,9 @@
         <div class="form-group">
           <label>Comercio:</label>
           <select formControlName="comercio">
-            <option value="" disabled>Selecciona un comercio</option>
+            <option value="">Sin comercio</option>
             @for (com of comercios; track com.id) {
-              <option [value]="com.id">{{ com.nombre }}</option>
+              <option [ngValue]="com.id">{{ com.nombre }}</option>
             }
           </select>
         </div>

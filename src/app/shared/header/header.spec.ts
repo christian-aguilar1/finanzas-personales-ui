@@ -82,14 +82,14 @@ describe('Header', () => {
     });
   });
 
-  it('no enlaza a /comercios porque esa ruta no existe', () => {
+  it('enlaza a la vista de comercios', () => {
     configurarSesion(false, null);
 
     const enlaces = Array.from(
       fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>,
     ).map((enlace) => enlace.getAttribute('href'));
 
-    expect(enlaces).not.toContain('/comercios');
+    expect(enlaces).toContain('/comercios');
   });
 
   it('el título es un enlace al inicio', () => {

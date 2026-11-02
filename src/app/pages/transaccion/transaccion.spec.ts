@@ -1,3 +1,4 @@
+import { ComercioService } from '../../services/comercio.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ActivatedRoute, provideRouter, Router, convertToParamMap } from '@angular/router';
@@ -32,6 +33,7 @@ describe('Transaccion', () => {
       imports: [TransaccionComponent],
       providers: [
         provideRouter([]),
+        { provide: ComercioService, useValue: { obtenerComercios: () => of([]) } },
         { provide: ActivatedRoute, useValue: { snapshot: crearSnapshot() } },
         { provide: CategoriaService, useValue: { obtenerCategorias: () => of(categoriasRespuesta) } },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentasRespuesta) } },
@@ -53,6 +55,7 @@ describe('Transaccion', () => {
       imports: [TransaccionComponent],
       providers: [
         provideRouter([]),
+        { provide: ComercioService, useValue: { obtenerComercios: () => of([]) } },
         { provide: ActivatedRoute, useValue: { snapshot: crearSnapshot() } },
         { provide: CategoriaService, useValue: { obtenerCategorias: () => of(categorias) } },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },

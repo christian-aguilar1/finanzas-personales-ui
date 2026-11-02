@@ -1,0 +1,50 @@
+<div class="crud-page">
+  <section class="crud-section" aria-labelledby="titulo-comercios">
+    <div class="section-header">
+      <h2 id="titulo-comercios">Comercios</h2>
+      <p>Agrega los lugares donde compras para identificarlos en tus transacciones.</p>
+    </div>
+    <form class="crud-form" [formGroup]="formulario" (ngSubmit)="guardarComercio()">
+      <label>Nombre
+        <input type="text" formControlName="nombre" maxlength="120" placeholder="Ej. Supermercado" aria-describedby="error-nombre" [attr.aria-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid" />
+        @if (formulario.controls.nombre.touched && formulario.controls.nombre.invalid) {
+          <small id="error-nombre" class="error">Ingresa un nombre de hasta 120 caracteres.</small>
+        }
+      </label>
+      <label>Rubro (opcional)
+        <input type="text" formControlName="rubro" maxlength="80" placeholder="Ej. Alimentación" />
+      </label>
+      <div class="acciones-formulario">
+        <button type="submit" class="btn btn-primario" [disabled]="guardando">{{ guardando ? 'Guardando...' : 'Agregar comercio' }}</button>
+      </div>
+    </form>
+    @if (errorGuardado) { <p class="error" role="alert">{{ errorGuardado }}</p> }
+    <p role="status">{{ mensaje }}</p>
+    <h3>Comercios registrados</h3>
+    @if (cargando) {
+      <p class="estado" role="status">Cargando comercios...</p>
+    } @else if (errorCarga) {
+      <div class="estado-vacio" role="alert">
+        <p>No se pudieron cargar tus comercios.</p>
+        <button type="button" class="btn" (click)="cargarComercios()">Reintentar</button>
+      </div>
+    } @else if (comercios.length === 0) {
+      <div class="estado-vacio">
+        <p class="estado-vacio-titulo">Todavía no tienes comercios.</p>
+        <p>Agrega el primero con el formulario de arriba.</p>
+      </div>
+    } @else {
+      <div class="tabla-wrapper">
+        <table appTablaOrdenable>
+          <caption>{{ comercios.length }} comercio(s) registrado(s)</caption>
+          <thead><tr><th scope="col">Nombre</th><th scope="col">Rubro</th></tr></thead>
+          <tbody>
+            @for (comercio of comercios; track comercio.id) {
+              <tr><td data-label="Nombre">{{ comercio.nombre }}</td><td data-label="Rubro">{{ comercio.rubro || 'Sin rubro' }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>
