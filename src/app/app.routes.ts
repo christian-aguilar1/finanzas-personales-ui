@@ -1,3 +1,4 @@
+import { ComerciosComponent } from './pages/comercios/comercios';
 import { RecurrentesComponent } from './pages/recurrentes/recurrentes';
 import { Routes } from '@angular/router';
 import { authGuardFn } from '@auth0/auth0-angular';
@@ -28,6 +29,7 @@ export const routes: Routes = [
   { path: 'cuadre', component: CuadreComponent, canActivate: [authGuardFn] },
   { path: 'prestamos', component: PrestamosComponent, canActivate: [authGuardFn] },
   { path: 'categorias', component: CategoriasComponent, canActivate: [authGuardFn] },
+  { path: 'comercios', component: ComerciosComponent, canActivate: [authGuardFn] },
   { path: 'cuentas', component: CuentasComponent, canActivate: [authGuardFn] },
   { path: '**', redirectTo: '/inicio' },
 ];

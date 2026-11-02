@@ -1,3 +1,5 @@
+import { ComercioService } from '../../services/comercio.service';
+import { Comercio } from '../../models/comercio.model';
 import {AutoComplete} from 'primeng/autocomplete';
 import { Component, OnInit } from '@angular/core';
 import {
@@ -38,7 +40,7 @@ export class TransaccionComponent implements OnInit {
   buscarCategoria = '';
   selectorCategoriasAbierto = false;
   cuentas: Cuenta[] = [];
-  comercios: any[] = [];
+  comercios: Comercio[] = [];
   readonly frecuencias = FRECUENCIAS_RECURRENCIA;
   nombresRecurrentes: string[] = [];
   opcionesRecurrentes: string[] = [];
@@ -54,8 +56,8 @@ export class TransaccionComponent implements OnInit {
     private cuentaService: CuentaService,
     private transaccionService: TransaccionService,
     private messageService: MessageService,
-    private prestamoService: PrestamoService
-    // private comercioService: ComercioService
+    private prestamoService: PrestamoService,
+    private comercioService: ComercioService
   ) {
     this.transaccionForm = this.fb.group({
       tipo: ['EGRESO', Validators.required],
@@ -124,6 +126,11 @@ export class TransaccionComponent implements OnInit {
       },
       error: err => console.error('Error cargando categorías', err),
       complete: () => this.cerrarCargaCatalogos()
+    });
+
+    this.comercioService.obtenerComercios().subscribe({
+      next: comercios => this.comercios = comercios,
+      error: () => this.messageService.add({ severity: 'error', summary: 'Comercios', detail: 'No se pudieron cargar los comercios.' }),
     });
 
     // Cargar cuentas
