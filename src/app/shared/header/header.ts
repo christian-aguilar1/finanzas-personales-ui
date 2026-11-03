@@ -20,6 +20,7 @@ export class Header {
   protected readonly categorias = inject(CategoriaService);
 
   readonly menuOpen = signal(false);
+  readonly administrarOpen = signal(false);
 
   readonly autenticado = toSignal(this.auth.isAuthenticated$, { initialValue: false });
 
@@ -34,11 +35,16 @@ export class Header {
   }
 
   toggleMenu(): void {
-    this.menuOpen.update((abierto) => !abierto);
+    const abrir = !this.menuOpen();
+    this.menuOpen.set(abrir);
+    if (!abrir) this.administrarOpen.set(false);
   }
+
+  toggleAdministrar(): void { this.administrarOpen.update(abierto => !abierto); }
 
   cerrarMenu(): void {
     this.menuOpen.set(false);
+    this.administrarOpen.set(false);
   }
 
   /** El panel es absoluto: sin esto queda abierto sobre el contenido al navegar con el dedo. */

@@ -4,7 +4,7 @@
   <div class="periodo"><span>Período de facturación</span><strong>Mes actual</strong>
     <p>Se calcula al preparar cada movimiento, incluso si es a crédito. Si indicas otro período, se respetará.</p>
   </div>
-  @if (cargando()) { <p role="status">Cargando tus preferencias…</p> }
+  @if (cargando()) { <div class="skeleton-lista" role="status" aria-label="Cargando tus preferencias" aria-busy="true"><span class="skeleton skeleton--titulo"></span>@for (item of [1, 2, 3]; track item) { <div class="skeleton-fila"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div> }</div> }
   @if (error()) {
     <div class="error" role="alert"><p>{{ error() }}</p>
       @if (!cargado()) { <button type="button" class="secundario" (click)="cargar()" [disabled]="cargando()">Reintentar</button> }

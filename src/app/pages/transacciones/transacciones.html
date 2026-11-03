@@ -97,10 +97,7 @@
     </div>
 
     @if (cargandoTransacciones || filtrando) {
-      <div class="loading-container" role="status" aria-live="polite" aria-label="Cargando transacciones">
-        <div class="loading-spinner" aria-hidden="true"></div>
-        <p class="loading-text">{{ cargandoTransacciones ? 'Cargando transacciones...' : 'Aplicando filtros...' }}</p>
-      </div>
+      <div class="skeleton-lista" role="status" aria-live="polite" aria-label="{{ cargandoTransacciones ? 'Cargando transacciones' : 'Aplicando filtros' }}" aria-busy="true">@for (item of [1, 2, 3, 4, 5]; track item) { <div class="skeleton-fila"><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div> }</div>
     } @else if (transaccionesFiltradas.length === 0) {
       @if (sinCuentas) {
         <div class="estado-vacio">

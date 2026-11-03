@@ -5,6 +5,7 @@
 </button>
 
 <p-dialog header="Asistente de finanzas" [(visible)]="visible" [modal]="true"
+  [dismissableMask]="true"
   closeAriaLabel="Cerrar asistente"
   [draggable]="false" [resizable]="false" position="bottomright" [focusOnShow]="false"
   [style]="{ width: '440px', height: 'min(760px, calc(100dvh - 24px))', maxHeight: 'calc(100dvh - 24px)', maxWidth: 'calc(100vw - 24px)', margin: '12px', background: 'var(--app-surface)', color: 'var(--app-text)' }"

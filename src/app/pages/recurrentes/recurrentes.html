@@ -17,7 +17,7 @@
   </section>
 
   @if (cargando) {
-    <p class="estado" role="status">Cargando recurrentes…</p>
+    <div class="skeleton-lista" role="status" aria-label="Cargando recurrentes" aria-busy="true">@for (item of [1, 2, 3, 4, 5]; track item) { <div class="skeleton-fila"><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div> }</div>
   } @else if (error) {
     <div class="estado" role="alert"><p>No se pudieron cargar las transacciones recurrentes.</p><button class="boton" (click)="cargar()">Reintentar</button></div>
   } @else if (!transacciones.length) {

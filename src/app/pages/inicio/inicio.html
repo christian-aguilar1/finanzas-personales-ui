@@ -26,7 +26,7 @@
     <div class="recordatorios__cabecera"><div><p class="encabezado__antetitulo">PARA TENER PRESENTE</p>
       <h2 id="recordatorios-titulo">Próximos recordatorios</h2></div>
       <a routerLink="/notas">Ver todas las notas →</a></div>
-    @if (cargandoNotas()) { <p role="status">Cargando recordatorios…</p> }
+    @if (cargandoNotas()) { <div class="skeleton-lista" role="status" aria-label="Cargando recordatorios" aria-busy="true"><div class="skeleton-fila"><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--corto"></span></div><div class="skeleton-fila"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div></div> }
     @else if (errorNotas()) { <p role="alert">No se pudieron cargar los recordatorios.
       <button type="button" (click)="cargarNotas()">Reintentar</button></p> }
     @else if (notas().length === 0) { <p>No tienes vencimientos próximos. Puedes agregar una nota o decírselo al asistente.</p> }
@@ -82,7 +82,17 @@
     </section>
   }
 
-  @if (error()) {
+  @if (cargando()) {
+    <section aria-label="Cargando resumen" aria-busy="true">
+      <div class="skeleton-cuadricula">
+        @for (item of [1, 2, 3, 4]; track item) { <article class="skeleton-tarjeta"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--valor"></span><span class="skeleton skeleton--largo"></span></article> }
+      </div>
+      <div class="skeleton-graficos">
+        <section class="skeleton-panel"><span class="skeleton skeleton--titulo"></span><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio skeleton--grafico"></span></section>
+        <section class="skeleton-panel"><span class="skeleton skeleton--titulo"></span><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio skeleton--grafico"></span></section>
+      </div>
+    </section>
+  } @else if (error()) {
     <section class="aviso" role="alert">
       <h2 class="aviso__titulo">No se pudo cargar el resumen</h2>
       <p class="aviso__texto">{{ error() }}</p>

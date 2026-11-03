@@ -3,7 +3,7 @@
     <div><h1>Préstamos</h1><p>Dinero que prestaste y devoluciones pendientes.</p></div>
     @if (visible) { <a routerLink="/transaccion" class="accion">Registrar préstamo</a> }
   </header>
-  @if (cargando) { <p>Cargando préstamos…</p> }
+  @if (cargando) { <div class="skeleton-lista" role="status" aria-label="Cargando préstamos" aria-busy="true">@for (item of [1, 2, 3]; track item) { <div class="skeleton-fila"><div class="skeleton-celda"><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio"></span></div><span class="skeleton skeleton--corto"></span></div> }</div> }
   @else if (error) { <p role="alert">{{ error }}</p> }
   @else if (!visible) { <p>La categoría Préstamo está oculta. La sección volverá a mostrar tus préstamos si se habilita de nuevo.</p> }
   @else {

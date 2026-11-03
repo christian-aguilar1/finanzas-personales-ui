@@ -51,7 +51,7 @@
 	</form>
 
 @if (cargando) {
-	  <p class="estado">Cargando categorías...</p>
+	  <div class="skeleton-lista" role="status" aria-label="Cargando categorías" aria-busy="true">@for (item of [1, 2, 3, 4, 5]; track item) { <div class="skeleton-fila"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div> }</div>
 	} @else if (categorias.length === 0 && !error) {
 	  <div class="estado-vacio">
 		<p class="estado-vacio-titulo">Todavía no tienes categorías.</p>
