@@ -35,7 +35,7 @@
     @if (!esPeriodoDisponible()) {
       <p class="estado">La proyección solo está disponible para el mes actual y los futuros.</p>
     } @else if (cargando) {
-      <div class="estado estado-carga">Calculando proyección...</div>
+      <div role="status" aria-label="Calculando proyección" aria-busy="true"><div class="skeleton-cuadricula">@for (item of [1, 2, 3]; track item) { <article class="skeleton-tarjeta"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--valor"></span></article> }</div><div class="skeleton-panel"><span class="skeleton skeleton--titulo"></span><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio skeleton--area"></span></div></div>
     } @else if (error) {
       <div class="estado estado-error">{{ error }}</div>
     } @else if (proyeccion) {

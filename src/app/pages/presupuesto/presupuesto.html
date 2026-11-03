@@ -17,7 +17,7 @@
     </div>
 
     @if (cargando) {
-      <div class="estado estado-carga">Cargando presupuesto...</div>
+      <div role="status" aria-label="Cargando presupuesto" aria-busy="true"><div class="skeleton-cuadricula">@for (item of [1, 2, 3, 4]; track item) { <article class="skeleton-tarjeta"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--valor"></span></article> }</div><div class="skeleton-panel"><span class="skeleton skeleton--titulo"></span><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio skeleton--area"></span></div></div>
     } @else if (error) {
       <div class="estado estado-error">{{ error }}</div>
     } @else {

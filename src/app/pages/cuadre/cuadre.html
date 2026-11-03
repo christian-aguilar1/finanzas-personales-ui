@@ -71,7 +71,7 @@
     </div>
 
     @if (cargando) {
-      <div class="estado estado-carga">Cargando cuadre...</div>
+      <div role="status" aria-label="Cargando cuadre" aria-busy="true"><div class="skeleton-cuadricula">@for (item of [1, 2, 3]; track item) { <article class="skeleton-tarjeta"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--valor"></span></article> }</div><div class="skeleton-lista">@for (item of [1, 2, 3, 4]; track item) { <div class="skeleton-fila"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div> }</div></div>
     } @else if (error) {
       <div class="estado estado-error">{{ error }}</div>
     } @else if (sinCuentas) {
