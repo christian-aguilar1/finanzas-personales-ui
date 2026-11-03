@@ -22,7 +22,7 @@
     <p role="status">{{ mensaje }}</p>
     <h3>Comercios registrados</h3>
     @if (cargando) {
-      <p class="estado" role="status">Cargando comercios...</p>
+      <div class="skeleton-lista" role="status" aria-label="Cargando comercios" aria-busy="true">@for (item of [1, 2, 3, 4]; track item) { <div class="skeleton-fila"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div> }</div>
     } @else if (errorCarga) {
       <div class="estado-vacio" role="alert">
         <p>No se pudieron cargar tus comercios.</p>

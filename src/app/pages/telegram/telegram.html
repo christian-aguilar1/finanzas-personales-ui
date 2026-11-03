@@ -21,7 +21,7 @@
     </div>
 
     @if (cargando() && !estado()) {
-      <p class="mensaje" role="status">Comprobando la conexión con Telegram…</p>
+      <div class="skeleton-lista" role="status" aria-label="Comprobando la conexión con Telegram" aria-busy="true"><span class="skeleton skeleton--titulo"></span><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio"></span></div>
     }
     @if (error()) {
       <div class="error" role="alert"><p>{{ error() }}</p>
