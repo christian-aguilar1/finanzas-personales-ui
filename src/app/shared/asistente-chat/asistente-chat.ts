@@ -10,6 +10,7 @@ import { DialogModule } from 'primeng/dialog';
 import { EstadoAsistente, MensajeAsistente, PropuestaAsistente } from '../../models/asistente.model';
 import { AsistenteService } from '../../services/asistente.service';
 import { CambiosFinancierosService } from '../../services/cambios-financieros.service';
+import { CambiosNotasService } from '../../services/cambios-notas.service';
 import { ConexionService } from '../../services/conexion.service';
 
 interface TarjetaPropuesta extends PropuestaAsistente {
@@ -31,6 +32,7 @@ interface EntradaChat extends MensajeAsistente {
 export class AsistenteChatComponent implements AfterViewChecked {
   private readonly asistente = inject(AsistenteService);
   private readonly cambios = inject(CambiosFinancierosService);
+  private readonly cambiosNotas = inject(CambiosNotasService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly conexion = inject(ConexionService);
   @ViewChild('conversacion') private conversacion?: ElementRef<HTMLElement>;
@@ -46,7 +48,8 @@ export class AsistenteChatComponent implements AfterViewChecked {
   readonly error = signal('');
   readonly mensajes = signal<EntradaChat[]>([]);
   private desplazar = false;
-  readonly sugerencias = ['¿Cuánto llevo gastado este mes?', 'Explícame mi proyección', 'Quiero registrar un gasto'];
+  private reintento: { texto: string; id: string } | null = null;
+  readonly sugerencias = ['¿Cuánto llevo gastado este mes?', 'Explícame mi proyección', 'Quiero guardar una nota'];
 
   abrir(): void {
     this.visible = true;
@@ -83,6 +86,7 @@ export class AsistenteChatComponent implements AfterViewChecked {
     this.mensajes.set([]);
     this.texto = '';
     this.error.set('');
+    this.reintento = null;
     this.enfocar();
   }
 
@@ -104,13 +108,16 @@ export class AsistenteChatComponent implements AfterViewChecked {
       || !this.estado()?.disponible || this.conexion.sinConexion()) return;
     // Solo memoria de esta sesión: no guardar conversaciones financieras en localStorage.
     const historial = this.mensajes().map(({ role, content }) => ({ role, content: content.slice(0, 4000) })).slice(-12);
+    const solicitudId = this.reintento?.texto === texto ? this.reintento.id : crypto.randomUUID();
     this.mensajes.update((mensajes) => [...mensajes, { role: 'user', content: texto }]);
     this.texto = '';
     this.error.set('');
     this.enviando.set(true);
     this.desplazar = true;
-    this.asistente.conversar(texto, historial).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.asistente.conversar(texto, historial, solicitudId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (respuesta) => {
+        this.reintento = null;
+        if (respuesta.notaGuardada) this.cambiosNotas.notificar();
         this.mensajes.update((mensajes) => [...mensajes, {
           role: 'assistant', content: respuesta.respuesta,
           propuestas: respuesta.propuestas.map((p) => ({ ...p, estado: 'pendiente' })),
@@ -120,6 +127,7 @@ export class AsistenteChatComponent implements AfterViewChecked {
         this.enfocar();
       },
       error: (error: unknown) => {
+        this.reintento = { texto, id: solicitudId };
         this.mensajes.update((mensajes) => mensajes.slice(0, -1));
         this.texto = texto;
         this.error.set(this.mensajeError(error));

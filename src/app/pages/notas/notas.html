@@ -1,0 +1,47 @@
+<main class="notas">
+  <header class="cabecera">
+    <div><p class="eyebrow">TU AGENDA</p><h1>Notas y recordatorios</h1>
+      <p>Guarda lo que necesitas recordar. Las notas con fecha también pueden avisarte por Telegram.</p></div>
+  </header>
+
+  <section class="panel" aria-labelledby="form-titulo">
+    <h2 id="form-titulo">{{ editandoId == null ? 'Nueva nota' : 'Editar nota' }}</h2>
+    <form (ngSubmit)="guardar()" #form="ngForm">
+      <label for="texto-nota">Nota</label>
+      <textarea id="texto-nota" name="texto" [(ngModel)]="texto" required maxlength="1000" rows="3"
+        placeholder="Ej.: pagar la cuenta de luz"></textarea>
+      <label for="fecha-nota">Fecha límite <span>(opcional)</span></label>
+      <input id="fecha-nota" name="fechaLimite" type="date" [(ngModel)]="fechaLimite" min="1900-01-01" max="2200-12-31">
+      <div class="acciones"><button class="primario" type="submit" [disabled]="form.invalid || !texto.trim() || guardando()">
+        {{ guardando() ? 'Guardando…' : editandoId == null ? 'Guardar nota' : 'Guardar cambios' }}</button>
+        @if (editandoId != null) { <button type="button" (click)="cancelar()">Cancelar</button> }
+      </div>
+    </form>
+  </section>
+
+  @if (aviso()) { <p class="aviso" role="status">{{ aviso() }}</p> }
+  @if (error()) { <p class="error" role="alert">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></p> }
+  <section class="panel" aria-labelledby="lista-titulo">
+    <h2 id="lista-titulo">Tus notas</h2>
+    @if (cargando()) { <p role="status">Cargando notas…</p> }
+    @else if (notas().length === 0) { <p>Aún no tienes notas. Escribe la primera arriba o dísela al asistente.</p> }
+    @else {
+      <ul class="lista">
+        @for (nota of notas(); track nota.id) {
+          <li [class.resuelta]="nota.resuelta">
+            <div class="detalle"><p class="texto">{{ nota.texto }}</p>
+              <p class="plazo" [class.vencida]="!nota.resuelta && (nota.diasRestantes ?? 0) < 0">
+                @if (nota.fechaLimite) { <time [attr.datetime]="nota.fechaLimite">{{ fechaNota(nota.fechaLimite) }}</time> · }
+                {{ nota.resuelta ? 'Resuelta' : plazo(nota) }}
+              </p></div>
+            <div class="acciones">
+              <button type="button" (click)="alternar(nota)">{{ nota.resuelta ? 'Reabrir' : 'Marcar resuelta' }}</button>
+              <button type="button" (click)="editar(nota)">Editar</button>
+              <button type="button" class="peligro" (click)="eliminar(nota)">Eliminar</button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</main>

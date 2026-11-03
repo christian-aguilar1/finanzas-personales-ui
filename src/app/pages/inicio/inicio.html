@@ -22,6 +22,22 @@
     </div>
   </header>
 
+  <section class="recordatorios" aria-labelledby="recordatorios-titulo">
+    <div class="recordatorios__cabecera"><div><p class="encabezado__antetitulo">PARA TENER PRESENTE</p>
+      <h2 id="recordatorios-titulo">Próximos recordatorios</h2></div>
+      <a routerLink="/notas">Ver todas las notas →</a></div>
+    @if (cargandoNotas()) { <p role="status">Cargando recordatorios…</p> }
+    @else if (errorNotas()) { <p role="alert">No se pudieron cargar los recordatorios.
+      <button type="button" (click)="cargarNotas()">Reintentar</button></p> }
+    @else if (notas().length === 0) { <p>No tienes vencimientos próximos. Puedes agregar una nota o decírselo al asistente.</p> }
+    @else { <ul>
+      @for (nota of notas(); track nota.id) {
+        <li><span class="recordatorios__texto">{{ nota.texto }}</span>
+          <span class="recordatorios__fecha">{{ fechaNota(nota.fechaLimite!) }} · {{ plazoNota(nota.diasRestantes) }}</span></li>
+      }
+    </ul> }
+  </section>
+
   @if (!cargando() && !error() && !sinCuentas()) {
     <section class="saldos" aria-labelledby="saldos-titulo">
       <div class="saldos__resumen">

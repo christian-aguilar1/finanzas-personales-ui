@@ -1,0 +1,27 @@
+:host { display: block; flex: 1; background: var(--app-page-gradient); color: var(--app-text); }
+.notas { width: min(960px, 100%); margin: auto; padding: 2rem 1rem 3rem; display: grid; gap: 1.2rem; font-family: 'Poppins', sans-serif; }
+.cabecera h1 { margin: .2rem 0; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+.cabecera p { color: var(--app-text-muted); margin: .3rem 0; }
+.cabecera .eyebrow { color: var(--app-primary); letter-spacing: .13em; font-size: .75rem; font-weight: 700; }
+.panel { background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 16px; padding: 1.3rem; }
+.panel h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+form { display: grid; gap: .5rem; }
+label { font-weight: 600; }
+label span { font-weight: 400; color: var(--app-text-muted); }
+textarea, input { box-sizing: border-box; width: 100%; padding: .8rem; font: inherit; color: var(--app-text); background: var(--app-surface); border: 1px solid var(--app-border-2); border-radius: 10px; }
+input { max-width: 260px; }
+.acciones { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .6rem; }
+button { min-height: 42px; padding: .55rem .85rem; border: 1px solid var(--app-border-2); border-radius: 9px; background: var(--app-surface); color: var(--app-text); font: inherit; cursor: pointer; }
+button.primario { background: var(--app-primary); color: var(--app-on-primary); border-color: var(--app-primary); }
+button.peligro { color: var(--app-danger); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--app-primary); outline-offset: 2px; }
+.lista { list-style: none; padding: 0; margin: 0; }
+.lista li { display: flex; justify-content: space-between; gap: 1rem; align-items: start; padding: 1rem 0; border-top: 1px solid var(--app-border); }
+.lista li:first-child { border-top: 0; }
+.lista .texto { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font-weight: 600; }
+.plazo { margin: .35rem 0 0; color: var(--app-text-muted); font-size: .85rem; }
+.plazo.vencida { color: var(--app-danger); }
+.resuelta .texto { text-decoration: line-through; color: var(--app-text-muted); }
+.aviso { color: var(--app-primary); } .error { color: var(--app-danger); }
+@media (max-width: 680px) { .lista li { display: block; } .acciones { margin-top: .8rem; } }

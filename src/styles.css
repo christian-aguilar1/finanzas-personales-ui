@@ -224,3 +224,13 @@ th.ordenable.orden-desc::after {
 [data-theme='oscuro'] th.ordenable::after {
   color: var(--app-text-muted);
 }
+app-inicio .recordatorios { padding: 1.1rem 1.3rem; background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 16px; color: var(--app-text); }
+app-inicio .recordatorios__cabecera { display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap; }
+app-inicio .recordatorios h2 { margin: .15rem 0 .4rem; font-size: 1.15rem; }
+app-inicio .recordatorios a { color: var(--app-primary); font-weight: 600; }
+app-inicio .recordatorios ul { list-style: none; padding: 0; margin: .5rem 0 0; }
+app-inicio .recordatorios li { display: flex; justify-content: space-between; gap: .8rem; padding: .7rem 0; border-top: 1px solid var(--app-border); }
+app-inicio .recordatorios__texto { overflow-wrap: anywhere; }
+app-inicio .recordatorios__fecha { flex-shrink: 0; color: var(--app-text-muted); font-size: .85rem; }
+app-inicio .recordatorios button { font: inherit; color: var(--app-primary); background: none; border: 0; cursor: pointer; }
+@media (max-width: 650px) { app-inicio .recordatorios li { flex-direction: column; gap: .2rem; } }
