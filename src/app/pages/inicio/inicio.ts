@@ -3,9 +3,9 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, effect, 
 import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { Observable, forkJoin, of } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, map } from 'rxjs/operators';
 import { Cuenta, tieneDineroDisponible } from '../../models/cuenta.model';
-import { FiltroTransacciones, Transaccion } from '../../models/transaccion.model';
+import { Transaccion } from '../../models/transaccion.model';
 import { CuentaService } from '../../services/cuenta.service';
 import { TemaService } from '../../services/tema.service';
 import { TransaccionService } from '../../services/transaccion.service';
@@ -89,12 +89,6 @@ export class Inicio implements OnInit {
 
   private readonly hoy = new Date();
   private readonly periodosVentana = Inicio.crearPeriodos(this.hoy, MESES_VENTANA);
-  private readonly filtrosVentana: Partial<FiltroTransacciones> = {
-    modoBusqueda: 'FECHA_TRANSACCION',
-    fechaDesde: `${Inicio.periodoDe(this.hoy, -(MESES_VENTANA - 1))}-01`,
-    fechaHasta: Inicio.fechaIso(this.hoy),
-  };
-
   readonly periodoActual = Inicio.periodoDe(this.hoy);
   readonly periodoPrevio = Inicio.periodoDe(this.hoy, -1);
   readonly etiquetaVentana = `${Inicio.etiquetaDePeriodo(this.periodosVentana[0])} – ${Inicio.etiquetaDePeriodo(
@@ -242,7 +236,7 @@ export class Inicio implements OnInit {
     ];
   });
 
-  /** El contrato no trae serie mensual agregada: la tendencia se arma con los movimientos de la ventana. */
+  /** El contrato no trae serie mensual agregada: la tendencia se arma con los movimientos de cada periodo. */
   readonly serieMensual = computed<PuntoMensual[]>(() => {
     const totales = new Map<string, { ingresos: number; egresos: number }>(
       this.periodosVentana.map((periodo) => [periodo, { ingresos: 0, egresos: 0 }]),
@@ -391,17 +385,23 @@ export class Inicio implements OnInit {
     return ((actual - previo) / Math.abs(previo)) * 100;
   }
 
-  private cargarVentana(pagina: number = 0, acumuladas: Transaccion[] = []): Observable<Transaccion[]> {
-    return this.transaccionService.obtenerTransacciones(pagina, TAMANO_PAGINA, this.filtrosVentana).pipe(
+  private cargarVentana(): Observable<Transaccion[]> {
+    return forkJoin(this.periodosVentana.map((periodo) => this.cargarPeriodo(periodo))).pipe(
+      map((paginas) => paginas.flat()),
+    );
+  }
+
+  private cargarPeriodo(periodo: string, pagina: number = 0, acumuladas: Transaccion[] = []): Observable<Transaccion[]> {
+    return this.transaccionService.obtenerTransaccionesPorPeriodoFacturacion(periodo, pagina, TAMANO_PAGINA).pipe(
       concatMap((resultado) => {
-        const actuales = [...acumuladas, ...(resultado.transacciones ?? [])];
-        const totalPaginas = resultado.paginacion?.totalPages ?? 0;
+        const actuales = [...acumuladas, ...(resultado._embedded?.transaccionResponseList ?? [])];
+        const totalPaginas = resultado.page?.totalPages ?? 0;
 
         if (totalPaginas <= 0 || pagina + 1 >= totalPaginas || pagina + 1 >= MAX_PAGINAS) {
           return of(actuales);
         }
 
-        return this.cargarVentana(pagina + 1, actuales);
+        return this.cargarPeriodo(periodo, pagina + 1, actuales);
       }),
     );
   }
@@ -548,10 +548,6 @@ export class Inicio implements OnInit {
     const total = fecha.getFullYear() * 12 + fecha.getMonth() + desplazamiento;
     const anio = Math.floor(total / 12);
     return `${anio}-${String((total % 12) + 1).padStart(2, '0')}`;
-  }
-
-  private static fechaIso(fecha: Date): string {
-    return `${Inicio.periodoDe(fecha)}-${String(fecha.getDate()).padStart(2, '0')}`;
   }
 
   private static crearPeriodos(hoy: Date, cantidad: number): string[] {
