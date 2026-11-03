@@ -7,6 +7,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { AsistenteChatComponent } from './asistente-chat';
 import { AsistenteService } from '../../services/asistente.service';
 import { CambiosFinancierosService } from '../../services/cambios-financieros.service';
+import { CambiosNotasService } from '../../services/cambios-notas.service';
 import { ConexionService } from '../../services/conexion.service';
 import { ConfirmacionAsistente, PropuestaAsistente } from '../../models/asistente.model';
 
@@ -56,6 +57,16 @@ describe('AsistenteChatComponent', () => {
     expect(service.confirmar).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain('Confirmar y guardar');
     expect(fixture.nativeElement.textContent).toContain('Cuenta corriente');
+  });
+
+  it('actualiza las notas al recibir una confirmación persistida del bot', () => {
+    const notificar = spyOn(TestBed.inject(CambiosNotasService), 'notificar');
+    service.conversar.and.returnValue(of({ respuesta: 'Nota guardada.', propuestas: [],
+      notaGuardada: { id: 9, texto: 'Pagar luz', fechaLimite: '2026-11-05', resuelta: false, diasRestantes: 2 } }));
+    component.texto = 'Recuérdame pagar luz el 5 de noviembre';
+    component.enviar();
+    expect(notificar).toHaveBeenCalledTimes(1);
+    expect(service.conversar.calls.mostRecent().args[2]).toMatch(/^[0-9a-f-]{36}$/);
   });
 
   it('bloquea dobles clics y avisa a las vistas solo después de guardar', () => {

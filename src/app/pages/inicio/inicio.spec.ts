@@ -8,6 +8,8 @@ import { Transaccion } from '../../models/transaccion.model';
 import { CuentaService } from '../../services/cuenta.service';
 import { TemaService } from '../../services/tema.service';
 import { TransaccionService } from '../../services/transaccion.service';
+import { NotaService } from '../../services/nota.service';
+import { Nota } from '../../models/nota.model';
 
 import { Inicio } from './inicio';
 
@@ -60,7 +62,7 @@ describe('Inicio', () => {
     },
   });
 
-  const configurar = async (transaccionesPorPagina: Transaccion[][], cuentasRespuesta: Cuenta[] = cuentas) => {
+  const configurar = async (transaccionesPorPagina: Transaccion[][], cuentasRespuesta: Cuenta[] = cuentas, proximas: Nota[] = []) => {
     TestBed.resetTestingModule();
     obtenerPorPeriodo = jasmine.createSpy('obtenerTransaccionesPorPeriodoFacturacion')
       .and.callFake((periodo: string, page: number) => {
@@ -79,6 +81,7 @@ describe('Inicio', () => {
           useValue: { obtenerTransaccionesPorPeriodoFacturacion: obtenerPorPeriodo },
         },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentasRespuesta) } },
+        { provide: NotaService, useValue: { proximas: () => of(proximas) } },
         { provide: TemaService, useValue: { esOscuro: signal(false) } },
       ],
     }).compileComponents();
@@ -95,6 +98,13 @@ describe('Inicio', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('muestra vencimientos aunque todavía no haya cuentas ni movimientos', async () => {
+    await configurar([[]], [], [{ id: 4, texto: 'Pagar luz', fechaLimite: '2026-11-05', resuelta: false, diasRestantes: 2 }]);
+    expect(fixture.nativeElement.textContent).toContain('Pagar luz');
+    expect(fixture.nativeElement.textContent).toContain('Quedan 2 días');
+    expect(fixture.nativeElement.querySelector('a[href="/notas"]')).not.toBeNull();
   });
 
   it('muestra el saldo disponible por cuenta incluso sin movimientos del mes', async () => {
@@ -305,6 +315,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
           useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => throwError(() => new Error('sin red')) },
         },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
+        { provide: NotaService, useValue: { proximas: () => of([]) } },
         { provide: TemaService, useValue: { esOscuro: signal(false) } },
       ],
     }).compileComponents();
@@ -377,6 +388,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
           provideRouter([]),
           { provide: TransaccionService, useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => throwError(() => new Error('x')) } },
           { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
+          { provide: NotaService, useValue: { proximas: () => of([]) } },
           { provide: TemaService, useValue: { esOscuro: signal(false) } },
         ],
       }).compileComponents();

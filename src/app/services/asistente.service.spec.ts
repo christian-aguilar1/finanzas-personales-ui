@@ -20,7 +20,8 @@ describe('AsistenteService', () => {
     service.conversar('Resumen', historial).subscribe();
     const req = http.expectOne(`${environment.apiUrl}/asistente/chat`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ mensaje: 'Resumen', historial: historial.slice(-12) });
+    expect(req.request.body).toEqual(jasmine.objectContaining({ mensaje: 'Resumen', historial: historial.slice(-12) }));
+    expect(req.request.body.solicitudId).toMatch(/^[0-9a-f-]{36}$/);
     expect(req.request.headers.has('Authorization')).toBeFalse(); // El interceptor Auth0 lo agrega en la app.
     req.flush({ respuesta: 'Resumen real', propuestas: [] });
   });

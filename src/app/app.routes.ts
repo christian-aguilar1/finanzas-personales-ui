@@ -14,6 +14,7 @@ import { CuadreComponent } from './pages/cuadre/cuadre';
 import { PrestamosComponent } from './pages/prestamos/prestamos';
 
 export const routes: Routes = [
+  { path: 'notas', loadComponent: () => import('./pages/notas/notas').then(m => m.NotasComponent), canActivate: [authGuardFn] },
   { path: 'telegram', loadComponent: () => import('./pages/telegram/telegram').then(m => m.TelegramComponent), canActivate: [authGuardFn] },
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
   // Retorno del login de Auth0 (authorizationParams.redirect_uri). Sin sesión aún,
