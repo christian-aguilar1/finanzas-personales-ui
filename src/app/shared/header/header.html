@@ -17,9 +17,22 @@
         <li><a routerLink="/presupuesto" (click)="cerrarMenu()">Presupuesto</a></li>
         <li><a routerLink="/proyeccion" (click)="cerrarMenu()">Proyección</a></li>
         <li><a routerLink="/cuadre" (click)="cerrarMenu()">Cuadre de gastos</a></li>
-        <li><a routerLink="/categorias" (click)="cerrarMenu()">Categorías</a></li>
-        <li><a routerLink="/comercios" (click)="cerrarMenu()">Comercios</a></li>
-        <li><a routerLink="/cuentas" (click)="cerrarMenu()">Cuentas</a></li>
+        <li class="administrar">
+          <button type="button" class="administrar-btn" [attr.aria-expanded]="administrarOpen()"
+            aria-controls="submenu-administrar" (click)="toggleAdministrar()">
+            <span>Administrar</span>
+            <svg class="flecha" [class.flecha-abierta]="administrarOpen()" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 10 5 5 5-5" />
+            </svg>
+          </button>
+          @if (administrarOpen()) {
+            <ul id="submenu-administrar" class="submenu-administrar" aria-label="Administrar">
+              <li><a routerLink="/cuentas" (click)="cerrarMenu()">Cuentas</a></li>
+              <li><a routerLink="/categorias" (click)="cerrarMenu()">Categorías</a></li>
+              <li><a routerLink="/comercios" (click)="cerrarMenu()">Comercios</a></li>
+            </ul>
+          }
+        </li>
         <li><a routerLink="/telegram" (click)="cerrarMenu()">Conectar Telegram</a></li>
         <li><a routerLink="/notas" (click)="cerrarMenu()">Notas y recordatorios</a></li>
         @if (categorias.prestamosVisibles()) {
