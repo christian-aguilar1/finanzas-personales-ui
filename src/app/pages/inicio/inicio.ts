@@ -11,6 +11,9 @@ import { TemaService } from '../../services/tema.service';
 import { TransaccionService } from '../../services/transaccion.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CambiosFinancierosService } from '../../services/cambios-financieros.service';
+import { CambiosNotasService } from '../../services/cambios-notas.service';
+import { NotaService } from '../../services/nota.service';
+import { Nota, fechaNota, plazoNota } from '../../models/nota.model';
 
 Chart.register(...registerables);
 
@@ -79,6 +82,7 @@ export class Inicio implements OnInit {
 
   private readonly transaccionService = inject(TransaccionService);
   private readonly cuentaService = inject(CuentaService);
+  private readonly notaService = inject(NotaService);
   private readonly temaService = inject(TemaService);
   private readonly router = inject(Router);
 
@@ -86,6 +90,11 @@ export class Inicio implements OnInit {
   readonly error = signal('');
   readonly transacciones = signal<Transaccion[]>([]);
   readonly cuentas = signal<Cuenta[]>([]);
+  readonly notas = signal<Nota[]>([]);
+  readonly cargandoNotas = signal(true);
+  readonly errorNotas = signal(false);
+  readonly fechaNota = fechaNota;
+  readonly plazoNota = plazoNota;
 
   private readonly hoy = new Date();
   private readonly periodosVentana = Inicio.crearPeriodos(this.hoy, MESES_VENTANA);
@@ -104,6 +113,8 @@ export class Inicio implements OnInit {
   constructor() {
     inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
       .subscribe(() => this.cargar());
+    inject(CambiosNotasService).cambios$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.cargarNotas());
     // Los charts se redibujan al cambiar los datos o el tema para heredar los tokens del layout.
     effect(() => {
       this.serieMensual();
@@ -127,6 +138,7 @@ export class Inicio implements OnInit {
   }
 
   cargar(): void {
+    this.cargarNotas();
     this.cargando.set(true);
     this.error.set('');
 
@@ -145,6 +157,15 @@ export class Inicio implements OnInit {
         this.error.set('No se pudieron cargar los datos del resumen.');
         this.cargando.set(false);
       },
+    });
+  }
+
+  cargarNotas(): void {
+    this.cargandoNotas.set(true);
+    this.errorNotas.set(false);
+    this.notaService.proximas().subscribe({
+      next: notas => { this.notas.set(notas ?? []); this.cargandoNotas.set(false); },
+      error: () => { this.errorNotas.set(true); this.cargandoNotas.set(false); },
     });
   }
 

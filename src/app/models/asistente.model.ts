@@ -1,4 +1,5 @@
 import { TransaccionRequest } from './transaccion.model';
+import { Nota } from './nota.model';
 
 export interface EstadoAsistente {
   disponible: boolean;
@@ -21,6 +22,7 @@ export interface PropuestaAsistente {
 export interface RespuestaAsistente {
   respuesta: string;
   propuestas: PropuestaAsistente[];
+  notaGuardada?: Nota | null;
 }
 
 export interface ConfirmacionAsistente {

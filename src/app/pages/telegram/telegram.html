@@ -3,7 +3,7 @@
     <a routerLink="/inicio" class="volver">← Volver a mi resumen</a>
     <p class="eyebrow">TU ASISTENTE, MÁS CERCA</p>
     <h1 id="titulo-telegram">Conectar Telegram</h1>
-    <p>Consulta tus números y prepara movimientos desde una conversación privada con tu bot.</p>
+    <p>Consulta tus números, guarda recordatorios y prepara movimientos desde una conversación privada con tu bot.</p>
   </header>
 
   <div class="conexion-panel" [attr.aria-busy]="guardando() || cargando()">
@@ -95,7 +95,7 @@
   </div>
   <aside class="alcance" aria-labelledby="titulo-alcance">
     <h2 id="titulo-alcance">Tus movimientos siguen bajo tu control</h2>
-    <p>El bot usa los mismos datos y reglas que el chat de la app. Cada gasto o ingreso se muestra como propuesta: solo se guarda cuando pulsas <strong>Confirmar y guardar</strong>.</p>
+    <p>El bot usa los mismos datos y reglas que el chat de la app. Las notas se guardan directamente. Cada gasto o ingreso se muestra como propuesta y requiere <strong>Confirmar y guardar</strong>.</p>
     <p class="detalle">Usa conversaciones privadas. Los mensajes pasan por Telegram y los datos necesarios se envían al proveedor de IA. El contexto dura 30 minutos; puedes reiniciarlo con /nuevo.</p>
   </aside>
 </section>

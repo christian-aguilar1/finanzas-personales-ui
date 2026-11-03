@@ -14,9 +14,9 @@ export class AsistenteService {
     return this.http.get<EstadoAsistente>(`${this.url}/estado`);
   }
 
-  conversar(mensaje: string, historial: MensajeAsistente[]) {
+  conversar(mensaje: string, historial: MensajeAsistente[], solicitudId: string = crypto.randomUUID()) {
     return this.http.post<RespuestaAsistente>(`${this.url}/chat`, {
-      mensaje, historial: historial.slice(-12).map(({ role, content }) => ({ role, content: content.slice(0, 4000) })),
+      mensaje, solicitudId, historial: historial.slice(-12).map(({ role, content }) => ({ role, content: content.slice(0, 4000) })),
     });
   }
 
