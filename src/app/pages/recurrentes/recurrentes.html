@@ -35,7 +35,9 @@
               <th scope="col" [class.monto]="columna.clave === 'monto'"
                 [attr.aria-sort]="columnaOrden === columna.clave ? (direccionOrden === 'asc' ? 'ascending' : 'descending') : 'none'">
                 <button type="button" class="orden-columna" (click)="ordenarPor(columna.clave)"
-                  [attr.aria-label]="'Ordenar ' + columna.etiqueta + (columnaOrden === columna.clave && direccionOrden === 'asc' ? ' descendente' : ' ascendente')">
+                  [attr.aria-label]="columnaOrden === columna.clave && direccionOrden === 'desc'
+                    ? 'Quitar orden de ' + columna.etiqueta
+                    : 'Ordenar ' + columna.etiqueta + (columnaOrden === columna.clave ? ' descendente' : ' ascendente')">
                   {{ columna.etiqueta }} <span aria-hidden="true">{{ columnaOrden === columna.clave ? (direccionOrden === 'asc' ? '↑' : '↓') : '↕' }}</span>
                 </button>
               </th>
@@ -47,6 +49,7 @@
               <tr>
                 <td><strong>{{ t.nombreRecurrente || 'Sin nombre' }}</strong>
                   @if (!t.nombreRecurrente) { <small>Asigna un nombre al editar</small> }</td>
+                <td class="monto" [class.ingreso]="t.tipo === 'INGRESO'">{{ t.monto | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
                 <td>{{ t.descripcion || 'Sin descripción' }}</td>
                 <td>{{ t.tipo === 'EGRESO' ? 'Egreso' : 'Ingreso' }}</td>
                 <td><span class="frecuencia">{{ etiquetaFrecuencia(t) }}</span></td>
@@ -54,7 +57,6 @@
                 <td>{{ t.cuentaNombre || 'Sin cuenta' }}</td>
                 <td>{{ t.categoriaNombre || 'Sin categoría' }}</td>
                 <td>{{ t.comercioNombre || 'Sin comercio' }}</td>
-                <td class="monto" [class.ingreso]="t.tipo === 'INGRESO'">{{ t.monto | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
                 <td class="acciones">
                   <button type="button" mat-button color="primary" [routerLink]="['/transaccion', t.id]"
                     [state]="{transaccion: t}" [queryParams]="{volver: 'recurrentes'}"

@@ -23,24 +23,31 @@ export class RecurrentesComponent implements OnInit {
   busqueda = '';
   tipo = '';
   frecuencia = '';
-  columnaOrden: ColumnaOrden = 'nombre';
+  columnaOrden: ColumnaOrden | null = null;
   direccionOrden: 'asc' | 'desc' = 'asc';
   readonly columnas: {clave: ColumnaOrden; etiqueta: string}[] = [
-    {clave: 'nombre', etiqueta: 'Recurrente'}, {clave: 'descripcion', etiqueta: 'Descripción'},
+    {clave: 'nombre', etiqueta: 'Recurrente'}, {clave: 'monto', etiqueta: 'Último monto'},
+    {clave: 'descripcion', etiqueta: 'Descripción'},
     {clave: 'tipo', etiqueta: 'Tipo'}, {clave: 'frecuencia', etiqueta: 'Frecuencia'},
     {clave: 'periodo', etiqueta: 'Mes de referencia'}, {clave: 'cuenta', etiqueta: 'Cuenta'},
     {clave: 'categoria', etiqueta: 'Categoría'}, {clave: 'comercio', etiqueta: 'Comercio'},
-    {clave: 'monto', etiqueta: 'Último monto'},
   ];
   private readonly comparador = new Intl.Collator('es', {sensitivity: 'base', numeric: true});
 
   ordenarPor(columna: ColumnaOrden): void {
-    this.direccionOrden = this.columnaOrden === columna && this.direccionOrden === 'asc' ? 'desc' : 'asc';
-    this.columnaOrden = columna;
+    if (this.columnaOrden !== columna) {
+      this.columnaOrden = columna;
+      this.direccionOrden = 'asc';
+    } else if (this.direccionOrden === 'asc') {
+      this.direccionOrden = 'desc';
+    } else {
+      this.columnaOrden = null;
+      this.direccionOrden = 'asc';
+    }
   }
 
-  private valorOrden(t: Transaccion): string | number {
-    switch (this.columnaOrden) {
+  private valorOrden(t: Transaccion, columna: ColumnaOrden): string | number {
+    switch (columna) {
       case 'nombre': return t.nombreRecurrente || 'Sin nombre';
       case 'descripcion': return t.descripcion ?? '';
       case 'tipo': return t.tipo;
@@ -71,13 +78,17 @@ export class RecurrentesComponent implements OnInit {
   get visibles(): Transaccion[] {
     const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase();
     const termino = normalizar(this.busqueda.trim());
-    return this.transacciones.filter(t => (!this.tipo || t.tipo === this.tipo)
+    const filtradas = this.transacciones.filter(t => (!this.tipo || t.tipo === this.tipo)
       && (!this.frecuencia || (t.frecuenciaRecurrencia ?? 'MENSUAL') === this.frecuencia)
-      && normalizar([t.nombreRecurrente, t.descripcion, t.cuentaNombre, t.categoriaNombre, t.comercioNombre].join(' ')).includes(termino)).sort((a, b) => {
-        const va = this.valorOrden(a), vb = this.valorOrden(b);
-        const comparacion = typeof va === 'number' && typeof vb === 'number'
-          ? va - vb : this.comparador.compare(String(va), String(vb));
-        return (this.direccionOrden === 'asc' ? comparacion : -comparacion) || a.id - b.id;
-      });
+      && normalizar([t.nombreRecurrente, t.descripcion, t.cuentaNombre, t.categoriaNombre, t.comercioNombre].join(' ')).includes(termino));
+    const columna = this.columnaOrden;
+    if (!columna) return filtradas;
+
+    return filtradas.sort((a, b) => {
+      const va = this.valorOrden(a, columna), vb = this.valorOrden(b, columna);
+      const comparacion = typeof va === 'number' && typeof vb === 'number'
+        ? va - vb : this.comparador.compare(String(va), String(vb));
+      return (this.direccionOrden === 'asc' ? comparacion : -comparacion) || a.id - b.id;
+    });
   }
 }
