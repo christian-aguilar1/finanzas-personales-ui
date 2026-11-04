@@ -32,6 +32,27 @@
       </div>
     </div>
 
+    <section class="simulador" aria-labelledby="simulador-titulo">
+      <div class="simulador__cabecera"><div><p class="simulador__eyebrow">PLANIFICA ANTES DE COMPRAR</p><h2 id="simulador-titulo">Simular compra en cuotas</h2>
+        <p>La primera cuota se suma al periodo seleccionado. El escenario no se guarda.</p></div>
+      </div>
+      <form class="simulador__form" (ngSubmit)="simularCompra()">
+        <label>Monto total (CLP)<input type="number" name="montoSimulado" [(ngModel)]="montoSimulado" min="1" step="1" required placeholder="100000"></label>
+        <label>Número de cuotas<input type="number" name="cuotasSimuladas" [(ngModel)]="cuotasSimuladas" min="1" max="120" step="1" required></label>
+        <label class="simulador__descripcion">Descripción (opcional)<input type="text" name="descripcionSimulada" [(ngModel)]="descripcionSimulada" maxlength="100" placeholder="Ej. Refrigerador"></label>
+        <button type="submit" [disabled]="!simulacionValida() || cargandoSimulacion">{{ cargandoSimulacion ? 'Calculando…' : 'Simular compra' }}</button>
+        @if (simulacionActiva) { <button type="button" class="simulador__limpiar" (click)="limpiarSimulacion()">Quitar simulación</button> }
+      </form>
+      @if (errorSimulacion) { <p class="estado estado-error" role="alert">{{ errorSimulacion }}</p> }
+      @if (avisoRegistro) { <p class="simulador__aviso" role="status">{{ avisoRegistro }}</p> }
+      @if (simulacionActiva && cargandoSimulacion) { <p class="estado" role="status">Calculando el escenario de 12 meses…</p> }
+      @if (simulacionActiva && !cargandoSimulacion && mesesSimulados.length) {
+        <div class="tabla-wrapper simulador__tabla"><table><thead><tr><th>Mes</th><th>Egresos base</th><th>Cuota</th><th>Egresos con compra</th><th>Balance con compra</th></tr></thead>
+          <tbody>@for (item of mesesSimulados; track item.periodo) { <tr><td>{{ obtenerEtiquetaMes(item.periodo) }}</td><td>{{ item.proyeccion.egresoTotal | number:'1.0-0' }}</td><td>{{ item.cuota ? (item.cuota | number:'1.0-0') : '—' }}</td><td>{{ (item.proyeccion.egresoTotal + item.cuota) | number:'1.0-0' }}</td><td>{{ (obtenerBalanceBase(item.proyeccion) - item.cuota) | number:'1.0-0' }}</td></tr> }</tbody>
+        </table></div>
+      }
+    </section>
+
     @if (!esPeriodoDisponible()) {
       <p class="estado">La proyección solo está disponible para el mes actual y los futuros.</p>
     } @else if (cargando) {
@@ -147,6 +168,7 @@
                       <span class="estado-transaccion" [class.realizada]="item.esRealizada" [class.proyectada]="!item.esRealizada">
                         @if (item.esRealizada) { Realizada } @else { Proyectada }
                       </span>
+                      @if (!item.esRealizada && item.cuentaId) { <button type="button" class="registrar-proyectada" [disabled]="guardandoProyeccion === item" (click)="registrarProyectada(item)">{{ guardandoProyeccion === item ? 'Registrando…' : 'Registrar ahora' }}</button> }
                     </td>
                   </tr>
                 }

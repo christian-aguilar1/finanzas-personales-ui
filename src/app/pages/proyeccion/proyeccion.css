@@ -313,6 +313,23 @@ table:not(.tabla-detalle) td:last-child {
   border-top: 1px dashed var(--app-border);
 }
 
+.simulador { margin: 1rem 0 1.4rem; padding: 1.1rem; border: 1px solid var(--app-border); border-radius: 14px; background: var(--app-surface-2); }
+.simulador__cabecera h2 { margin: 0; color: var(--app-text); font-size: 1.12rem; }
+.simulador__cabecera p:not(.simulador__eyebrow) { margin: .35rem 0 0; color: var(--app-text-muted); }
+.simulador__eyebrow { margin: 0 0 .25rem; color: var(--app-primary); font-size: .72rem; font-weight: 700; letter-spacing: .08em; }
+.simulador__form { display: grid; grid-template-columns: 1fr 1fr 1.5fr auto auto; align-items: end; gap: .75rem; margin-top: 1rem; }
+.simulador__form label { display: grid; gap: .35rem; color: var(--app-text-2); font-size: .85rem; font-weight: 600; }
+.simulador__form input { min-width: 0; padding: .6rem .7rem; border: 1px solid var(--app-border-2); border-radius: 9px; background: var(--app-surface); color: var(--app-text); font: inherit; }
+.simulador__form button { min-height: 40px; padding: .55rem .8rem; border: 0; border-radius: 9px; background: var(--app-primary); color: white; font: inherit; font-weight: 600; cursor: pointer; }
+.simulador__form button:disabled { opacity: .55; cursor: not-allowed; }
+.simulador__form .simulador__limpiar { border: 1px solid var(--app-border-2); background: transparent; color: var(--app-text); }
+.simulador__tabla { margin-top: 1rem; max-height: 22rem; }
+.simulador__aviso { color: var(--app-primary-ink); }
+.registrar-proyectada { display: block; margin-top: .35rem; padding: .3rem .5rem; border: 1px solid var(--app-primary); border-radius: 7px; background: transparent; color: var(--app-primary); font: inherit; font-size: .78rem; cursor: pointer; }
+.registrar-proyectada:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 850px) { .simulador__form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .simulador__descripcion { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .simulador__form { grid-template-columns: 1fr; } .simulador__descripcion { grid-column: auto; } }
+
 .grafico-seccion h2 {
   margin: 0 0 0.6rem;
   color: var(--app-text);
