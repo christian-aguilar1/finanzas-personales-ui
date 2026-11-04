@@ -84,6 +84,9 @@ describe('Header', () => {
 
   it('enlaza a la vista de comercios', () => {
     configurarSesion(false, null);
+    Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
+      .find((button) => button.textContent?.includes('Administrar'))?.click();
+    fixture.detectChanges();
 
     const enlaces = Array.from(
       fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>,

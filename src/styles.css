@@ -245,6 +245,10 @@ th.ordenable.orden-desc::after {
 @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
 @media (max-width: 760px) { .skeleton-cuadricula { grid-template-columns: repeat(2, minmax(0, 1fr)); } .skeleton-graficos { grid-template-columns: 1fr; } }
 app-inicio .recordatorios { padding: 1.1rem 1.3rem; background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 16px; color: var(--app-text); }
+app-inicio .regla__grafico { height: 210px; max-width: 320px; margin: 0 auto; position: relative; }
+app-inicio .regla__leyenda { display: grid; gap: .6rem; list-style: none; padding: 0; margin: 1rem 0 0; }
+app-inicio .regla__leyenda li { display: flex; justify-content: space-between; gap: .75rem; color: var(--app-text-2); font-size: .88rem; }
+app-inicio .regla__leyenda strong { text-align: right; color: var(--app-text); }
 app-inicio .recordatorios__cabecera { display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap; }
 app-inicio .recordatorios h2 { margin: .15rem 0 .4rem; font-size: 1.15rem; }
 app-inicio .recordatorios a { color: var(--app-primary); font-weight: 600; }

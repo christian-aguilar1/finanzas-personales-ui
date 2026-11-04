@@ -3,10 +3,11 @@ import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CambiosFinancierosService} from '../../services/cambios-financieros.service';
 import {FormsModule} from '@angular/forms';
-import {Proyeccion, ProyeccionCategoria, ProyeccionTransaccion} from '../../models/transaccion.model';
+import {Proyeccion, ProyeccionCategoria, ProyeccionTransaccion, TransaccionRequest} from '../../models/transaccion.model';
 import {TransaccionService} from '../../services/transaccion.service';
 import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 import {Chart, registerables} from 'chart.js';
+import {forkJoin} from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -50,6 +51,16 @@ export class ProyeccionComponent implements OnInit {
   cargando = false;
   error = '';
   proyeccion: Proyeccion | null = null;
+  montoSimulado: number | null = null;
+  cuotasSimuladas = 3;
+  descripcionSimulada = '';
+  simulacionActiva = false;
+  cargandoSimulacion = false;
+  errorSimulacion = '';
+  mesesSimulados: Array<{ periodo: string; proyeccion: Proyeccion; cuota: number }> = [];
+  guardandoProyeccion: ProyeccionTransaccion | null = null;
+  avisoRegistro = '';
+  fechaRegistro = this.fechaHoy();
 
   constructor(private transaccionService: TransaccionService) {
     inject(CambiosFinancierosService).cambios$.pipe(takeUntilDestroyed())
@@ -79,6 +90,7 @@ export class ProyeccionComponent implements OnInit {
           this.proyeccion = proyeccion;
           this.cargando = false;
           setTimeout(() => this.renderizarGrafico(), 0);
+          if (this.simulacionActiva) this.calcularSimulacion();
         },
         error: () => {
           this.proyeccion = null;
@@ -87,6 +99,112 @@ export class ProyeccionComponent implements OnInit {
         },
       });
   }
+
+  simularCompra(): void {
+    if (!this.montoSimulado || this.montoSimulado <= 0 || !Number.isInteger(this.cuotasSimuladas) || this.cuotasSimuladas < 1) return;
+    this.simulacionActiva = true;
+    this.errorSimulacion = '';
+    this.calcularSimulacion();
+  }
+
+  limpiarSimulacion(): void {
+    this.simulacionActiva = false;
+    this.mesesSimulados = [];
+    this.errorSimulacion = '';
+  }
+
+  obtenerCuotaSimulada(indice: number): number {
+    const total = Math.round((Number(this.montoSimulado) || 0) * 100);
+    const base = Math.floor(total / this.cuotasSimuladas);
+    return (indice === this.cuotasSimuladas - 1 ? total - base * (this.cuotasSimuladas - 1) : base) / 100;
+  }
+
+  simulacionValida(): boolean {
+    return Boolean(this.montoSimulado && this.montoSimulado > 0 && Number.isInteger(this.cuotasSimuladas) && this.cuotasSimuladas >= 1 && this.cuotasSimuladas <= 120);
+  }
+
+  obtenerBalanceBase(proyeccion: Proyeccion): number {
+    return Number(proyeccion.saldoInicio ?? 0) + Number(proyeccion.ingresoTotal) - Number(proyeccion.egresoTotal);
+  }
+
+  obtenerEtiquetaMes(periodo: string): string {
+    const [anio, mes] = periodo.split('-').map(Number);
+    return new Intl.DateTimeFormat('es-CL', {month: 'long', year: 'numeric'}).format(new Date(anio, mes - 1, 1));
+  }
+
+  registrarProyectada(item: ProyeccionTransaccion): void {
+    if (!item.cuentaId || !item.medio) {
+      this.avisoRegistro = 'Esta transacción no tiene los datos necesarios para registrarla.';
+      return;
+    }
+    this.guardandoProyeccion = item;
+    this.avisoRegistro = '';
+    const fecha = this.fechaHoy();
+    const request: TransaccionRequest = {
+      cuentaId: item.cuentaId,
+      tipo: item.tipo,
+      fecha,
+      periodoFacturacion: this.periodoActual(),
+      monto: item.monto,
+      categoriaId: item.categoriaId ?? null,
+      subcategoriaId: item.subcategoriaId ?? null,
+      medio: item.medio,
+      comercioId: item.comercioId ?? null,
+      descripcion: item.descripcion ?? '',
+      esRecurrente: item.esRecurrente ?? false,
+      nombreRecurrente: item.nombreRecurrente ?? null,
+      frecuenciaRecurrencia: item.frecuenciaRecurrencia ?? null,
+      totalCuotas: item.totalCuotas ?? null,
+      cuotaActual: item.totalCuotas ? item.cuotaActual ?? 1 : null,
+      tagIds: [],
+    };
+    this.transaccionService.agregarTransaccion(request).subscribe({
+      next: () => {
+        this.guardandoProyeccion = null;
+        this.avisoRegistro = 'Transacción registrada con la fecha y el período actuales.';
+        this.cargarProyeccion();
+      },
+      error: () => {
+        this.guardandoProyeccion = null;
+        this.avisoRegistro = 'No se pudo registrar la transacción. Inténtalo de nuevo.';
+      },
+    });
+  }
+
+  private calcularSimulacion(): void {
+    const periodos = this.crearPeriodosEscenario(this.obtenerPeriodo(), 12);
+    this.cargandoSimulacion = true;
+    const cuotas = Array.from({length: this.cuotasSimuladas}, (_, i) => this.obtenerCuotaSimulada(i));
+    forkJoin(periodos.map((periodo) => this.transaccionService.obtenerProyeccion(periodo))).subscribe({
+      next: proyecciones => {
+        this.mesesSimulados = proyecciones.map((p, i) => ({
+          periodo: periodos[i], proyeccion: p,
+          cuota: i < cuotas.length ? cuotas[i] : 0,
+        }));
+        this.cargandoSimulacion = false;
+      },
+      error: () => {
+        this.mesesSimulados = [];
+        this.cargandoSimulacion = false;
+        this.errorSimulacion = 'No se pudo calcular el escenario para los próximos 12 meses.';
+      },
+    });
+  }
+
+  private crearPeriodosEscenario(inicio: string, cantidad: number): string[] {
+    const [anio, mes] = inicio.split('-').map(Number);
+    return Array.from({length: cantidad}, (_, i) => {
+      const fecha = new Date(anio, mes - 1 + i, 1);
+      return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+    });
+  }
+
+  private fechaHoy(): string {
+    const fecha = new Date();
+    return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+  }
+
+  private periodoActual(): string { return this.fechaHoy().slice(0, 7); }
 
   esPeriodoDisponible(): boolean {
     return this.obtenerPeriodo() >= this.obtenerPeriodoActual();
@@ -117,7 +235,21 @@ export class ProyeccionComponent implements OnInit {
   }
 
   obtenerTransacciones(): ProyeccionTransaccion[] {
-    return this.proyeccion?.transacciones ?? [];
+    const existentes = this.proyeccion?.transacciones ?? [];
+    if (!this.simulacionActiva || !this.montoSimulado || !this.proyeccion) return existentes;
+    const indice = this.diferenciaMeses(this.obtenerPeriodo(), this.mesesSimulados[0]?.periodo ?? this.obtenerPeriodo());
+    if (indice < 0 || indice >= this.cuotasSimuladas) return existentes;
+    return [...existentes, {
+      descripcion: this.descripcionSimulada.trim() || 'Compra simulada', cuenta: 'Simulación',
+      categoria: 'Compra simulada', cuota: `${indice + 1}/${this.cuotasSimuladas}`,
+      fecha: `${this.obtenerPeriodo()}-01`, monto: this.obtenerCuotaSimulada(indice), tipo: 'EGRESO', esRealizada: false,
+    }];
+  }
+
+  private diferenciaMeses(fin: string, inicio: string): number {
+    const [anioFin, mesFin] = fin.split('-').map(Number);
+    const [anioIni, mesIni] = inicio.split('-').map(Number);
+    return (anioFin - anioIni) * 12 + mesFin - mesIni;
   }
 
   formatearFecha(fecha: string): string {

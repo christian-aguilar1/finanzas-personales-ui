@@ -165,6 +165,19 @@
         }
       </section>
 
+      <section class="panel panel--regla" aria-labelledby="regla-titulo">
+        <header class="panel__cabecera"><h2 id="regla-titulo" class="panel__titulo">Regla 50/30/20</h2>
+          <p class="panel__subtitulo">Tu gasto del mes frente al ingreso: necesidades 50%, deseos 30% y ahorro 20%.</p></header>
+        @if (resumenRegla().ingresos > 0) {
+          <div class="regla__grafico"><canvas #graficoRegla role="img" aria-label="Distribución del ingreso entre necesidades, deseos y ahorro"></canvas></div>
+          <ul class="regla__leyenda">
+            <li><span>Necesidades · objetivo 50%</span><strong>{{ resumenRegla().necesidades | number:'1.0-0' }} CLP · {{ porcentajeRegla(resumenRegla().necesidades) | number:'1.0-0' }}%</strong></li>
+            <li><span>Deseos · objetivo 30%</span><strong>{{ resumenRegla().deseos | number:'1.0-0' }} CLP · {{ porcentajeRegla(resumenRegla().deseos) | number:'1.0-0' }}%</strong></li>
+            <li><span>Ahorro · objetivo 20%</span><strong>{{ resumenRegla().ahorro | number:'1.0-0' }} CLP · {{ porcentajeRegla(resumenRegla().ahorro) | number:'1.0-0' }}%</strong></li>
+          </ul>
+        } @else { <p class="panel__vacio">Registra ingresos este mes para ver la distribución recomendada.</p> }
+      </section>
+
       <section class="panel">
         <header class="panel__cabecera">
           <h2 class="panel__titulo">En qué se va el dinero</h2>
@@ -227,7 +240,8 @@
     </section>
 
     <nav class="atajos" aria-label="Accesos rápidos">
-      <a class="atajo" routerLink="/presupuesto">Presupuesto del mes</a>
+      <a class="atajo" routerLink="/presupuesto">Ingresos y gastos</a>
+      <a class="atajo" routerLink="/presupuestos">Definir presupuestos</a>
       <a class="atajo" routerLink="/transacciones">Explorar transacciones</a>
       <a class="atajo" routerLink="/cuentas">Administrar cuentas</a>
     </nav>
