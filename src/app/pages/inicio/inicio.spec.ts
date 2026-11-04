@@ -10,6 +10,7 @@ import { TemaService } from '../../services/tema.service';
 import { TransaccionService } from '../../services/transaccion.service';
 import { NotaService } from '../../services/nota.service';
 import { Nota } from '../../models/nota.model';
+import { CategoriaService } from '../../services/categoria.service';
 
 import { Inicio } from './inicio';
 
@@ -81,6 +82,7 @@ describe('Inicio', () => {
           useValue: { obtenerTransaccionesPorPeriodoFacturacion: obtenerPorPeriodo },
         },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentasRespuesta) } },
+        { provide: CategoriaService, useValue: { obtenerCategorias: () => of([]) } },
         { provide: NotaService, useValue: { proximas: () => of(proximas) } },
         { provide: TemaService, useValue: { esOscuro: signal(false) } },
       ],
@@ -315,6 +317,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
           useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => throwError(() => new Error('sin red')) },
         },
         { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
+        { provide: CategoriaService, useValue: { obtenerCategorias: () => of([]) } },
         { provide: NotaService, useValue: { proximas: () => of([]) } },
         { provide: TemaService, useValue: { esOscuro: signal(false) } },
       ],
@@ -341,7 +344,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
       expect(elementos.querySelectorAll('.indicador').length).toBe(4);
       expect(elementos.querySelector('.panel__titulo')?.textContent).toContain('Ingresos y egresos por mes');
       expect(elementos.querySelectorAll('.movimiento').length).toBe(2);
-      expect(elementos.querySelectorAll('.atajo').length).toBe(3);
+      expect(elementos.querySelectorAll('.atajo').length).toBe(4);
       expect(elementos.querySelectorAll('.leyenda__fila').length).toBe(1);
     });
 
@@ -388,6 +391,7 @@ it('expone el error y limpia los datos si la carga falla', async () => {
           provideRouter([]),
           { provide: TransaccionService, useValue: { obtenerTransaccionesPorPeriodoFacturacion: () => throwError(() => new Error('x')) } },
           { provide: CuentaService, useValue: { obtenerCuentas: () => of(cuentas) } },
+          { provide: CategoriaService, useValue: { obtenerCategorias: () => of([]) } },
           { provide: NotaService, useValue: { proximas: () => of([]) } },
           { provide: TemaService, useValue: { esOscuro: signal(false) } },
         ],

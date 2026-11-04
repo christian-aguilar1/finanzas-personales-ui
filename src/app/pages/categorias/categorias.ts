@@ -30,6 +30,7 @@ export class CategoriasComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       tipo: ['EGRESO', Validators.required],
       parentId: [null],
+      clasificacionGasto: ['NECESIDAD'],
     });
   }
 
@@ -69,6 +70,8 @@ export class CategoriasComponent implements OnInit {
       parentId: this.categoriaForm.value.parentId ?? null,
       icono: null,
       color: null,
+      clasificacionGasto: this.categoriaForm.value.tipo === 'EGRESO' && !this.categoriaForm.value.parentId
+        ? this.categoriaForm.value.clasificacionGasto : null,
     };
 
     const onSuccess = () => {
@@ -102,6 +105,7 @@ export class CategoriasComponent implements OnInit {
       nombre: categoria.nombre,
       tipo: categoria.tipo,
       parentId: categoria.parentId ?? null,
+      clasificacionGasto: categoria.clasificacionGasto ?? 'NECESIDAD',
     });
   }
 
@@ -179,6 +183,7 @@ export class CategoriasComponent implements OnInit {
       nombre: '',
       tipo: 'EGRESO',
       parentId: null,
+      clasificacionGasto: 'NECESIDAD',
     });
   }
 }

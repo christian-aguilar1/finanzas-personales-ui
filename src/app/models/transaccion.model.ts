@@ -92,6 +92,17 @@ export interface ProyeccionTransaccion {
   tipo: TipoTransaccion;
   /** true si ya está registrada en el periodo en curso; false si está proyectada. */
   esRealizada: boolean;
+  cuentaId?: number | null;
+  categoriaId?: number | null;
+  subcategoriaId?: number | null;
+  comercioId?: number | null;
+  comercioNombre?: string | null;
+  medio?: string | null;
+  esRecurrente?: boolean;
+  nombreRecurrente?: string | null;
+  frecuenciaRecurrencia?: FrecuenciaRecurrencia | null;
+  cuotaActual?: number | null;
+  totalCuotas?: number | null;
 }
 
 export interface Proyeccion {
@@ -99,6 +110,7 @@ export interface Proyeccion {
   ingresoTotal: number;
   egresoTotal: number;
   total: number;
+  saldoInicio?: number;
   ingresosPorCategoria: ProyeccionCategoria[];
   egresosPorCategoria: ProyeccionCategoria[];
   transacciones: ProyeccionTransaccion[];

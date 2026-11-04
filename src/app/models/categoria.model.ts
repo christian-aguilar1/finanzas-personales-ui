@@ -6,6 +6,7 @@ export interface Categoria {
   color?: string;
   parentId?: number | null;
   codigoSistema?: string | null;
+  clasificacionGasto?: 'NECESIDAD' | 'DESEO' | null;
 }
 
 export interface CategoriaRequest {
@@ -14,4 +15,5 @@ export interface CategoriaRequest {
   parentId?: number | null;
   icono?: string | null;
   color?: string | null;
+  clasificacionGasto?: 'NECESIDAD' | 'DESEO' | null;
 }

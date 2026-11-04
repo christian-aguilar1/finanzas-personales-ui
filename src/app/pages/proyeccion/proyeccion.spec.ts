@@ -9,6 +9,7 @@ describe('ProyeccionComponent', () => {
   let component: ProyeccionComponent;
   let fixture: ComponentFixture<ProyeccionComponent>;
   let obtenerProyeccion: jasmine.Spy;
+  let agregarTransaccion: jasmine.Spy;
 
   const mockProyeccion: Proyeccion = {
     periodo: '2026-10',
@@ -56,13 +57,14 @@ describe('ProyeccionComponent', () => {
 
   beforeEach(async () => {
     obtenerProyeccion = jasmine.createSpy('obtenerProyeccion').and.returnValue(of(mockProyeccion));
+    agregarTransaccion = jasmine.createSpy('agregarTransaccion').and.returnValue(of({}));
 
     await TestBed.configureTestingModule({
       imports: [ProyeccionComponent],
       providers: [
         {
           provide: TransaccionService,
-          useValue: { obtenerProyeccion },
+          useValue: { obtenerProyeccion, agregarTransaccion },
         },
       ],
     }).compileComponents();
@@ -218,5 +220,45 @@ describe('ProyeccionComponent', () => {
 
     expect(component.error).toContain('No se pudo calcular la proyección');
     expect(component.cargando).toBeFalse();
+  });
+
+  it('distribuye el monto en cuotas y ajusta el redondeo en la última', () => {
+    component.montoSimulado = 100000;
+    component.cuotasSimuladas = 3;
+
+    expect(component.obtenerCuotaSimulada(0)).toBe(33333.33);
+    expect(component.obtenerCuotaSimulada(1)).toBe(33333.33);
+    expect(component.obtenerCuotaSimulada(2)).toBe(33333.34);
+    expect([0, 1, 2].reduce((total, indice) => total + component.obtenerCuotaSimulada(indice), 0)).toBe(100000);
+  });
+
+  it('calcula el escenario para el mes seleccionado y los 11 siguientes', () => {
+    component.montoSimulado = 100000;
+    component.cuotasSimuladas = 3;
+
+    component.simularCompra();
+
+    expect(component.mesesSimulados.length).toBe(12);
+    expect(component.mesesSimulados[0].periodo).toBe(`${component.anio}-${String(component.mes).padStart(2, '0')}`);
+    expect(component.mesesSimulados[0].cuota).toBe(33333.33);
+    expect(component.mesesSimulados[1].cuota).toBe(33333.33);
+    expect(component.mesesSimulados[2].cuota).toBe(33333.34);
+    expect(component.mesesSimulados[3].cuota).toBe(0);
+  });
+
+  it('registra una transacción proyectada con fecha actual conservando datos de origen', () => {
+    const proyectada = {
+      ...mockProyeccion.transacciones[1], cuentaId: 7, categoriaId: 8, subcategoriaId: 9,
+      comercioId: 10, medio: 'CREDITO', totalCuotas: 3, cuotaActual: 2,
+      esRecurrente: true, nombreRecurrente: 'Compra mensual', frecuenciaRecurrencia: 'MENSUAL' as const,
+    };
+
+    component.registrarProyectada(proyectada);
+
+    expect(agregarTransaccion).toHaveBeenCalledWith(jasmine.objectContaining({
+      cuentaId: 7, categoriaId: 8, subcategoriaId: 9, comercioId: 10, medio: 'CREDITO',
+      periodoFacturacion: jasmine.any(String), fecha: jasmine.any(String), totalCuotas: 3,
+      cuotaActual: 2, esRecurrente: true, nombreRecurrente: 'Compra mensual',
+    }));
   });
 });

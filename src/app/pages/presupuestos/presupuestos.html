@@ -1,0 +1,15 @@
+<main class="presupuestos">
+  <header><div><p class="eyebrow">PLANIFICACIÓN MENSUAL</p><h1>Presupuestos</h1><p>Define cuánto quieres gastar como máximo por categoría cada mes.</p></div>
+    <label>Periodo <input type="month" [(ngModel)]="periodo" (ngModelChange)="cargar()"></label></header>
+  @if (aviso) { <p role="status" class="aviso">{{ aviso }}</p> }
+  @if (error) { <p role="alert" class="error">{{ error }}</p> }
+  @if (cargando) { <div class="skeleton-lista" role="status" aria-label="Cargando presupuestos" aria-busy="true">@for (i of [1,2,3,4]; track i) {<div class="skeleton-fila"><span class="skeleton skeleton--medio"></span><span class="skeleton skeleton--corto"></span></div>}</div> }
+  @else if (!categorias.length) { <section class="vacio"><h2>No hay categorías de gastos</h2><p>Agrega categorías de egreso antes de definir límites.</p><a routerLink="/categorias">Administrar categorías</a></section> }
+  @else { <section class="lista">@for (categoria of categorias; track categoria.id) {
+    <article class="item"><div class="detalle"><h2>{{ categoria.nombre }}</h2><p>{{ gasto(categoria.id) | currency:'CLP':'symbol-narrow':'1.0-0' }} gastados de {{ (presupuesto(categoria.id)?.montoMensual || montos[categoria.id] || 0) | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+      @if (presupuesto(categoria.id)) {<div class="barra"><span [style.width.%]="porcentaje(categoria.id)" [class.excedida]="gasto(categoria.id) > (presupuesto(categoria.id)?.montoMensual ?? 0)"></span></div>}</div>
+      <label>Límite mensual<input type="number" min="1" step="1" [(ngModel)]="montos[categoria.id]" [name]="'limite-' + categoria.id"></label>
+      <div class="acciones"><button type="button" (click)="guardar(categoria)" [disabled]="guardandoId === categoria.id">Guardar</button>@if (presupuesto(categoria.id)) {<button class="secundario" type="button" (click)="quitar(categoria.id)">Quitar</button>}</div>
+    </article>
+  }</section> }
+</main>
