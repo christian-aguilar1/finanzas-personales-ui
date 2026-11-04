@@ -14,6 +14,8 @@ import { CambiosFinancierosService } from '../../services/cambios-financieros.se
 import { CambiosNotasService } from '../../services/cambios-notas.service';
 import { NotaService } from '../../services/nota.service';
 import { Nota, fechaNota, plazoNota } from '../../models/nota.model';
+import { Categoria } from '../../models/categoria.model';
+import { CategoriaService } from '../../services/categoria.service';
 
 Chart.register(...registerables);
 
@@ -76,13 +78,16 @@ interface Indicador {
 export class Inicio implements OnInit {
   @ViewChild('graficoTendencia') graficoTendenciaRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('graficoCategorias') graficoCategoriasRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('graficoRegla') graficoReglaRef?: ElementRef<HTMLCanvasElement>;
 
   private chartTendencia?: Chart;
   private chartCategorias?: Chart;
+  private chartRegla?: Chart;
 
   private readonly transaccionService = inject(TransaccionService);
   private readonly cuentaService = inject(CuentaService);
   private readonly notaService = inject(NotaService);
+  private readonly categoriaService = inject(CategoriaService);
   private readonly temaService = inject(TemaService);
   private readonly router = inject(Router);
 
@@ -90,6 +95,7 @@ export class Inicio implements OnInit {
   readonly error = signal('');
   readonly transacciones = signal<Transaccion[]>([]);
   readonly cuentas = signal<Cuenta[]>([]);
+  readonly categorias = signal<Categoria[]>([]);
   readonly notas = signal<Nota[]>([]);
   readonly cargandoNotas = signal(true);
   readonly errorNotas = signal(false);
@@ -119,6 +125,7 @@ export class Inicio implements OnInit {
     effect(() => {
       this.serieMensual();
       this.categoriasGasto();
+      this.resumenRegla();
       this.temaService.esOscuro();
 
       if (this.cargando() || this.error()) {
@@ -145,15 +152,18 @@ export class Inicio implements OnInit {
     forkJoin({
       transacciones: this.cargarVentana(),
       cuentas: this.cuentaService.obtenerCuentas(),
+      categorias: this.categoriaService.obtenerCategorias(),
     }).subscribe({
       next: (resultado) => {
         this.transacciones.set(resultado.transacciones);
         this.cuentas.set(resultado.cuentas ?? []);
+        this.categorias.set(resultado.categorias ?? []);
         this.cargando.set(false);
       },
       error: () => {
         this.transacciones.set([]);
         this.cuentas.set([]);
+        this.categorias.set([]);
         this.error.set('No se pudieron cargar los datos del resumen.');
         this.cargando.set(false);
       },
@@ -219,6 +229,26 @@ export class Inicio implements OnInit {
       tasaAhorro: actual.ingresos > 0 ? ((actual.ingresos - actual.egresos) / actual.ingresos) * 100 : null,
     };
   });
+
+  readonly resumenRegla = computed(() => {
+    const ingresos = this.resumir(this.periodoActual).ingresos;
+    const egresosMes = this.imputables().filter(t => t.tipo === 'EGRESO' && Inicio.periodoDeTransaccion(t) === this.periodoActual);
+    const categoriaRaiz = (id?: number | null): Categoria | undefined => {
+      let actual = this.categorias().find(c => c.id === id);
+      while (actual?.parentId) actual = this.categorias().find(c => c.id === actual?.parentId);
+      return actual;
+    };
+    const necesidades = egresosMes.filter(t => categoriaRaiz(t.categoriaId)?.clasificacionGasto !== 'DESEO')
+      .reduce((sum, t) => sum + Number(t.monto ?? 0), 0);
+    const deseos = egresosMes.filter(t => categoriaRaiz(t.categoriaId)?.clasificacionGasto === 'DESEO')
+      .reduce((sum, t) => sum + Number(t.monto ?? 0), 0);
+    return {ingresos, necesidades, deseos, ahorro: ingresos - necesidades - deseos};
+  });
+
+  porcentajeRegla(monto: number): number {
+    const ingresos = this.resumenRegla().ingresos;
+    return ingresos > 0 ? Math.max(0, monto / ingresos * 100) : 0;
+  }
 
   readonly tarjetas = computed<TarjetaMetrica[]>(() => {
     const mes = this.resumenMes();
@@ -430,6 +460,23 @@ export class Inicio implements OnInit {
   private renderizarGraficos(): void {
     this.renderizarTendencia();
     this.renderizarCategorias();
+    this.renderizarRegla();
+  }
+
+  private renderizarRegla(): void {
+    this.chartRegla?.destroy();
+    this.chartRegla = undefined;
+    const resumen = this.resumenRegla();
+    if (!this.graficoReglaRef?.nativeElement || resumen.ingresos <= 0) return;
+    this.chartRegla = new Chart(this.graficoReglaRef.nativeElement, {
+      type: 'doughnut',
+      data: {labels: ['Necesidades', 'Deseos', 'Ahorro'], datasets: [{
+        data: [resumen.necesidades, resumen.deseos, Math.max(0, resumen.ahorro)],
+        backgroundColor: ['#3b82f6', '#f97316', '#22c55e'], borderWidth: 2,
+        borderColor: this.token('--app-surface', '#fff'),
+      }]},
+      options: {responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: {legend: {display: false}}},
+    });
   }
 
   private renderizarTendencia(): void {
@@ -496,6 +543,8 @@ export class Inicio implements OnInit {
   private renderizarCategorias(): void {
     this.chartCategorias?.destroy();
     this.chartCategorias = undefined;
+    this.chartRegla?.destroy();
+    this.chartRegla = undefined;
 
     const categorias = this.categoriasGasto();
 

@@ -367,6 +367,10 @@
   flex-direction: column;
   gap: 0.9rem;
 }
+.regla__grafico { height: 210px; max-width: 320px; margin: 0 auto; position: relative; }
+.regla__leyenda { display: grid; gap: .6rem; list-style: none; padding: 0; margin: 1rem 0 0; }
+.regla__leyenda li { display: flex; justify-content: space-between; gap: .75rem; color: var(--app-text-2); font-size: .88rem; }
+.regla__leyenda strong { text-align: right; color: var(--app-text); }
 
 .leyenda {
   list-style: none;

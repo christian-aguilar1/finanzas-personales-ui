@@ -26,6 +26,7 @@ export const routes: Routes = [
   { path: 'recurrentes', component: RecurrentesComponent, canActivate: [authGuardFn] },
   { path: 'transacciones', component: TransaccionesComponent, canActivate: [authGuardFn] },
   { path: 'presupuesto', component: PresupuestoComponent, canActivate: [authGuardFn] },
+  { path: 'presupuestos', loadComponent: () => import('./pages/presupuestos/presupuestos').then(m => m.PresupuestosComponent), canActivate: [authGuardFn] },
   { path: 'proyeccion', component: ProyeccionComponent, canActivate: [authGuardFn] },
   { path: 'cuadre', component: CuadreComponent, canActivate: [authGuardFn] },
   { path: 'prestamos', component: PrestamosComponent, canActivate: [authGuardFn] },
