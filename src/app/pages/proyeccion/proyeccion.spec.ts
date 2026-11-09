@@ -10,6 +10,8 @@ describe('ProyeccionComponent', () => {
   let fixture: ComponentFixture<ProyeccionComponent>;
   let obtenerProyeccion: jasmine.Spy;
   let agregarTransaccion: jasmine.Spy;
+  let omitirOcurrenciaRecurrente: jasmine.Spy;
+  let restaurarOcurrenciaRecurrente: jasmine.Spy;
 
   const mockProyeccion: Proyeccion = {
     periodo: '2026-10',
@@ -58,13 +60,15 @@ describe('ProyeccionComponent', () => {
   beforeEach(async () => {
     obtenerProyeccion = jasmine.createSpy('obtenerProyeccion').and.returnValue(of(mockProyeccion));
     agregarTransaccion = jasmine.createSpy('agregarTransaccion').and.returnValue(of({}));
+    omitirOcurrenciaRecurrente = jasmine.createSpy('omitirOcurrenciaRecurrente').and.returnValue(of(void 0));
+    restaurarOcurrenciaRecurrente = jasmine.createSpy('restaurarOcurrenciaRecurrente').and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
       imports: [ProyeccionComponent],
       providers: [
         {
           provide: TransaccionService,
-          useValue: { obtenerProyeccion, agregarTransaccion },
+          useValue: { obtenerProyeccion, agregarTransaccion, omitirOcurrenciaRecurrente, restaurarOcurrenciaRecurrente },
         },
       ],
     }).compileComponents();
@@ -260,5 +264,21 @@ describe('ProyeccionComponent', () => {
       periodoFacturacion: jasmine.any(String), fecha: jasmine.any(String), totalCuotas: 3,
       cuotaActual: 2, esRecurrente: true, nombreRecurrente: 'Compra mensual',
     }));
+  });
+
+  it('omite y puede reintegrar una ocurrencia recurrente del periodo seleccionado', () => {
+    const recurrente = {
+      ...mockProyeccion.transacciones[2], esRecurrente: true, transaccionId: 93,
+    };
+    component.mes = 11;
+    component.anio = 2026;
+
+    component.omitirOcurrencia(recurrente);
+    expect(omitirOcurrenciaRecurrente).toHaveBeenCalledWith(93, '2026-11');
+    expect(component.avisoOcurrencia).toContain('se omitió');
+
+    component.restaurarOcurrencia(recurrente);
+    expect(restaurarOcurrenciaRecurrente).toHaveBeenCalledWith(93, '2026-11');
+    expect(component.avisoOcurrencia).toContain('volvió a la proyección');
   });
 });
