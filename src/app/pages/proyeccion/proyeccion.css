@@ -327,6 +327,11 @@ table:not(.tabla-detalle) td:last-child {
 .simulador__aviso { color: var(--app-primary-ink); }
 .registrar-proyectada { display: block; margin-top: .35rem; padding: .3rem .5rem; border: 1px solid var(--app-primary); border-radius: 7px; background: transparent; color: var(--app-primary); font: inherit; font-size: .78rem; cursor: pointer; }
 .registrar-proyectada:disabled { opacity: .6; cursor: wait; }
+.omitir-proyectada { display: block; margin-top: .35rem; padding: .3rem .5rem; border: 1px solid var(--app-border-2); border-radius: 7px; background: transparent; color: var(--app-text-2); font: inherit; font-size: .78rem; cursor: pointer; }
+.omitir-proyectada:disabled { opacity: .6; cursor: wait; }
+.omisiones-seccion { margin-top: 1.25rem; }
+.estado-omisiones { margin: 0 0 .65rem; color: var(--app-text-muted); font-size: .9rem; }
+.restaurar-omisiones { color: var(--app-primary); border-color: var(--app-primary); }
 @media (max-width: 850px) { .simulador__form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .simulador__descripcion { grid-column: 1 / -1; } }
 @media (max-width: 480px) { .simulador__form { grid-template-columns: 1fr; } .simulador__descripcion { grid-column: auto; } }
 

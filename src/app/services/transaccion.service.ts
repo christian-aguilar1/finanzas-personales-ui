@@ -112,6 +112,16 @@ export class TransaccionService {
     );
   }
 
+  omitirOcurrenciaRecurrente(transaccionId: number, periodo: string): Observable<void> {
+    const params = new HttpParams().set('periodo', periodo);
+    return this.http.post<void>(`${this.apiUrl}/transacciones/${transaccionId}/omisiones`, null, { params });
+  }
+
+  restaurarOcurrenciaRecurrente(transaccionId: number, periodo: string): Observable<void> {
+    const params = new HttpParams().set('periodo', periodo);
+    return this.http.delete<void>(`${this.apiUrl}/transacciones/${transaccionId}/omisiones`, { params });
+  }
+
   private construirParamsPaginadas(
     page: number,
     size: number,

@@ -169,6 +169,7 @@
                         @if (item.esRealizada) { Realizada } @else { Proyectada }
                       </span>
                       @if (!item.esRealizada && item.cuentaId) { <button type="button" class="registrar-proyectada" [disabled]="guardandoProyeccion === item" (click)="registrarProyectada(item)">{{ guardandoProyeccion === item ? 'Registrando…' : 'Registrar ahora' }}</button> }
+                      @if (item.esRecurrente && item.transaccionId) { <button type="button" class="omitir-proyectada" [disabled]="guardandoOmitidaId !== null" (click)="omitirOcurrencia(item)">{{ guardandoOmitidaId === item.transaccionId ? 'Omitiendo…' : 'Omitir este mes' }}</button> }
                     </td>
                   </tr>
                 }
@@ -177,6 +178,32 @@
           </div>
         }
       </div>
+
+      @if (avisoOcurrencia) { <p class="simulador__aviso" role="status">{{ avisoOcurrencia }}</p> }
+      @if (errorOcurrencia) { <p class="estado estado-error" role="alert">{{ errorOcurrencia }}</p> }
+
+      @if ((proyeccion.transaccionesOmitidas ?? []).length > 0) {
+        <section class="tabla-seccion omisiones-seccion">
+          <h2>Ocurrencias omitidas este mes</h2>
+          <p class="estado-omisiones">No se incluyen en los totales. La recurrencia continuará el próximo mes.</p>
+          <div class="tabla-wrapper">
+            <table class="tabla-detalle">
+              <thead><tr><th>Descripción</th><th>Cuenta</th><th>Categoría</th><th>Monto</th><th data-sortable="false">Acción</th></tr></thead>
+              <tbody>
+                @for (item of proyeccion.transaccionesOmitidas ?? []; track item.transaccionId) {
+                  <tr [class.egreso]="item.tipo === 'EGRESO'" [class.ingreso]="item.tipo === 'INGRESO'">
+                    <td>{{ item.descripcion || item.nombreRecurrente || 'Sin descripción' }}</td>
+                    <td>{{ item.cuenta || 'Sin cuenta' }}</td>
+                    <td>{{ item.categoria }}</td>
+                    <td class="monto">{{ item.monto | number: '1.0-2' }}</td>
+                    <td><button type="button" class="omitir-proyectada restaurar-omisiones" [disabled]="guardandoOmitidaId !== null" (click)="restaurarOcurrencia(item)">{{ guardandoOmitidaId === item.transaccionId ? 'Restaurando…' : 'Reintegrar este mes' }}</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
 
       <div class="grafico-seccion">
         <h2>Distribución de los egresos proyectados</h2>

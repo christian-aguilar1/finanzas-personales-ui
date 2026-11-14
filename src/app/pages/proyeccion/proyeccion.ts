@@ -59,7 +59,10 @@ export class ProyeccionComponent implements OnInit {
   errorSimulacion = '';
   mesesSimulados: Array<{ periodo: string; proyeccion: Proyeccion; cuota: number }> = [];
   guardandoProyeccion: ProyeccionTransaccion | null = null;
+  guardandoOmitidaId: number | null = null;
   avisoRegistro = '';
+  avisoOcurrencia = '';
+  errorOcurrencia = '';
   fechaRegistro = this.fechaHoy();
 
   constructor(private transaccionService: TransaccionService) {
@@ -167,6 +170,42 @@ export class ProyeccionComponent implements OnInit {
       error: () => {
         this.guardandoProyeccion = null;
         this.avisoRegistro = 'No se pudo registrar la transacción. Inténtalo de nuevo.';
+      },
+    });
+  }
+
+  omitirOcurrencia(item: ProyeccionTransaccion): void {
+    if (!item.transaccionId || !item.esRecurrente) return;
+    this.guardandoOmitidaId = item.transaccionId;
+    this.avisoOcurrencia = '';
+    this.errorOcurrencia = '';
+    this.transaccionService.omitirOcurrenciaRecurrente(item.transaccionId, this.obtenerPeriodo()).subscribe({
+      next: () => {
+        this.guardandoOmitidaId = null;
+        this.avisoOcurrencia = 'La ocurrencia se omitió para este mes.';
+        this.cargarProyeccion();
+      },
+      error: () => {
+        this.guardandoOmitidaId = null;
+        this.errorOcurrencia = 'No se pudo omitir la ocurrencia. Inténtalo de nuevo.';
+      },
+    });
+  }
+
+  restaurarOcurrencia(item: ProyeccionTransaccion): void {
+    if (!item.transaccionId) return;
+    this.guardandoOmitidaId = item.transaccionId;
+    this.avisoOcurrencia = '';
+    this.errorOcurrencia = '';
+    this.transaccionService.restaurarOcurrenciaRecurrente(item.transaccionId, this.obtenerPeriodo()).subscribe({
+      next: () => {
+        this.guardandoOmitidaId = null;
+        this.avisoOcurrencia = 'La ocurrencia volvió a la proyección de este mes.';
+        this.cargarProyeccion();
+      },
+      error: () => {
+        this.guardandoOmitidaId = null;
+        this.errorOcurrencia = 'No se pudo restaurar la ocurrencia. Inténtalo de nuevo.';
       },
     });
   }
