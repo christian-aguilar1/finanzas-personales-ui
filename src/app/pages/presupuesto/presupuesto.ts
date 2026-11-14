@@ -3,7 +3,7 @@ import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CambiosFinancierosService} from '../../services/cambios-financieros.service';
 import {FormsModule} from '@angular/forms';
-import {PaginaTransacciones, Transaccion} from '../../models/transaccion.model';
+import {PaginaTransacciones, Transaccion, esPagoTarjeta} from '../../models/transaccion.model';
 import {Cuenta, tieneDineroDisponible} from '../../models/cuenta.model';
 import {TransaccionService} from '../../services/transaccion.service';
 import {CuentaService} from '../../services/cuenta.service';
@@ -146,7 +146,7 @@ export class PresupuestoComponent implements OnInit {
   }
 
   private procesarResumen(): void {
-    const transaccionesVisibles = this.transacciones.filter((item) => item.cuotaActual !== 0);
+    const transaccionesVisibles = this.transacciones.filter((item) => item.cuotaActual !== 0 && !esPagoTarjeta(item));
     const ingresos = transaccionesVisibles.filter((item) => item.tipo === 'INGRESO');
     const egresos = transaccionesVisibles.filter((item) => item.tipo === 'EGRESO');
 

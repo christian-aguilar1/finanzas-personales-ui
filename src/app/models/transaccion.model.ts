@@ -35,7 +35,15 @@ export interface Transaccion {
   prestamoPersona?: string | null;
   prestamoFechaDevolucion?: string | null;
   prestamoOrigenId?: number | null;
+  categoriaCodigoSistema?: string | null;
 }
+
+/**
+ * El pago de la tarjeta de crédito no es un ingreso ni un gasto del mes: las compras que paga ya
+ * se registraron una a una. Sí mueve el saldo de la cuenta con la que se pagó (eso lo calcula el backend).
+ */
+export const esPagoTarjeta = (t: Pick<Transaccion, 'categoriaCodigoSistema'>): boolean =>
+  t.categoriaCodigoSistema === 'PAGO_TARJETA_CREDITO';
 
 export interface TransaccionRequest {
   cuentaId: number;

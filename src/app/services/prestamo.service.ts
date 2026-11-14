@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 
 export interface Prestamo {
   transaccionId: number;
+  /** OTORGADO: te deben. RECIBIDO: debes. */
+  tipo: 'OTORGADO' | 'RECIBIDO';
   persona: string;
   fechaPrestamo: string;
   fechaDevolucion: string | null;

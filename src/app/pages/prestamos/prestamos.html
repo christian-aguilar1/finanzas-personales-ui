@@ -1,25 +1,30 @@
 <main class="prestamos-page">
   <header class="encabezado">
-    <div><h1>Préstamos</h1><p>Dinero que prestaste y devoluciones pendientes.</p></div>
+    <div><h1>Préstamos</h1><p>Dinero que prestaste, dinero que te prestaron y lo que falta devolver.</p></div>
     @if (visible) { <a routerLink="/transaccion" class="accion">Registrar préstamo</a> }
   </header>
   @if (cargando) { <div class="skeleton-lista" role="status" aria-label="Cargando préstamos" aria-busy="true">@for (item of [1, 2, 3]; track item) { <div class="skeleton-fila"><div class="skeleton-celda"><span class="skeleton skeleton--largo"></span><span class="skeleton skeleton--medio"></span></div><span class="skeleton skeleton--corto"></span></div> }</div> }
   @else if (error) { <p role="alert">{{ error }}</p> }
   @else if (!visible) { <p>La categoría Préstamo está oculta. La sección volverá a mostrar tus préstamos si se habilita de nuevo.</p> }
   @else {
-    <div class="resumen"><span>Pendiente por recibir</span><strong>{{ pendienteTotal | currency:'CLP':'symbol':'1.0-0' }}</strong><small>{{ pendientes.length }} préstamo(s) pendiente(s)</small></div>
-    <h2>Pendientes</h2>
-    @for (prestamo of pendientes; track prestamo.transaccionId) {
-      <article class="prestamo">
-        <div><h3>{{ prestamo.persona }}</h3><p>Prestado el {{ prestamo.fechaPrestamo | date:'dd/MM/yyyy':'UTC' }}</p></div>
-        <div><span>Fecha esperada</span><strong [class.vencido]="vencido(prestamo)">{{ prestamo.fechaDevolucion ? (prestamo.fechaDevolucion | date:'dd/MM/yyyy':'UTC') : 'Sin indicar' }}</strong></div>
-        <div><span>Pendiente</span><strong>{{ prestamo.pendiente | currency:'CLP':'symbol':'1.0-0' }}</strong><small>de {{ prestamo.monto | currency:'CLP':'symbol':'1.0-0' }}</small></div>
-      </article>
-    } @empty { <p>Aún no tienes préstamos pendientes.</p> }
+    <div class="resumenes">
+      <div class="resumen"><span>Te deben</span><strong>{{ pendienteOtorgado | currency:'CLP':'symbol':'1.0-0' }}</strong><small>{{ pendientes('OTORGADO').length }} préstamo(s) pendiente(s)</small></div>
+      <div class="resumen"><span>Debes</span><strong>{{ pendienteRecibido | currency:'CLP':'symbol':'1.0-0' }}</strong><small>{{ pendientes('RECIBIDO').length }} préstamo(s) pendiente(s)</small></div>
+    </div>
+    @for (seccion of secciones; track seccion.tipo) {
+      <h2>{{ seccion.titulo }}</h2>
+      @for (prestamo of pendientes(seccion.tipo); track prestamo.transaccionId) {
+        <article class="prestamo">
+          <div><h3>{{ prestamo.persona }}</h3><p>{{ seccion.tipo === 'OTORGADO' ? 'Prestado el' : 'Te prestó el' }} {{ prestamo.fechaPrestamo | date:'dd/MM/yyyy':'UTC' }}</p></div>
+          <div><span>{{ seccion.tipo === 'OTORGADO' ? 'Fecha esperada' : 'Debes devolver el' }}</span><strong [class.vencido]="vencido(prestamo)">{{ prestamo.fechaDevolucion ? (prestamo.fechaDevolucion | date:'dd/MM/yyyy':'UTC') : 'Sin indicar' }}</strong></div>
+          <div><span>Pendiente</span><strong>{{ prestamo.pendiente | currency:'CLP':'symbol':'1.0-0' }}</strong><small>de {{ prestamo.monto | currency:'CLP':'symbol':'1.0-0' }}</small></div>
+        </article>
+      } @empty { <p>{{ seccion.vacio }}</p> }
+    }
     @if (devueltos.length) {
       <h2>Devueltos</h2>
       @for (prestamo of devueltos; track prestamo.transaccionId) {
-        <article class="prestamo"><h3>{{ prestamo.persona }}</h3><span>Devuelto: {{ prestamo.monto | currency:'CLP':'symbol':'1.0-0' }}</span></article>
+        <article class="prestamo"><h3>{{ prestamo.persona }}</h3><span>{{ prestamo.tipo === 'OTORGADO' ? 'Te devolvió' : 'Le devolviste' }}: {{ prestamo.monto | currency:'CLP':'symbol':'1.0-0' }}</span></article>
       }
     }
   }
