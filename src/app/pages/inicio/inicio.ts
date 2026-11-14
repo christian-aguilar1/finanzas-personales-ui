@@ -5,7 +5,7 @@ import { Chart, registerables } from 'chart.js';
 import { Observable, forkJoin, of } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { Cuenta, tieneDineroDisponible } from '../../models/cuenta.model';
-import { Transaccion } from '../../models/transaccion.model';
+import { Transaccion, esPagoTarjeta } from '../../models/transaccion.model';
 import { CuentaService } from '../../services/cuenta.service';
 import { TemaService } from '../../services/tema.service';
 import { TransaccionService } from '../../services/transaccion.service';
@@ -205,8 +205,9 @@ export class Inicio implements OnInit {
       : null;
   });
 
-  /** `cuotaActual === 0` es una cuota que todavía no se imputa: se excluye igual que en el presupuesto. */
-  private readonly imputables = computed(() => this.transacciones().filter((item) => item.cuotaActual !== 0));
+  /** `cuotaActual === 0` es una cuota que todavía no se imputa y el pago de tarjeta no es un gasto nuevo: ambos se excluyen igual que en el presupuesto. */
+  private readonly imputables = computed(() =>
+    this.transacciones().filter((item) => item.cuotaActual !== 0 && !esPagoTarjeta(item)));
 
   readonly resumenMes = computed(() => {
     const actual = this.resumir(this.periodoActual);

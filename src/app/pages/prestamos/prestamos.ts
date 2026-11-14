@@ -33,8 +33,17 @@ export class PrestamosComponent implements OnInit {
     });
   }
 
-  get pendienteTotal(): number { return this.prestamos.reduce((total, p) => total + Number(p.pendiente), 0); }
-  get pendientes(): Prestamo[] { return this.prestamos.filter(p => p.pendiente > 0); }
+  readonly secciones: { tipo: Prestamo['tipo']; titulo: string; vacio: string }[] = [
+    { tipo: 'OTORGADO', titulo: 'Te deben', vacio: 'Nadie te debe dinero.' },
+    { tipo: 'RECIBIDO', titulo: 'Debes', vacio: 'No tienes préstamos por devolver.' },
+  ];
+
+  get pendienteOtorgado(): number { return this.totalPendiente('OTORGADO'); }
+  get pendienteRecibido(): number { return this.totalPendiente('RECIBIDO'); }
+  pendientes(tipo: Prestamo['tipo']): Prestamo[] { return this.prestamos.filter(p => p.tipo === tipo && p.pendiente > 0); }
+  private totalPendiente(tipo: Prestamo['tipo']): number {
+    return this.pendientes(tipo).reduce((total, p) => total + Number(p.pendiente), 0);
+  }
   get devueltos(): Prestamo[] { return this.prestamos.filter(p => p.pendiente <= 0); }
   vencido(prestamo: Prestamo): boolean {
     return prestamo.pendiente > 0 && !!prestamo.fechaDevolucion && prestamo.fechaDevolucion < new Date().toISOString().slice(0, 10);
