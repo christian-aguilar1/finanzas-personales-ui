@@ -111,6 +111,7 @@ export interface ProyeccionTransaccion {
   frecuenciaRecurrencia?: FrecuenciaRecurrencia | null;
   cuotaActual?: number | null;
   totalCuotas?: number | null;
+  transaccionId?: number | null;
 }
 
 export interface Proyeccion {
@@ -122,6 +123,7 @@ export interface Proyeccion {
   ingresosPorCategoria: ProyeccionCategoria[];
   egresosPorCategoria: ProyeccionCategoria[];
   transacciones: ProyeccionTransaccion[];
+  transaccionesOmitidas?: ProyeccionTransaccion[];
 }
 
 export interface PaginaTransacciones {

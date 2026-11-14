@@ -79,6 +79,22 @@ describe('TransaccionService', () => {
     req.flush({ periodo: '2026-10', ingresoTotal: 0, egresoTotal: 0, total: 0 });
   });
 
+  it('omite una ocurrencia recurrente solo en el periodo elegido', () => {
+    service.omitirOcurrenciaRecurrente(41, '2026-11').subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/transacciones/41/omisiones?periodo=2026-11`);
+    expect(req.request.method).toBe('POST');
+    req.flush(null);
+  });
+
+  it('restaura una ocurrencia recurrente omitida', () => {
+    service.restaurarOcurrenciaRecurrente(41, '2026-11').subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/transacciones/41/omisiones?periodo=2026-11`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
+
   it('elimina sin mandar userId', () => {
     service.eliminarTransaccion(7).subscribe();
 
