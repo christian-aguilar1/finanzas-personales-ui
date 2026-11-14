@@ -92,7 +92,9 @@
 				<td data-label="Acciones">
 				  <div class="acciones-tabla">
 					<button type="button" class="btn btn-secundario" (click)="editarCategoria(categoria)">Editar</button>
-					<button type="button" class="btn btn-peligro" (click)="eliminarCategoria(categoria)">Eliminar</button>
+					@if (categoria.codigoSistema !== 'PAGO_TARJETA_CREDITO') {
+					  <button type="button" class="btn btn-peligro" (click)="eliminarCategoria(categoria)">Eliminar</button>
+					}
 				  </div>
 				</td>
 			  </tr>

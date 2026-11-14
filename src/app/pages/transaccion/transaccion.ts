@@ -102,6 +102,7 @@ export class TransaccionComponent implements OnInit {
       this.actualizarValidacionesCuotas();
     });
     this.transaccionForm.get('categoria')?.valueChanges.subscribe(() => this.actualizarValidacionesPrestamo());
+    this.transaccionForm.get('prestamoOrigenId')?.valueChanges.subscribe(() => this.actualizarValidacionesPrestamo());
     this.transaccionForm.get('tipo')?.valueChanges.subscribe(() => {
       this.transaccionForm.patchValue({ categoria: '', prestamoOrigenId: '' });
       this.actualizarValidacionesPrestamo();
@@ -186,9 +187,9 @@ export class TransaccionComponent implements OnInit {
       totalCuotas: esCompraCuotas ? Number(form.totalCuotas) : null,
       cuotaActual: esCompraCuotas ? Number(form.cuotaActual) : null,
       tagIds: [],
-      prestamoPersona: this.esPrestamoEgreso ? form.prestamoPersona?.trim() : null,
-      prestamoFechaDevolucion: this.esPrestamoEgreso ? form.prestamoFechaDevolucion : null,
-      prestamoOrigenId: this.esPrestamoIngreso && form.prestamoOrigenId ? Number(form.prestamoOrigenId) : null
+      prestamoPersona: this.esPrestamoNuevo ? form.prestamoPersona?.trim() : null,
+      prestamoFechaDevolucion: this.esPrestamoNuevo ? form.prestamoFechaDevolucion : null,
+      prestamoOrigenId: this.esPrestamo && form.prestamoOrigenId ? Number(form.prestamoOrigenId) : null
     };
 
     const request$ = this.modoEdicion && this.transaccionId !== null
@@ -283,8 +284,24 @@ export class TransaccionComponent implements OnInit {
     return this.categoriaSeleccionada?.codigoSistema === 'PRESTAMO_INGRESO';
   }
 
+  get esPrestamo(): boolean {
+    return this.esPrestamoEgreso || this.esPrestamoIngreso;
+  }
+
+  /** Sin un préstamo de origen seleccionado, la transacción es un préstamo nuevo (otorgado o recibido). */
+  get esPrestamoNuevo(): boolean {
+    return this.esPrestamo && !this.transaccionForm.get('prestamoOrigenId')?.value;
+  }
+
   get prestamoSeleccionadoId(): number {
     return Number(this.transaccionForm.get('prestamoOrigenId')?.value);
+  }
+
+  /** Un egreso devuelve un préstamo que te hicieron; un ingreso, uno que hiciste tú. */
+  get prestamosParaDevolver(): Prestamo[] {
+    const tipo = this.esPrestamoEgreso ? 'RECIBIDO' : 'OTORGADO';
+    return this.prestamos.filter(p => p.tipo === tipo
+      && (p.pendiente > 0 || p.transaccionId === this.prestamoSeleccionadoId));
   }
 
   get categoriasPadreFiltradas(): Categoria[] {
@@ -313,13 +330,13 @@ export class TransaccionComponent implements OnInit {
   private actualizarValidacionesPrestamo(): void {
     const persona = this.transaccionForm.get('prestamoPersona')!;
     const fecha = this.transaccionForm.get('prestamoFechaDevolucion')!;
-    persona.setValidators(this.esPrestamoEgreso ? [Validators.required, Validators.maxLength(120)] : []);
-    fecha.setValidators(this.esPrestamoEgreso ? [Validators.required] : []);
-    if (!this.esPrestamoEgreso) {
+    if (!this.esPrestamo) this.transaccionForm.get('prestamoOrigenId')?.setValue('', {emitEvent: false});
+    persona.setValidators(this.esPrestamoNuevo ? [Validators.required, Validators.maxLength(120)] : []);
+    fecha.setValidators(this.esPrestamoNuevo ? [Validators.required] : []);
+    if (!this.esPrestamoNuevo) {
       persona.setValue('', {emitEvent: false});
       fecha.setValue('', {emitEvent: false});
     }
-    if (!this.esPrestamoIngreso) this.transaccionForm.get('prestamoOrigenId')?.setValue('', {emitEvent: false});
     persona.updateValueAndValidity({emitEvent: false});
     fecha.updateValueAndValidity({emitEvent: false});
   }

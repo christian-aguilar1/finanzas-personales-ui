@@ -121,33 +121,31 @@
           }
         </div>
 
-        @if (esPrestamoEgreso) {
+        @if (esPrestamo && prestamosParaDevolver.length) {
+          <div class="form-group descripcion-full">
+            <label for="prestamoOrigenId">{{ esPrestamoEgreso ? '¿Estás devolviendo un préstamo que te hicieron?' : '¿Qué préstamo te devolvieron?' }}</label>
+            <select id="prestamoOrigenId" formControlName="prestamoOrigenId">
+              <option value="">{{ esPrestamoEgreso ? 'No, es un préstamo que estoy haciendo' : 'Ninguno, es un préstamo que me hicieron' }}</option>
+              @for (prestamo of prestamosParaDevolver; track prestamo.transaccionId) {
+                <option [value]="prestamo.transaccionId">{{ prestamo.persona }} — pendiente {{ prestamo.pendiente | number:'1.0-0' }}</option>
+              }
+            </select>
+          </div>
+        }
+        @if (esPrestamoNuevo) {
           <div class="form-group">
-            <label for="prestamoPersona">¿A quién le prestaste?</label>
+            <label for="prestamoPersona">{{ esPrestamoEgreso ? '¿A quién le prestaste?' : '¿Quién te prestó?' }}</label>
             <input id="prestamoPersona" type="text" formControlName="prestamoPersona" maxlength="120" />
             @if (transaccionForm.get('prestamoPersona')?.invalid && transaccionForm.get('prestamoPersona')?.touched) {
               <small class="error">Ingresa el nombre de la persona.</small>
             }
           </div>
           <div class="form-group">
-            <label for="prestamoFechaDevolucion">Fecha esperada de devolución</label>
+            <label for="prestamoFechaDevolucion">{{ esPrestamoEgreso ? 'Fecha esperada de devolución' : '¿Cuándo debes devolverlo?' }}</label>
             <input id="prestamoFechaDevolucion" type="date" formControlName="prestamoFechaDevolucion" />
             @if (transaccionForm.get('prestamoFechaDevolucion')?.invalid && transaccionForm.get('prestamoFechaDevolucion')?.touched) {
               <small class="error">Selecciona una fecha.</small>
             }
-          </div>
-        }
-        @if (esPrestamoIngreso) {
-          <div class="form-group descripcion-full">
-            <label for="prestamoOrigenId">¿Qué préstamo te devolvieron?</label>
-            <select id="prestamoOrigenId" formControlName="prestamoOrigenId">
-              <option value="">Otro o ninguno</option>
-              @for (prestamo of prestamos; track prestamo.transaccionId) {
-                @if (prestamo.pendiente > 0 || prestamo.transaccionId === prestamoSeleccionadoId) {
-                  <option [value]="prestamo.transaccionId">{{ prestamo.persona }} — pendiente {{ prestamo.pendiente | number:'1.0-0' }}</option>
-                }
-              }
-            </select>
           </div>
         }
 
