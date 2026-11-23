@@ -92,10 +92,38 @@ describe('Transaccion', () => {
     component.buscarCategoria = 'abarrotes';
     expect(component.categoriasPadreFiltradas.map(c => c.nombre)).toEqual(['Viajes']);
     component.seleccionarCategoria(component.categorias[1]);
+    expect(component.transaccionForm.get('prestamoMontoDevuelto')?.valid).toBeTrue();
     expect(component.transaccionForm.get('prestamoPersona')?.invalid).toBeTrue();
     expect(component.transaccionForm.get('prestamoFechaDevolucion')?.invalid).toBeTrue();
     component.transaccionForm.patchValue({ prestamoPersona: 'Ana', prestamoFechaDevolucion: '2026-11-30' });
     expect(component.transaccionForm.get('prestamoPersona')?.valid).toBeTrue();
+  });
+
+  it('pide cuánto del préstamo se devuelve al pagarlo en cuotas y lo envía', () => {
+    component.categorias = [
+      { id: 8, nombre: 'Préstamo', tipo: 'EGRESO', parentId: null, codigoSistema: 'PRESTAMO_EGRESO' },
+    ];
+    component.prestamos = [{
+      transaccionId: 50, tipo: 'RECIBIDO', persona: 'Juan', fechaPrestamo: '2026-10-01',
+      fechaDevolucion: '2026-12-01', monto: 500000, devuelto: 0, pendiente: 500000,
+    }];
+    component.transaccionForm.patchValue({
+      cuenta: 1, monto: 45000, categoria: 8, prestamoOrigenId: 50,
+      esCompraCuotas: true, cuotaActual: 1, totalCuotas: 12,
+    });
+    const montoDevuelto = component.transaccionForm.get('prestamoMontoDevuelto')!;
+    expect(component.esDevolucionEnCuotas).toBeTrue();
+    expect(component.totalPlanCuotas).toBe(540000);
+    expect(montoDevuelto.hasError('required')).toBeTrue();
+    montoDevuelto.setValue(520000);
+    expect(montoDevuelto.hasError('superaPendiente')).toBeTrue();
+    montoDevuelto.setValue(460000);
+    expect(montoDevuelto.valid).toBeTrue();
+
+    component.guardar();
+    expect(agregarTransaccion.calls.mostRecent().args[0]).toEqual(jasmine.objectContaining({
+      prestamoOrigenId: 50, totalCuotas: 12, prestamoMontoDevuelto: 460000,
+    }));
   });
 
   it('sugiere por prefijo ignorando mayúsculas y tildes', () => {

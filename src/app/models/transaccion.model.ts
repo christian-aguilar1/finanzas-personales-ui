@@ -35,6 +35,7 @@ export interface Transaccion {
   prestamoPersona?: string | null;
   prestamoFechaDevolucion?: string | null;
   prestamoOrigenId?: number | null;
+  prestamoMontoDevuelto?: number | null;
   categoriaCodigoSistema?: string | null;
 }
 
@@ -65,6 +66,7 @@ export interface TransaccionRequest {
   prestamoPersona?: string | null;
   prestamoFechaDevolucion?: string | null;
   prestamoOrigenId?: number | null;
+  prestamoMontoDevuelto?: number | null;
 }
 
 export type CrearTransaccionRequest = TransaccionRequest;
