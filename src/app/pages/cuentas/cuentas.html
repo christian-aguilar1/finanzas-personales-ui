@@ -23,9 +23,8 @@
       <label>
         Saldo inicial
         <input
-          type="number"
-          min="0"
-          step="1"
+          appMonto
+          [montoDecimales]="0"
           formControlName="saldoInicial"
           [class.invalid]="cuentaForm.get('saldoInicial')?.invalid && cuentaForm.get('saldoInicial')?.touched"
         />
