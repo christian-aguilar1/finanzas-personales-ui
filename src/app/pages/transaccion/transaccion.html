@@ -230,6 +230,28 @@
             && (transaccionForm.get('cuotaActual')?.touched || transaccionForm.get('totalCuotas')?.touched)) {
             <div class="error cuotas-error">La cuota actual no puede ser mayor al total de cuotas.</div>
           }
+
+          @if (esDevolucionEnCuotas) {
+            <div class="form-group">
+              <label for="prestamoMontoDevuelto">¿Cuánto del préstamo estás devolviendo?</label>
+              <input id="prestamoMontoDevuelto" appMonto [montoDecimales]="0" formControlName="prestamoMontoDevuelto"
+                     aria-describedby="ayuda-monto-devuelto"
+                     [ngClass]="{'invalid': transaccionForm.get('prestamoMontoDevuelto')?.invalid && transaccionForm.get('prestamoMontoDevuelto')?.touched}" />
+              <small id="ayuda-monto-devuelto">
+                Pagas {{ totalPlanCuotas | number:'1.0-0' }} en {{ transaccionForm.get('totalCuotas')?.value }} cuotas.
+                Lo que exceda lo devuelto son intereses de la tarjeta.
+              </small>
+              @if (transaccionForm.get('prestamoMontoDevuelto')?.touched) {
+                @if (transaccionForm.get('prestamoMontoDevuelto')?.hasError('required')) {
+                  <div class="error">Indica cuánto del préstamo estás devolviendo.</div>
+                } @else if (transaccionForm.get('prestamoMontoDevuelto')?.hasError('superaTotalPlan')) {
+                  <div class="error">No puede ser mayor que el total que pagas en cuotas.</div>
+                } @else if (transaccionForm.get('prestamoMontoDevuelto')?.hasError('superaPendiente')) {
+                  <div class="error">No puede ser mayor que lo pendiente del préstamo ({{ pendienteDisponible | number:'1.0-0' }}).</div>
+                }
+              }
+            </div>
+          }
         }
 
         <!-- Descripción -->

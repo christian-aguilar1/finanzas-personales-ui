@@ -38,6 +38,8 @@ export class TransaccionComponent implements OnInit {
 
   categorias: Categoria[] = [];
   prestamos: Prestamo[] = [];
+  /** Monto devuelto que tenía la transacción al abrirla para editar. */
+  private montoDevueltoOriginal: number | null = null;
   buscarCategoria = '';
   selectorCategoriasAbierto = false;
   cuentas: Cuenta[] = [];
@@ -70,6 +72,7 @@ export class TransaccionComponent implements OnInit {
       prestamoPersona: [''],
       prestamoFechaDevolucion: [''],
       prestamoOrigenId: [''],
+      prestamoMontoDevuelto: [null as number | null, [this.validarMontoDevuelto()]],
       comercio: [''],
       esRecurrente: [false],
       nombreRecurrente: [''],
@@ -104,6 +107,11 @@ export class TransaccionComponent implements OnInit {
     });
     this.transaccionForm.get('categoria')?.valueChanges.subscribe(() => this.actualizarValidacionesPrestamo());
     this.transaccionForm.get('prestamoOrigenId')?.valueChanges.subscribe(() => this.actualizarValidacionesPrestamo());
+    // El monto devuelto depende del préstamo elegido y de las cuotas: revalidarlo cuando cambian.
+    for (const campo of ['categoria', 'prestamoOrigenId', 'esCompraCuotas', 'monto', 'totalCuotas']) {
+      this.transaccionForm.get(campo)?.valueChanges.subscribe(() =>
+        this.transaccionForm.get('prestamoMontoDevuelto')?.updateValueAndValidity({emitEvent: false}));
+    }
     this.transaccionForm.get('tipo')?.valueChanges.subscribe(() => {
       this.transaccionForm.patchValue({ categoria: '', prestamoOrigenId: '' });
       this.actualizarValidacionesPrestamo();
@@ -190,7 +198,8 @@ export class TransaccionComponent implements OnInit {
       tagIds: [],
       prestamoPersona: this.esPrestamoNuevo ? form.prestamoPersona?.trim() : null,
       prestamoFechaDevolucion: this.esPrestamoNuevo ? form.prestamoFechaDevolucion : null,
-      prestamoOrigenId: this.esPrestamo && form.prestamoOrigenId ? Number(form.prestamoOrigenId) : null
+      prestamoOrigenId: this.esPrestamo && form.prestamoOrigenId ? Number(form.prestamoOrigenId) : null,
+      prestamoMontoDevuelto: this.esDevolucionEnCuotas ? Number(form.prestamoMontoDevuelto) : null
     };
 
     const request$ = this.modoEdicion && this.transaccionId !== null
@@ -342,6 +351,39 @@ export class TransaccionComponent implements OnInit {
     fecha.updateValueAndValidity({emitEvent: false});
   }
 
+  /** Devolver un préstamo pagando con la tarjeta en cuotas: el total del plan puede incluir intereses. */
+  get esDevolucionEnCuotas(): boolean {
+    return this.esPrestamo && !this.esPrestamoNuevo
+      && Boolean(this.transaccionForm.get('esCompraCuotas')?.value)
+      && Number(this.transaccionForm.get('totalCuotas')?.value) > 1;
+  }
+
+  /** Lo que pagas en total por el plan: valor de la cuota × número de cuotas. */
+  get totalPlanCuotas(): number {
+    return (Number(this.transaccionForm.get('monto')?.value) || 0)
+      * (Number(this.transaccionForm.get('totalCuotas')?.value) || 0);
+  }
+
+  /** Saldo que esta devolución puede cubrir; al editar se suma lo que ella misma ya devolvía. */
+  get pendienteDisponible(): number | null {
+    const prestamo = this.prestamos.find(p => p.transaccionId === this.prestamoSeleccionadoId);
+    if (!prestamo) return null;
+    if (this.modoEdicion && this.montoDevueltoOriginal === null) return null;
+    return Number(prestamo.pendiente) + (this.modoEdicion ? this.montoDevueltoOriginal ?? 0 : 0);
+  }
+
+  private validarMontoDevuelto(): ValidatorFn {
+    return control => {
+      if (!this.transaccionForm || !this.esDevolucionEnCuotas) return null;
+      const valor = Number(control.value);
+      if (control.value === null || control.value === '' || !(valor > 0)) return { required: true };
+      if (this.totalPlanCuotas > 0 && valor > this.totalPlanCuotas) return { superaTotalPlan: true };
+      const disponible = this.pendienteDisponible;
+      if (disponible !== null && valor > disponible) return { superaPendiente: true };
+      return null;
+    };
+  }
+
   mostrarCamposCuotas(): boolean {
     return Boolean(this.transaccionForm.get('esCompraCuotas')?.value);
   }
@@ -410,6 +452,7 @@ export class TransaccionComponent implements OnInit {
   }
 
   private cargarTransaccionEnFormulario(transaccion: Transaccion): void {
+    this.montoDevueltoOriginal = transaccion.prestamoMontoDevuelto ?? null;
     const periodoFacturacion = transaccion.periodoFacturacion ?? this.obtenerPeriodoFacturacionActual();
     const esCompraCuotas = transaccion.totalCuotas != null || transaccion.cuotaActual != null;
 
@@ -430,7 +473,8 @@ export class TransaccionComponent implements OnInit {
       descripcion: transaccion.descripcion ?? '',
       prestamoPersona: transaccion.prestamoPersona ?? '',
       prestamoFechaDevolucion: transaccion.prestamoFechaDevolucion ?? '',
-      prestamoOrigenId: transaccion.prestamoOrigenId ?? ''
+      prestamoOrigenId: transaccion.prestamoOrigenId ?? '',
+      prestamoMontoDevuelto: transaccion.prestamoMontoDevuelto ?? null
     });
 
     if (esCompraCuotas) {
