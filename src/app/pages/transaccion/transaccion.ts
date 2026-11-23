@@ -1,3 +1,4 @@
+import { MontoInputDirective } from '../../shared/monto-input.directive';
 import { ComercioService } from '../../services/comercio.service';
 import { Comercio } from '../../models/comercio.model';
 import {AutoComplete} from 'primeng/autocomplete';
@@ -27,7 +28,7 @@ import {Prestamo, PrestamoService} from '../../services/prestamo.service';
   templateUrl: './transaccion.html',
   styleUrls: ['./transaccion.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, AutoComplete]
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, AutoComplete, MontoInputDirective]
 })
 export class TransaccionComponent implements OnInit {
   transaccionForm: FormGroup;

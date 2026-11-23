@@ -1,3 +1,4 @@
+import { MontoInputDirective } from '../../shared/monto-input.directive';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -25,7 +26,7 @@ type TransaccionConComercio = Transaccion & { comercioNombre?: string | null };
 @Component({
   selector: 'app-cuadre',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TablaOrdenableDirective],
+  imports: [CommonModule, FormsModule, RouterLink, TablaOrdenableDirective, MontoInputDirective],
   templateUrl: './cuadre.html',
   styleUrl: './cuadre.css',
 })

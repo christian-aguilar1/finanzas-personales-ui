@@ -1,3 +1,4 @@
+import { MontoInputDirective } from '../../shared/monto-input.directive';
 import {CommonModule} from '@angular/common';
 import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -10,7 +11,7 @@ import {TablaOrdenableDirective} from '../../shared/sortable-table.directive';
 @Component({
   selector: 'app-cuentas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TablaOrdenableDirective],
+  imports: [CommonModule, ReactiveFormsModule, TablaOrdenableDirective, MontoInputDirective],
   templateUrl: './cuentas.html',
   styleUrl: './cuentas.css',
 })

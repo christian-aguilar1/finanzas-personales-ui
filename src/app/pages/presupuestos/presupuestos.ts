@@ -1,3 +1,4 @@
+import { MontoInputDirective } from '../../shared/monto-input.directive';
 import {CommonModule} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
@@ -11,7 +12,7 @@ import {CategoriaService} from '../../services/categoria.service';
 import {PresupuestoService} from '../../services/presupuesto.service';
 import {TransaccionService} from '../../services/transaccion.service';
 
-@Component({selector: 'app-presupuestos', standalone: true, imports: [CommonModule, FormsModule, RouterLink],
+@Component({selector: 'app-presupuestos', standalone: true, imports: [CommonModule, FormsModule, RouterLink, MontoInputDirective],
   templateUrl: './presupuestos.html', styleUrl: './presupuestos.css'})
 export class PresupuestosComponent implements OnInit {
   categorias: Categoria[] = [];

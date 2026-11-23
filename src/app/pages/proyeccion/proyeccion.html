@@ -37,7 +37,7 @@
         <p>La primera cuota se suma al periodo seleccionado. El escenario no se guarda.</p></div>
       </div>
       <form class="simulador__form" (ngSubmit)="simularCompra()">
-        <label>Monto total (CLP)<input type="number" name="montoSimulado" [(ngModel)]="montoSimulado" min="1" step="1" required placeholder="100000"></label>
+        <label>Monto total (CLP)<input appMonto [montoDecimales]="0" name="montoSimulado" [(ngModel)]="montoSimulado" required placeholder="100.000"></label>
         <label>Número de cuotas<input type="number" name="cuotasSimuladas" [(ngModel)]="cuotasSimuladas" min="1" max="120" step="1" required></label>
         <label class="simulador__descripcion">Descripción (opcional)<input type="text" name="descripcionSimulada" [(ngModel)]="descripcionSimulada" maxlength="100" placeholder="Ej. Refrigerador"></label>
         <button type="submit" [disabled]="!simulacionValida() || cargandoSimulacion">{{ cargandoSimulacion ? 'Calculando…' : 'Simular compra' }}</button>
@@ -169,7 +169,7 @@
                         @if (item.esRealizada) { Realizada } @else { Proyectada }
                       </span>
                       @if (!item.esRealizada && item.cuentaId) { <button type="button" class="registrar-proyectada" [disabled]="guardandoProyeccion === item" (click)="registrarProyectada(item)">{{ guardandoProyeccion === item ? 'Registrando…' : 'Registrar ahora' }}</button> }
-                      @if (item.esRecurrente && item.transaccionId) { <button type="button" class="omitir-proyectada" [disabled]="guardandoOmitidaId !== null" (click)="omitirOcurrencia(item)">{{ guardandoOmitidaId === item.transaccionId ? 'Omitiendo…' : 'Omitir este mes' }}</button> }
+                      @if (!item.esRealizada && item.esRecurrente && item.transaccionId) { <button type="button" class="omitir-proyectada" [disabled]="guardandoOmitidaId !== null" (click)="omitirOcurrencia(item)">{{ guardandoOmitidaId === item.transaccionId ? 'Omitiendo…' : 'Omitir este mes' }}</button> }
                     </td>
                   </tr>
                 }
