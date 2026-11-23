@@ -75,7 +75,7 @@
         <!-- Monto -->
         <div class="form-group">
           <label>Monto:</label>
-          <input type="number" formControlName="monto" placeholder="Ej: 50000"
+          <input appMonto formControlName="monto" placeholder="Ej: 50.000"
                  [ngClass]="{'invalid': transaccionForm.get('monto')?.invalid && transaccionForm.get('monto')?.touched}" />
           @if (transaccionForm.get('monto')?.invalid && transaccionForm.get('monto')?.touched) {
             <div class="error">

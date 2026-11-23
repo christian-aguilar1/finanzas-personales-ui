@@ -8,7 +8,7 @@
   @else { <section class="lista">@for (categoria of categorias; track categoria.id) {
     <article class="item"><div class="detalle"><h2>{{ categoria.nombre }}</h2><p>{{ gasto(categoria.id) | currency:'CLP':'symbol-narrow':'1.0-0' }} gastados de {{ (presupuesto(categoria.id)?.montoMensual || montos[categoria.id] || 0) | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
       @if (presupuesto(categoria.id)) {<div class="barra"><span [style.width.%]="porcentaje(categoria.id)" [class.excedida]="gasto(categoria.id) > (presupuesto(categoria.id)?.montoMensual ?? 0)"></span></div>}</div>
-      <label>Límite mensual<input type="number" min="1" step="1" [(ngModel)]="montos[categoria.id]" [name]="'limite-' + categoria.id"></label>
+      <label>Límite mensual<input appMonto [montoDecimales]="0" [(ngModel)]="montos[categoria.id]" [name]="'limite-' + categoria.id"></label>
       <div class="acciones"><button type="button" (click)="guardar(categoria)" [disabled]="guardandoId === categoria.id">Guardar</button>@if (presupuesto(categoria.id)) {<button class="secundario" type="button" (click)="quitar(categoria.id)">Quitar</button>}</div>
     </article>
   }</section> }

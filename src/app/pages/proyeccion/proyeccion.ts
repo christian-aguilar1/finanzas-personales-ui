@@ -1,3 +1,4 @@
+import { MontoInputDirective } from '../../shared/monto-input.directive';
 import {CommonModule} from '@angular/common';
 import {Component, ElementRef, OnInit, ViewChild, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -34,7 +35,7 @@ const COLORS_EGRESOS = [
 @Component({
   selector: 'app-proyeccion',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablaOrdenableDirective],
+  imports: [CommonModule, FormsModule, TablaOrdenableDirective, MontoInputDirective],
   templateUrl: './proyeccion.html',
   styleUrl: './proyeccion.css',
 })
